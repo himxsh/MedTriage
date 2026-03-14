@@ -84,8 +84,8 @@ React dashboard: case queue, structured summaries, workflow status, explainabili
 * Language & Framework: Python with FastAPI for REST API
 * Speech-to-Text: OpenAI Whisper (open-source, local inference)
 * Clinical NER: spaCy with scispaCy biomedical models (en_ner_bc5cdr_md) or HuggingFace ClinicalBERT                                                      
-* LLM Summarization: GPT-3.5/4 via API or Meta LLaMA-3 for local/cost-free inference                                                                      
-* Urgency Classifier: Fine-tuned BERT classifier or GPT-based few-shot classification                                                                     
+* LLM Summarization: Google Gemini API (Pro/Flash) for structured summarization
+* Urgency Classifier: Google Gemini API (Pro/Flash) for few-shot urgency classification + evidence extraction                                                                     
 * Database: PostgreSQL for case data; Redis for real-time queue management                                                                        
 
 **Frontend**
@@ -127,7 +127,7 @@ All development uses de-identified or fully synthetic data. MIMIC access require
 
 ### 8. Risk Assessment & Mitigations
 * **MIMIC Access Delay:** Apply for PhysioNet access early; use MTSamples + Synthea as immediate fallback
-* **LLM API Costs:** Use open-source LLaMA-3 for local inference to avoid API costs during development                                                                               
+* **LLM Reliability:** Use Gemini Flash for cost-effective, high-speed inference during development and demo                                                                               
 * **Model Hallucination:** Post-processing validation; flag summaries introducing entities not in source text                                                                              
 * **Urgency Bias:** Balance synthetic training data across urgency levels; monitor per-class metrics
 * **Scope Creep:** Maintain strict MVP feature list; defer EHR integration and multilingual support
