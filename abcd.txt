@@ -1,0 +1,43 @@
+Input (after NER):
+
+{
+  "entities": [
+    {"text": "chest pain", "label": "SYMPTOM", "start": 0, "end": 10},
+    {"text": "onset 20 minutes ago", "label": "TIME", "start": 11, "end": 32},
+    {"text": "radiates to left arm", "label": "AGGRAVATOR", "start": 33, "end": 56},
+    {"text": "shortness of breath", "label": "SYMPTOM", "start": 57, "end": 77}
+  ],
+  "sentence": "Patient reports chest pain onset 20 minutes ago that radiates to left arm with shortness of breath."
+}
+Relationship extractor output:
+
+{
+  "relations": [
+    {"source": "chest pain", "target": "onset 20 minutes ago", "type": "Onset"},
+    {"source": "chest pain", "target": "radiates to left arm", "type": "Aggravating Factor"},
+    {"source": "shortness of breath", "target": "onset 20 minutes ago", "type": "Onset"}
+  ]
+}
+
+
+
+
+
+LLM summarization
+Input: de-identified case text plus extracted entities/relations (“chest pain onset 20 minutes, radiates to left arm, diaphoresis, shortness of breath, history of hypertension”).
+Output: structured summary like:
+
+Chief Complaint: Acute chest pain radiating to the left arm with diaphoresis and shortness of breath.
+Key Symptoms: Chest pain (ICD‑10 R07.4), diaphoresis, dyspnea; onset 20 minutes ago; aggravator: left-arm radiation.
+Risk Flags: Possible acute coronary syndrome; hypotension risk from diaphoresis + shortness of breath.
+Recommended Priority: CRITICAL
+
+
+Urgency classifier
+Input: the same structured summary plus confidence cues from NER/relations (e.g., symptom list, timelines, risk flags).
+Output:
+
+Urgency Level: CRITICAL
+Confidence: 92%
+Evidence: Chest pain + diaphoresis + radiation to left arm + onset < 1 hour.
+Flagged for Review: No (confidence above threshold)

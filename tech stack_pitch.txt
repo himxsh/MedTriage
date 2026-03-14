@@ -1,0 +1,46 @@
+MedTriageAI Tech Stack (Pitch Deck Version)
+
+1. Multimodal Clinical Intake
+- Clinicians can submit text, audio, or PDFs through a React + Tailwind interface.
+- FastAPI ingests all inputs; audio is transcribed locally with Whisper before processing.
+- Result: a single normalized clinical text stream for downstream AI.
+
+2. Privacy-First De-identification
+- FastAPI pipeline removes PHI/PII (names, MRNs, dates, etc.) using spaCy EntityRuler, regex, and lookup rules.
+- Sensitive fields are replaced with placeholders before model inference.
+- Result: safer AI processing and stronger compliance posture.
+
+3. Clinical Entity Intelligence
+- Clinical NER (scispaCy/ClinicalBERT) identifies symptoms, medications, labs, diagnoses, allergies, and timelines.
+- Relationship extraction links entities to onset, duration, and aggravating factors.
+- Result: raw notes become structured, clinically meaningful context.
+
+4. Standards-Based Coding Layer
+- Concept linking maps entities to ICD-10/SNOMED via UMLS-backed lookups.
+- Result: interoperable outputs aligned with clinical documentation standards.
+
+5. AI Summarization + Triage Scoring
+- Gemini is prompted with cleaned text, extracted relations, and ontology codes.
+- Produces structured outputs: Chief Complaint, Key Symptoms, Risk Flags, Recommended Priority.
+- Runs multi-class urgency classification: Critical, High, Medium, Low.
+- Includes confidence and evidence; low-confidence cases are automatically routed for mandatory human review.
+
+6. Real-Time Operational Backbone
+- PostgreSQL stores structured cases and immutable audit logs.
+- Redis powers the live priority queue for triage operations.
+- Result: reliable persistence plus low-latency queue updates.
+
+7. Clinician-Facing Decision Workspace
+- React + TypeScript + Tailwind UI with WebSockets, Zustand/Context, Radix/shadcn, and React Query.
+- Delivers dashboard, queue, case detail, decision gate, audit trail, and export workflows.
+- Result: synchronized, explainable triage decisions at point of care.
+
+Value Summary
+- Faster triage turnaround with consistent structured outputs.
+- Safety guardrails through de-identification, confidence scoring, and human review gates.
+- Production-ready architecture for real-time clinical operations and auditing.
+
+References
+- MedTriageAI_Plan.md (sections 3.2, 3.3, 3.4, 3.5, 4.2, 4.3)
+- flowchart.drawio
+- prompt.md
