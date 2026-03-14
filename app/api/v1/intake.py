@@ -25,18 +25,14 @@ async def run_ai_pipeline(case_id: uuid.UUID, raw_text: str, transcription: Opti
     clinical_entities = initial_extraction.get("entities", [])
     
     # 2. De-identification (Protecting the medical terms found in step 1)
-    masked_text = deid_service.mask_pii(raw_text, protected_entities=clinical_entities)
+    # This now returns the updated entity list with projected offsets
+    masked_text, entities = deid_service.mask_pii(raw_text, protected_entities=clinical_entities)
     
-    # 3. Final Clinical Extraction & Linking on MASKED text
-    # This ensures all character offsets (start/end) are perfectly aligned with the masked text
-    extraction_results = nlp_service.extract_clinical_data(masked_text)
-    entities = extraction_results.get("entities", [])
-    
-    # 4. Relationship Extraction (New Step)
+    # 3. Relationship Extraction (Stage skipped here, using entities from Step 2)
     relations = nlp_service.extract_relationships(masked_text, entities)
     
     # 5. Gemini Analysis (Summary & Triage)
-    analysis = await intelligence_service.analyze_case(masked_text, entities)
+    analysis = await intelligence_service.analyze_case(masked_text, entities, relations)
     
     # 4. Save to Database (New Session for Background Task)
     from sqlalchemy.ext.asyncio import AsyncSession

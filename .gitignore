@@ -32,3 +32,6 @@ test_mapping.py
 abcd.txt
 tech\ stack.txt
 tech\ stack_pitch.txt
+.env
+.env.example
+synthetic_data/

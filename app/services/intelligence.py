@@ -1,4 +1,4 @@
-import google.generativeai as genai
+from google import genai
 import json
 from typing import Dict, Any, List
 from app.core.config import settings
@@ -6,28 +6,32 @@ from app.core.config import settings
 class IntelligenceService:
     def __init__(self):
         if settings.GOOGLE_API_KEY:
-            genai.configure(api_key=settings.GOOGLE_API_KEY)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+            # Using stable model ID for the new SDK
+            self.model_id = 'gemini-3.1-flash-lite-preview'
         else:
-            self.model = None
+            self.client = None
 
-    async def analyze_case(self, text: str, entities: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def analyze_case(self, text: str, entities: List[Dict[str, Any]], relationships: List[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
-        Combines summarization and urgency classification into a single structured call 
-        to save latency and tokens.
+        Combines summarization and urgency classification into a single structured call.
+        Includes extracted entities and clinical relationships for context.
         """
-        if not self.model:
+        if not self.client:
             return self._mock_analysis()
 
         prompt = f"""
         You are an expert clinical triage assistant. 
-        Analyze the following medical text and the extracted entities.
+        Analyze the following medical text, extracted entities, and their clinical relationships.
         
         TEXT:
         {text}
         
         EXTRACTED ENTITIES:
         {json.dumps(entities)}
+        
+        CLINICAL RELATIONSHIPS (CONTEXT):
+        {json.dumps(relationships if relationships else [])}
         
         TASK:
         1. Summarize the case structurally: Chief Complaint, Key Symptoms, Risk Flags.
@@ -47,8 +51,12 @@ class IntelligenceService:
         """
         
         try:
-            response = await self.model.generate_content_async(prompt)
-            # Clean response text in case it includes markdown backticks
+            response = await self.client.aio.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
+            
+            # The new SDK response structure: response.text or response.candidates[0].content.parts[0].text
             response_text = response.text.strip()
             if response_text.startswith("```json"):
                 response_text = response_text.replace("```json", "").replace("```", "").strip()

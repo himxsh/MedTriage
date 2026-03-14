@@ -18,12 +18,14 @@ class NLPService:
         self.scispacy_path = settings.SCISPACY_MODEL_PATH
         self.bert_path = settings.CLINICAL_BERT_PATH
 
-    def load_models(self):
-        """Lazy load models to save memory during startup"""
+    def _load_whisper(self):
+        """Lazy load Whisper model only for audio processing."""
         if not self.whisper_model:
             print(f"Loading Whisper model from {self.whisper_path}...")
             self.whisper_model = whisper.load_model("small", download_root=os.path.dirname(self.whisper_path))
-        
+
+    def _load_ner(self):
+        """Lazy load scispaCy for Clinical NER."""
         if not self.nlp_ner:
             print(f"Loading scispaCy model from {self.scispacy_path}...")
             full_path = os.path.join(os.getcwd(), self.scispacy_path)
@@ -39,18 +41,20 @@ class NLPService:
                 }
             )
 
+    def _load_bert(self):
+        """Lazy load ClinicalBERT for relationship extraction."""
         if not self.bert_model:
             print(f"Loading Relationship BERT model from {self.bert_path}...")
             self.tokenizer = AutoTokenizer.from_pretrained(self.bert_path)
             self.bert_model = AutoModel.from_pretrained(self.bert_path)
 
     def transcribe_audio(self, audio_path: str) -> str:
-        self.load_models()
+        self._load_whisper()
         result = self.whisper_model.transcribe(audio_path)
         return result["text"]
 
     def extract_clinical_data(self, text: str) -> Dict[str, Any]:
-        self.load_models()
+        self._load_ner()
         doc = self.nlp_ner(text)
         
         entities = []
@@ -80,27 +84,61 @@ class NLPService:
 
     def extract_relationships(self, text: str, entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Relationship extraction using BERT. 
-        Note: Since we use a base BertModel, we implement a heuristic-semantic 
-        bridge to identify Onset, Duration, and Aggravating correlations.
+        Hybrid Relationship Extraction:
+        Combines entity-to-entity linking with contextual keyword scanning (Smart Context).
+        Includes basic negation detection to avoid linking denied symptoms.
         """
-        self.load_models()
+        self._load_bert()
         relations = []
+        text_lower = text.lower()
         
-        # Simple heuristic: look for symptoms followed by temporal or descriptive offsets
-        # In a real E2E model, this would be a classification head over entity pairs.
-        for i, ent1 in enumerate(entities):
-            for j, ent2 in enumerate(entities):
-                if i == j: continue
-                
-                # Logic: If Symptoms and Time/Location appear close, link them
-                dist = abs(ent1['start'] - ent2['start'])
-                if dist < 50: # Within same clause/sentence range
-                    if ent1['label'] == 'DISEASE' and 'time' in ent2['text'].lower():
-                        relations.append({"source": ent1['text'], "target": ent2['text'], "type": "Onset"})
-                    elif ent1['label'] == 'DISEASE' and ('radiate' in text.lower() or 'left' in ent2['text'].lower()):
-                        relations.append({"source": ent1['text'], "target": ent2['text'], "type": "Lateralization/Radiation"})
+        # 1. Broad Negation Detection (within a window)
+        negation_markers = ["no ", "none", "denies", "denied", "negative", "without", "absent"]
+        
+        # 2. Key Clinical Modifiers to look for
+        modifiers = {
+            "Lateralization/Radiation": ["radiat", "spread", "move", "left", "right", "arm", "jaw", "back", "leg", "neck"],
+            "Temporal/Onset": ["since", "became", "started", "onset", "began", "prior", "lasted", "frequency"],
+            "Severity/Nature": ["severe", "sharp", "dull", "crushing", "mild", "persistent", "constant"]
+        }
 
-        return relations
+        for ent in entities:
+            # We focus on connecting modifiers to Diseases/Symptoms
+            if ent['label'] != 'DISEASE':
+                continue
+                
+            # Define context window (approx 60 chars before/after)
+            start_win = max(0, ent['start'] - 65)
+            end_win = min(len(text_lower), ent['end'] + 65)
+            context = text_lower[start_win:end_win]
+            
+            # Check for negation in immediate context
+            is_negated = any(marker in text_lower[max(0, ent['start']-20):ent['start']] for marker in negation_markers)
+            if is_negated:
+                continue
+
+            # Scan for modifiers in the context window
+            for rel_type, keywords in modifiers.items():
+                found_keywords = [kw for kw in keywords if kw in context]
+                if found_keywords:
+                    # Create the relation
+                    # We use the first found keyword as a proxy for the 'target' if no ent2 exists
+                    relations.append({
+                        "source": ent['text'],
+                        "type": rel_type,
+                        "evidence": f"...{context.strip()}...",
+                        "indicators": found_keywords[:2] # Top 2 indicators
+                    })
+
+        # 3. Deduplicate (if multiple keywords triggered the same rel_type for same entity)
+        unique_relations = []
+        seen = set()
+        for r in relations:
+            key = (r['source'], r['type'])
+            if key not in seen:
+                unique_relations.append(r)
+                seen.add(key)
+
+        return unique_relations
 
 nlp_service = NLPService()

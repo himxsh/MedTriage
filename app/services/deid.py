@@ -11,13 +11,13 @@ class DeidService:
             # Fallback if not loaded
             self.nlp = None
 
-    def mask_pii(self, text: str, protected_entities: List[dict] = None) -> str:
+    def mask_pii(self, text: str, protected_entities: List[dict] = None) -> (str, List[dict]):
         """
         Masks common PII like Names, Locations, Phones, and Emails.
-        Avoids masking spans provided in protected_entities.
+        Returns: (masked_text, updated_protected_entities)
         """
         if not text:
-            return ""
+            return "", []
 
         spans = []
 
@@ -42,7 +42,6 @@ class DeidService:
             for s_start, s_end, s_label in spans:
                 is_protected = False
                 for p_ent in protected_entities:
-                    # If the PII span overlaps with a medical entity, assume medical is primary
                     if s_start < p_ent['end'] and s_end > p_ent['start']:
                         is_protected = True
                         break
@@ -50,27 +49,47 @@ class DeidService:
                     filtered_spans.append((s_start, s_end, s_label))
             spans = filtered_spans
 
-        # Sort spans by start position, then end position
+        # Sort spans by start position
         spans.sort(key=lambda x: x[0])
 
         if not spans:
-            return text
+            return text, protected_entities if protected_entities else []
             
-        merged_spans = []
-        curr_start, curr_end, curr_label = spans[0]
+        # 5. Process Replacements and adjust offsets for protected entities
+        masked_text = text
+        current_entities = [dict(e) for e in protected_entities] if protected_entities else []
         
-        for next_start, next_end, next_label in spans[1:]:
-            if next_start < curr_end:
-                curr_end = max(curr_end, next_end)
-            else:
-                merged_spans.append((curr_start, curr_end, curr_label))
-                curr_start, curr_end, curr_label = next_start, next_end, next_label
-        merged_spans.append((curr_start, curr_end, curr_label))
-
-        # Replace from back to front
-        for start, end, label in sorted(merged_spans, key=lambda x: x[0], reverse=True):
-            text = text[:start] + f"[{label}]" + text[end:]
-
-        return text
+        # We replace from back to front to avoid breaking index logic of the masking itself, 
+        # BUT we need to track how replacing a span at index 'i' affects entities at index > 'i'.
+        # For simplicity in logic, we'll sort replacements front-to-back and track a cumulative delta.
+        
+        cumulative_delta = 0
+        sorted_spans = sorted(spans, key=lambda x: x[0])
+        
+        final_text = ""
+        last_idx = 0
+        
+        for start, end, label in sorted_spans:
+            tag = f"[{label}]"
+            tag_len = len(tag)
+            old_len = end - start
+            delta = tag_len - old_len
+            
+            # 1. Append text before this span
+            final_text += text[last_idx:start]
+            # 2. Append the tag
+            final_text += tag
+            
+            # 3. Adjust all protected entities that occur AFTER this start point
+            for ent in current_entities:
+                # If the entity is after this replacement, shift its start/end
+                if ent['start'] >= start:
+                    ent['start'] += delta
+                    ent['end'] += delta
+            
+            last_idx = end
+            
+        final_text += text[last_idx:]
+        return final_text, current_entities
 
 deid_service = DeidService()

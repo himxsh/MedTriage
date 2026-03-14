@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     WHISPER_MODEL_PATH: str = "models/whisper/small.pt"
     SCISPACY_MODEL_PATH: str = "models/scispacy/en_ner_bc5cdr_md-0.5.4"
     CLINICAL_BERT_PATH: str = "models/relations"
+    DEBUG: bool = False
 
     class Config:
         env_file = ".env"
