@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="AiCv6lftyxzfnFBLA3yO" name="Page-1">
-        <mxGraphModel dx="509" dy="557" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="3200" math="0" shadow="0">
+        <mxGraphModel dx="1920" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="3200" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -24,6 +24,9 @@
                 </mxCell>
                 <mxCell id="8" value="Whisper STT Transcription&#xa;(OpenAI Whisper — Local Inference)&#xa;Audio —&gt; Raw Text Transcript" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" parent="1" vertex="1">
                     <mxGeometry x="547" y="600" width="280" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="229" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="9" target="8">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="9" value="De-identification Layer&#xa;(PII Masking / Removal Before AI Processing)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12;" parent="1" vertex="1">
                     <mxGeometry x="517" y="750" width="340" height="70" as="geometry"/>
@@ -100,14 +103,26 @@
                 <mxCell id="205" value="" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="6" target="8" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="206" value="" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="5" target="9" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
+                <mxCell id="206" value="" style="edgeStyle=orthogonalEdgeStyle;" parent="1" target="9" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="260" y="509.9999999999998" as="sourcePoint"/>
+                        <mxPoint x="628.9999999999995" y="764.9999999999998" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="260" y="530"/>
+                            <mxPoint x="390" y="530"/>
+                            <mxPoint x="390" y="780"/>
+                        </Array>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="207" value="" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="8" target="9" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="208" value="" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="7" target="9" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1140" y="785"/>
+                        </Array>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="209" value="" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="9" target="10" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
