@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
-import Dashboard from './components/Dashboard';
+import AppShell from './components/AppShell';
+import Queue from './components/Queue';
+import Cases from './components/Cases';
 import AuditLog from './components/AuditLog';
+import Account from './components/Account';
 import Login from './components/Login';
 import Register from './components/Register';
 import IntakeModal from './components/IntakeModal';
-import Review from './components/Review';
-import Settings from './components/Settings';
-import History from './components/History';
 import { Screen } from './types';
 
 function AppContent() {
@@ -20,12 +20,12 @@ function AppContent() {
       case 'landing': navigate('/'); break;
       case 'login': navigate('/login'); break;
       case 'register': navigate('/register'); break;
-      case 'dashboard': navigate('/dashboard'); break;
-      case 'history': navigate('/history'); break;
+      case 'queue': navigate('/queue'); break;
+      case 'cases': navigate('/cases'); break;
       case 'intake': setIsIntakeModalOpen(true); break;
-      case 'review': navigate('/review'); break;
       case 'audit': navigate('/audit'); break;
-      case 'settings': navigate('/settings'); break;
+      case 'account': navigate('/account'); break;
+
       default: navigate('/');
     }
     if (screen !== 'intake') {
@@ -39,17 +39,20 @@ function AppContent() {
         <Route path="/" element={<LandingPage onNavigate={handleNavigate} />} />
         <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
         <Route path="/register" element={<Register onNavigate={handleNavigate} />} />
-        <Route path="/dashboard" element={<Dashboard onNavigate={handleNavigate} />} />
-        <Route path="/history" element={<History onNavigate={handleNavigate} />} />
-        <Route path="/review" element={<Review onNavigate={handleNavigate} />} />
-        <Route path="/audit" element={<AuditLog onNavigate={handleNavigate} />} />
-        <Route path="/settings" element={<Settings onNavigate={handleNavigate} />} />
+        <Route path="/queue" element={<AppShell onNavigate={handleNavigate}><Queue /></AppShell>} />
+        <Route path="/cases" element={<AppShell onNavigate={handleNavigate}><Cases /></AppShell>} />
+        <Route path="/audit" element={<AppShell onNavigate={handleNavigate}><AuditLog /></AppShell>} />
+        <Route path="/account" element={<AppShell onNavigate={handleNavigate}><Account /></AppShell>} />
+        <Route path="/dashboard" element={<Navigate to="/queue" replace />} />
+        <Route path="/history" element={<Navigate to="/cases" replace />} />
+        <Route path="/review" element={<Navigate to="/queue" replace />} />
+        <Route path="/settings" element={<Navigate to="/account" replace />} />
         <Route path="*" element={<LandingPage onNavigate={handleNavigate} />} />
       </Routes>
 
-      <IntakeModal 
-        isOpen={isIntakeModalOpen} 
-        onClose={() => setIsIntakeModalOpen(false)} 
+      <IntakeModal
+        isOpen={isIntakeModalOpen}
+        onClose={() => setIsIntakeModalOpen(false)}
         onNavigate={handleNavigate}
       />
     </div>

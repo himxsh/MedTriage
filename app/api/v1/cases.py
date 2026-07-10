@@ -68,3 +68,9 @@ async def review_case(
     await db.commit()
     
     return {"status": "success", "case_id": str(case_id)}
+
+@router.get("/audit")
+async def get_audit_logs(db: AsyncSession = Depends(get_session)):
+    query = select(AuditLog).order_by(AuditLog.timestamp.desc())
+    result = await db.execute(query)
+    return result.scalars().all()

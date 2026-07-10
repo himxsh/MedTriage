@@ -34,7 +34,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <motion.h1
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="font-bebas text-[90px] md:text-[200px] leading-[0.8] text-black mb-10 tracking-tighter"
+              className="font-bebas text-[90px] md:text-[200px] leading-[0.8] text-black mb-10 tracking-tighter text-balance"
           >
             TRIAGE. <span className="text-primary italic">FASTER.</span>
           </motion.h1>
@@ -42,14 +42,14 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="font-mono text-black text-lg md:text-3xl mb-16 uppercase tracking-[0.2em] max-w-4xl"
+            className="font-mono text-black text-lg md:text-3xl mb-16 uppercase tracking-[0.2em] max-w-4xl text-balance"
           >
             Next-generation clinical intelligence for critical care environments.
           </motion.p>
           <div className="flex flex-col md:flex-row gap-6">
             <button
               onClick={() => onNavigate('register')}
-              className="group relative inline-flex items-center justify-center border-4 border-black bg-primary px-16 py-6 text-white font-mono text-xl font-bold uppercase transition-all hover:translate-x-2 hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] cursor-pointer"
+              className="group relative inline-flex items-center justify-center border-4 border-black bg-primary px-16 py-6 text-white font-mono text-xl font-bold uppercase transition-colors transition-shadow transition-transform hover:translate-x-2 hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] active:scale-[0.96] cursor-pointer"
             >
               Get Started
             </button>
@@ -64,7 +64,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             <ShieldCheck className="text-primary w-16 h-16" />
             <div className="flex flex-col gap-6">
               <h3 className="text-5xl font-bold uppercase font-bebas tracking-widest leading-none">DE-ID GENERATOR</h3>
-              <p className="text-black/60 font-mono text-sm leading-relaxed uppercase">
+               <p className="text-black/60 font-mono text-sm leading-relaxed uppercase text-pretty">
                 Automated PHI scrubbing with zero-latency overhead. Built for high-volume clinical streams.
               </p>
             </div>
@@ -73,7 +73,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             <Stethoscope className="text-black w-16 h-16" />
             <div className="flex flex-col gap-6">
               <h3 className="text-5xl font-bold uppercase font-bebas tracking-widest leading-none">CLINICAL NER</h3>
-              <p className="text-black/60 font-mono text-sm leading-relaxed uppercase">
+               <p className="text-black/60 font-mono text-sm leading-relaxed uppercase text-pretty">
                 UMLS-mapped entity extraction. Identify diagnosis, medications, and symptoms in real-time.
               </p>
             </div>
@@ -82,7 +82,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             <ClipboardList className="text-primary w-16 h-16" />
             <div className="flex flex-col gap-6">
               <h3 className="text-5xl font-bold uppercase font-bebas tracking-widest leading-none">TRIAGE CORE</h3>
-              <p className="text-black/60 font-mono text-sm leading-relaxed uppercase">
+               <p className="text-black/60 font-mono text-sm leading-relaxed uppercase text-pretty">
                 Dynamic prioritization engine with human-in-the-loop validation flow.
               </p>
             </div>

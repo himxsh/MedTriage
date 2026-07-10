@@ -1,101 +1,207 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Activity, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { PatientCase } from '../types';
+import { X, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
+import { reviewCase, getClinician, pct } from '../api';
+import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
 
 interface CaseDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedCase: PatientCase | null;
+  onReviewed?: () => void;
 }
 
-export default function CaseDetailModal({ isOpen, onClose, selectedCase }: CaseDetailModalProps) {
+const URGENCY_LEVELS: UrgencyLevel[] = ['Critical', 'High', 'Medium', 'Low'];
+
+export default function CaseDetailModal({ isOpen, onClose, selectedCase, onReviewed }: CaseDetailModalProps) {
+  const [showOverride, setShowOverride] = useState(false);
+  const [overrideLevel, setOverrideLevel] = useState<UrgencyLevel>('Medium');
+  const [overrideReason, setOverrideReason] = useState('');
+  const [reviewing, setReviewing] = useState(false);
+  const [error, setError] = useState('');
+  const [showRaw, setShowRaw] = useState(false);
+
   if (!selectedCase) return null;
+
+  const handleConfirm = async () => {
+    if (selectedCase.urgency_level === 'Critical') {
+      const ok = window.confirm('This case is CRITICAL. Confirm triage level?');
+      if (!ok) return;
+    }
+    setReviewing(true);
+    setError('');
+    try {
+      await reviewCase(selectedCase.id, getClinician().id, 'Confirm', selectedCase.urgency_level);
+      onReviewed?.();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Review failed');
+    }
+    setReviewing(false);
+  };
+
+  const handleOverride = async () => {
+    setReviewing(true);
+    setError('');
+    try {
+      await reviewCase(selectedCase.id, getClinician().id, 'Override', overrideLevel, overrideReason || undefined);
+      onReviewed?.();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Override failed');
+    }
+    setReviewing(false);
+  };
+
+  const entities = selectedCase.entities || [];
+  const symptoms = selectedCase.key_symptoms || [];
+  const flags = selectedCase.risk_flags || [];
+  const rels = selectedCase.relationships || [];
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-8">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm shadow-[inset_0px_0px_100px_rgba(201,167,74,0.1)]"
-          />
-
-          {/* Modal Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl bg-white border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)] flex flex-col max-h-[90vh] overflow-hidden"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm shadow-[inset_0px_0px_100px_rgba(201,167,74,0.1)]" />
+          <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97, y: 10 }} className="relative w-full max-w-2xl bg-white border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)] flex flex-col max-h-[90vh] overflow-hidden">
             <div className="p-8 border-b-4 border-black flex justify-between items-start bg-background-linen sticky top-0 z-10">
               <div>
-                <h3 className="font-bebas text-6xl text-black leading-none mb-4">CASE {selectedCase.id}</h3>
-                <div className="flex gap-4 font-mono text-[10px] font-bold uppercase">
-                  <UrgencyBadge urgency={selectedCase.urgency} />
-                  <span className="border border-black px-2 py-1">{selectedCase.patient}</span>
+                <h3 className="font-bebas text-5xl text-black leading-none mb-4 text-balance">CASE {selectedCase.id.slice(0, 8)}</h3>
+                <div className="flex gap-4 font-mono text-[10px] font-bold uppercase items-center flex-wrap">
+                  <UrgencyBadge urgency={selectedCase.urgency_level} />
+                  <span className="border border-black px-2 py-1">{selectedCase.patient_name || 'Unknown'}</span>
+                  <span className="text-black/40">{selectedCase.status}</span>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-3 border-2 border-black hover:bg-black hover:text-white transition-all cursor-pointer bg-white"
-              >
+              <button onClick={onClose} className="p-3 border-2 border-black hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer bg-white">
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-10 space-y-12">
-              {/* AI Breakdown */}
+            <div className="flex-1 overflow-y-auto p-10 space-y-10">
+              {selectedCase.chief_complaint && (
+                <section>
+                  <h4 className="font-mono text-xs font-bold text-black/30 uppercase tracking-[0.4em] mb-4 border-b border-black/10 pb-3">CHIEF COMPLAINT</h4>
+                  <p className="font-bebas text-4xl text-black leading-tight">{selectedCase.chief_complaint}</p>
+                </section>
+              )}
+
               <section>
-                <h4 className="font-mono text-xs font-bold text-black/30 uppercase tracking-[0.4em] mb-8 border-b border-black/10 pb-4">INTELLIGENCE LAYER</h4>
+                <h4 className="font-mono text-xs font-bold text-black/30 uppercase tracking-[0.4em] mb-6 border-b border-black/10 pb-3">AI INTELLIGENCE</h4>
                 <div className="flex items-end gap-6 mb-8">
                   <div className="flex-1 bg-black text-white p-8">
-                    <p className="font-mono text-[10px] text-primary font-bold mb-4">CONFIDENCE_VECTOR</p>
-                    <span className="font-bebas text-8xl text-primary leading-none">{selectedCase.confidence}</span>
+                    <p className="font-mono text-[10px] text-primary font-bold mb-4">CONFIDENCE</p>
+                    <span className="font-bebas text-8xl text-primary leading-none">{pct(selectedCase.confidence_score)}</span>
                     <span className="font-bebas text-3xl text-primary opacity-50 ml-2">%</span>
                   </div>
-                  <div className="flex-1 border-2 border-black p-8 text-center italic">
-                    <Activity className="w-8 h-8 text-black mx-auto mb-4" />
+                  <div className="flex-1 border-2 border-black p-8 text-center">
                     <p className="font-mono text-[10px] font-bold text-black">UMLS_MAPPED</p>
+                    <p className="font-bebas text-3xl text-black mt-2">{entities.length}</p>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <p className="font-mono text-[10px] font-bold text-black/50 uppercase tracking-widest">Extracted Clinical Entity</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['CHEST_PAIN', 'SHORT_BREATH', 'HYPERTENSION', 'TACHYCARDIA'].map(tag => (
-                      <span key={tag} className="border border-black px-3 py-1 font-mono text-[10px] font-bold hover:bg-black hover:text-white transition-all cursor-crosshair">
-                        {tag}
-                      </span>
-                    ))}
+
+                {symptoms.length > 0 && (
+                  <div className="mb-6">
+                    <p className="font-mono text-[10px] font-bold text-black/50 uppercase tracking-widest mb-3">Key Symptoms</p>
+                    <div className="flex flex-wrap gap-2">{symptoms.map(s => <span key={s} className="border border-black px-3 py-1 font-mono text-[10px] font-bold">{s.replace(/_/g, ' ')}</span>)}</div>
                   </div>
-                </div>
+                )}
+
+                {flags.length > 0 && (
+                  <div className="mb-6">
+                    <p className="font-mono text-[10px] font-bold text-urgency-critical uppercase tracking-widest mb-3">Risk Flags</p>
+                    <div className="flex flex-wrap gap-2">{flags.map(f => <span key={f} className="border border-urgency-critical text-urgency-critical px-3 py-1 font-mono text-[10px] font-bold">{f.replace(/_/g, ' ')}</span>)}</div>
+                  </div>
+                )}
+
+                {entities.length > 0 && (
+                  <div className="mb-6">
+                    <p className="font-mono text-[10px] font-bold text-black/50 uppercase tracking-widest mb-3">Extracted Entities ({entities.length})</p>
+                    <div className="flex flex-wrap gap-2">
+                      {entities.map((e, i) => (
+                        <span key={i} className="border border-black px-3 py-1 font-mono text-[10px] font-bold hover:bg-black hover:text-white transition-colors cursor-crosshair group relative">
+                          {e.text}
+                          <span className="ml-1 text-black/30 text-[8px]">{e.label}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {rels.length > 0 && (
+                  <div>
+                    <p className="font-mono text-[10px] font-bold text-black/50 uppercase tracking-widest mb-3">Relationships ({rels.length})</p>
+                    <div className="space-y-2">
+                      {rels.map((r, i) => (
+                        <div key={i} className="bg-background-linen p-4 border-l-4 border-primary font-mono text-[11px] text-black/70">
+                          <strong className="text-black">{r.source}</strong> → <span className="text-primary uppercase">{r.type}</span>
+                          {r.evidence && <p className="text-[10px] text-black/40 mt-1 italic">{r.evidence.substring(0, 120)}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </section>
 
-              {/* Narrative */}
+              {selectedCase.evidence && (
+                <section>
+                  <h4 className="font-mono text-xs font-bold text-black/30 uppercase tracking-[0.4em] mb-4 border-b border-black/10 pb-3">EVIDENCE</h4>
+                  <div className="bg-background-linen p-6 border-l-4 border-black italic leading-loose font-mono text-[11px] text-black/70">
+                    {selectedCase.evidence}
+                  </div>
+                </section>
+              )}
+
               <section>
-                <h4 className="font-mono text-xs font-bold text-black/30 uppercase tracking-[0.4em] mb-6 border-b border-black/10 pb-4">RAW INPUT</h4>
-                <div className="bg-background-linen p-8 border-l-4 border-black italic leading-loose font-mono text-[11px] text-black/70">
-                  "{selectedCase.complaint}. Historical PHI de-identified successfully. No conflicting allergy data found in local cache."
-                </div>
+                <button onClick={() => setShowRaw(!showRaw)} className="flex items-center gap-2 font-mono text-[10px] font-bold text-black/40 uppercase tracking-widest hover:text-black transition-colors cursor-pointer">
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showRaw ? 'rotate-180' : ''}`} />
+                  Raw Input
+                </button>
+                <AnimatePresence>
+                  {showRaw && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="mt-4 bg-background-linen p-6 border-l-4 border-black/30 font-mono text-[11px] text-black/70 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                        {selectedCase.raw_text || selectedCase.transcription || '(no raw text)'}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </section>
             </div>
 
-            {/* Actions */}
-            <div className="p-8 border-t-4 border-black bg-white space-y-4 shrink-0 transition-all sticky bottom-0 z-10">
-              <button className="w-full bg-black text-white py-5 font-mono text-xs font-bold uppercase tracking-widest border-2 border-black hover:bg-primary hover:border-primary hover:text-white transition-all transform hover:-translate-y-1 active:translate-y-0 cursor-pointer flex items-center justify-center gap-3 group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            {selectedCase.status === 'Pending Review' && <div className="p-8 border-t-4 border-black bg-white space-y-4 shrink-0">
+              {error && <p className="font-mono text-[10px] text-red-500 font-bold">{error}</p>}
+              <button onClick={handleConfirm} disabled={reviewing} className="w-full bg-black text-white py-5 font-mono text-xs font-bold uppercase tracking-widest border-2 border-black hover:bg-primary hover:border-primary transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-3 group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <CheckCircle2 className="w-4 h-4 text-primary group-hover:text-white" />
-                Mark Protocol Complete
+                {reviewing ? 'Processing...' : 'Confirm Triage'}
               </button>
-              <button className="w-full bg-white text-urgency-critical py-5 font-mono text-xs font-bold uppercase tracking-widest border-2 border-urgency-critical hover:bg-urgency-critical hover:text-white transition-all transform hover:-translate-y-1 active:translate-y-0 cursor-pointer flex items-center justify-center gap-3 shadow-[4px_4px_0px_0px_rgba(201,33,33,0.2)]">
+              <button onClick={() => setShowOverride(!showOverride)} className="w-full bg-white text-urgency-critical py-5 font-mono text-xs font-bold uppercase tracking-widest border-2 border-urgency-critical hover:bg-urgency-critical hover:text-white transition-colors cursor-pointer flex items-center justify-center gap-3 shadow-[4px_4px_0px_0px_rgba(201,33,33,0.2)]">
                 <AlertTriangle className="w-4 h-4" />
-                Escalate to Level 1
+                Override Urgency
               </button>
-            </div>
+              <AnimatePresence>
+                {showOverride && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-4 overflow-hidden">
+                    <div>
+                      <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">New Level</label>
+                      <div className="flex gap-2">
+                        {URGENCY_LEVELS.map(l => (
+                          <button key={l} onClick={() => setOverrideLevel(l)} className={`flex-1 py-3 border-2 font-mono text-xs font-bold uppercase cursor-pointer transition-colors ${overrideLevel === l ? 'bg-black text-white border-black' : 'bg-white text-black border-black/30 hover:border-black'}`}>{l}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">Reason (Optional)</label>
+                      <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} className="w-full border-2 border-black p-4 font-mono text-xs outline-none focus:bg-primary/5 resize-none" rows={2} placeholder="Reason for override..." />
+                    </div>
+                    <button onClick={handleOverride} disabled={reviewing} className="w-full bg-urgency-critical text-white py-4 font-mono text-xs font-bold uppercase border-2 border-urgency-critical hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer">
+                      Apply Override
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>}
           </motion.div>
         </div>
       )}

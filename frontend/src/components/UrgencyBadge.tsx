@@ -1,20 +1,22 @@
 import React from 'react';
-import { PatientCase } from '../types';
+import type { UrgencyLevel } from '../types';
 
 interface UrgencyBadgeProps {
-  urgency: PatientCase['urgency'];
+  urgency: UrgencyLevel;
   className?: string;
 }
 
 export default function UrgencyBadge({ urgency, className = '' }: UrgencyBadgeProps) {
   const getStyles = () => {
     switch (urgency) {
-      case 'CRITICAL':
-        return 'bg-urgency-critical text-black border border-black';
-      case 'HIGH':
+      case 'Critical':
+        return 'bg-urgency-critical text-white border border-black';
+      case 'High':
         return 'bg-urgency-high text-black border border-black';
-      case 'MODERATE':
+      case 'Medium':
         return 'bg-urgency-moderate text-black border border-black';
+      case 'Low':
+        return 'bg-black/10 text-black border border-black';
       default:
         return 'bg-black/10 text-black';
     }
