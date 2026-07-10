@@ -33,11 +33,13 @@ export default function Queue() {
   useEffect(() => {
     let ws: WebSocket;
     let reconnectTimer: ReturnType<typeof setTimeout>;
+    const shouldReconnect = { current: true };
     function connect() {
-      // ponytail: single WS, reconnect on close. Per-account channels if scale requires.
+      shouldReconnect.current = true;
       ws = new WebSocket(getWsUrl());
       ws.onopen = () => setWsStatus('live');
       ws.onclose = () => {
+        if (!shouldReconnect.current) return;
         setWsStatus('offline');
         reconnectTimer = setTimeout(connect, 3000);
       };
@@ -46,6 +48,7 @@ export default function Queue() {
     }
     connect();
     return () => {
+      shouldReconnect.current = false;
       clearTimeout(reconnectTimer);
       ws?.close();
     };
@@ -53,9 +56,10 @@ export default function Queue() {
 
   // ponytail: 5s poll as fallback when WS is down
   useEffect(() => {
+    if (wsStatus === 'live') { pollRef.current = null; return; }
     pollRef.current = setInterval(fetchCases, 5000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [fetchCases]);
+    return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
+  }, [fetchCases, wsStatus]);
 
   const seen = cases.filter(c => {
     if (c.status !== 'Pending Review') return false;

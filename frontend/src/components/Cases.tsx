@@ -15,7 +15,7 @@ export default function Cases() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('ALL');
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchCases = useCallback(async () => {
     try { setAllCases(await listCases()); } catch { /* ignore */ }
@@ -26,12 +26,13 @@ export default function Cases() {
 
   // ponytail: deep-link ?case= opens detail modal
   useEffect(() => {
+    if (selectedCase) return;
     const caseId = searchParams.get('case');
     if (!caseId) return;
     const found = allCases.find(c => c.id === caseId || c.id.startsWith(caseId));
     if (found) { setSelectedCase(found); return; }
     getCase(caseId).then(setSelectedCase).catch(() => {});
-  }, [searchParams, allCases]);
+  }, [searchParams, allCases, selectedCase]);
 
   const filtered = allCases.filter(c => {
     if (statusFilter !== 'ALL' && c.status !== statusFilter) return false;
@@ -108,7 +109,7 @@ export default function Cases() {
         </div>
       </div>
 
-      <CaseDetailModal isOpen={selectedCase !== null} onClose={() => setSelectedCase(null)} selectedCase={selectedCase} onReviewed={fetchCases} />
+      <CaseDetailModal isOpen={selectedCase !== null} onClose={() => { setSelectedCase(null); setSearchParams(prev => { const next = new URLSearchParams(prev); next.delete('case'); return next; }, { replace: true }); }} selectedCase={selectedCase} onReviewed={fetchCases} />
     </div>
   );
 }

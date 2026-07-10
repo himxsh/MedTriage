@@ -22,10 +22,11 @@ export default function AuditLog() {
   const formatTs = (ts: string) => new Date(ts).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   // ponytail: simple CSV from loaded rows, no server-side export
+  const esc = (s: string) => s.replace(/"/g, '""');
   const exportCSV = () => {
     const headers = ['Timestamp,Clinician_ID,Case_Reference,Action,Previous_Level,New_Level'];
     const rows = filteredLogs.map(l =>
-      `"${formatTs(l.timestamp)}","${l.clinician_id}","${l.case_id}","${l.action}","${l.previous_level || ''}","${l.new_level}"`
+      `"${esc(formatTs(l.timestamp))}","${esc(l.clinician_id)}","${esc(l.case_id)}","${esc(l.action)}","${esc(l.previous_level || '')}","${esc(l.new_level)}"`
     );
     const blob = new Blob([[...headers, ...rows].join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -33,7 +34,7 @@ export default function AuditLog() {
     a.href = url;
     a.download = `audit-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (

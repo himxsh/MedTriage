@@ -69,7 +69,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={onClose}
+        onClick={isProcessing || isSuccess ? undefined : onClose}
         className="absolute inset-0 bg-black/80 backdrop-blur-sm shadow-[inset_0px_0px_100px_rgba(201,167,74,0.1)]"
       />
       <motion.div
@@ -83,7 +83,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
             <h1 className="font-bebas text-5xl tracking-wider text-black text-balance">NEW_INTAKE_PROTOCOL</h1>
             <p className="font-mono text-[10px] text-black/50 uppercase tracking-[0.3em] mt-1">Initialize patient clinical intelligence pipeline</p>
           </div>
-          <button onClick={onClose} className="p-3 border-2 border-black hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer bg-white">
+          <button onClick={onClose} disabled={isProcessing || isSuccess} className="p-3 border-2 border-black hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer bg-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black">
             <X className="w-6 h-6" />
           </button>
         </header>
