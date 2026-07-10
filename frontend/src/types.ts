@@ -1,29 +1,58 @@
-export type Screen = 'landing' | 'login' | 'register' | 'dashboard' | 'history' | 'intake' | 'review' | 'audit' | 'settings';
+export type Screen =
+  | 'landing'
+  | 'login'
+  | 'register'
+  | 'queue'
+  | 'cases'
+  | 'intake'
+  | 'audit'
+  | 'account';
+
+export type AppScreen = 'queue' | 'cases' | 'audit' | 'account';
+
+export type UrgencyLevel = 'Critical' | 'High' | 'Medium' | 'Low';
 
 export interface PatientCase {
   id: string;
-  patient: string;
-  complaint: string;
-  urgency: 'CRITICAL' | 'HIGH' | 'MODERATE';
-  confidence: number;
-  time: string;
-  age: number;
-  sex: 'M' | 'F';
-  arrival: string;
-  vitals: {
-    bp: string;
-    hr: number;
-    spo2: string;
-    temp: string;
-  };
+  patient_name: string | null;
+  input_type: string;
+  raw_text: string;
+  transcription: string | null;
+  chief_complaint: string | null;
+  key_symptoms: string[];
+  risk_flags: string[];
+  urgency_level: UrgencyLevel;
+  confidence_score: number;
+  evidence: string | null;
+  entities: EntityData[];
+  relationships: RelationshipData[];
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EntityData {
+  text: string;
+  label: string;
+  start: number;
+  end: number;
+  mappings: Array<{ cui: string; name: string; score: number }>;
+}
+
+export interface RelationshipData {
+  source: string;
+  type: string;
+  evidence: string;
+  indicators: string[];
 }
 
 export interface AuditEntry {
-  timestamp: string;
-  clinicianId: string;
-  caseRef: string;
+  id: number;
+  case_id: string;
+  clinician_id: string;
   action: string;
-  prevLevel: string;
-  newLevel: string;
-  status: 'upgrade' | 'downgrade' | 'initial' | 'discharge' | 'record' | 'error' | 'vital' | 'dispense';
+  previous_level: string | null;
+  new_level: string;
+  reason: string | null;
+  timestamp: string;
 }
