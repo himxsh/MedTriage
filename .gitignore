@@ -33,7 +33,6 @@ abcd.txt
 tech\ stack.txt
 tech\ stack_pitch.txt
 .env
-.env.example
 synthetic_data/
 scripts/capture-screenshots.mjs
 
