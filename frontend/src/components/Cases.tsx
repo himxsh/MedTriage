@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { listCases, getCase } from '../api';
 import type { PatientCase } from '../types';
-import CaseDetailModal from './CaseDetailModal';
+import CaseDetailDrawer from './CaseDetailDrawer';
 import UrgencyBadge from './UrgencyBadge';
 
 const URGENCY_FILTERS = ['ALL', 'Critical', 'High', 'Medium', 'Low'] as const;
@@ -103,7 +103,7 @@ export default function Cases() {
         </div>
       </div>
 
-      <CaseDetailModal isOpen={selectedCase !== null} onClose={() => { setSelectedCase(null); setSearchParams(prev => { const next = new URLSearchParams(prev); next.delete('case'); return next; }, { replace: true }); }} selectedCase={selectedCase} onReviewed={fetchCases} />
+      <CaseDetailDrawer isOpen={selectedCase !== null} onClose={() => { setSelectedCase(null); setSearchParams(prev => { const next = new URLSearchParams(prev); next.delete('case'); return next; }, { replace: true }); }} selectedCase={selectedCase} onReviewed={fetchCases} />
     </div>
   );
 }

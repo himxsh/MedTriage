@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Download } from 'lucide-react';
 import { listAudit, getCase } from '../api';
 import type { AuditEntry, PatientCase } from '../types';
-import CaseDetailModal from './CaseDetailModal';
+import CaseDetailDrawer from './CaseDetailDrawer';
 import UrgencyBadge from './UrgencyBadge';
 import { toUrgencyLevel } from '../urgencyStyles';
 
@@ -100,7 +100,7 @@ export default function AuditLog() {
       </div>
     </div>
 
-    <CaseDetailModal isOpen={selectedCase !== null} onClose={() => setSelectedCase(null)} selectedCase={selectedCase} onReviewed={() => { listAudit().then(setLogs).catch(() => {}); }} />
+    <CaseDetailDrawer isOpen={selectedCase !== null} onClose={() => setSelectedCase(null)} selectedCase={selectedCase} onReviewed={() => { listAudit().then(setLogs).catch(() => {}); }} />
     </>
   );
 }
