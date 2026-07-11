@@ -54,26 +54,26 @@ export default function Cases() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex flex-wrap gap-4 items-end justify-between">
           <div className="flex gap-4 flex-wrap items-center">
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border-2 border-black px-4 py-2 font-mono text-[10px] font-bold uppercase bg-white cursor-pointer">
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-black/20 px-4 py-2 font-mono text-[10px] font-bold uppercase bg-white cursor-pointer">
               {statuses.map(s => <option key={s} value={s}>{s === 'ALL' ? 'ALL STATUSES' : s.replace(/_/g, ' ').toUpperCase()}</option>)}
             </select>
             <div className="flex gap-2">
               {URGENCY_FILTERS.map(u => (
-                <button key={u} onClick={() => setUrgencyFilter(u)} className={`px-4 py-2 border-2 border-black font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer ${urgencyFilter === u ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}>
+                <button key={u} onClick={() => setUrgencyFilter(u)} className={`px-4 py-2 border border-black/20 font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer ${urgencyFilter === u ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}>
                   {u}
                 </button>
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-3 border-b-2 border-black pb-2 px-2">
+          <div className="flex items-center gap-3 border-b border-black/10 pb-2 px-2">
             <Search className="w-4 h-4 text-black/50" />
             <input type="text" placeholder="SEARCH id/patient/complaint..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-64 uppercase" />
           </div>
         </div>
 
-        <div className="border-4 border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+        <div className="border border-black/10 bg-white shadow-sm">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-black text-white uppercase text-[11px] font-bold tracking-[0.2em] border-b-4 border-black">
+            <thead className="bg-black text-white uppercase text-[11px] font-bold tracking-[0.2em] border-b border-black/10">
               <tr>
                 <th className="p-6 border-r border-white/10">Case ID</th>
                 <th className="p-6 border-r border-white/10">Patient Name</th>
@@ -87,12 +87,12 @@ export default function Cases() {
               {loading ? (
                 <tr><td colSpan={6} className="p-20 text-center text-black/20 font-mono">LOADING...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="p-20 text-center text-black/20 font-bebas text-5xl tracking-widest">// NO MATCHING RECORDS</td></tr>
+                <tr><td colSpan={6} className="p-20 text-center text-black/20 font-sans text-3xl font-bold">// No matching records</td></tr>
               ) : filtered.map(c => (
                 <tr key={c.id} onClick={() => setSelectedCase(c)} className="hover:bg-primary/5 transition-colors group cursor-pointer">
                    <td className="p-6 border-r border-black/5 font-bold text-primary-ink">{c.id.substring(0, 8)}</td>
-                  <td className="p-6 border-r border-black/5 font-bold uppercase group-hover:underline">{c.patient_name || 'Unknown'}</td>
-                  <td className="p-6 border-r border-black/5 text-black/60 italic truncate max-w-xs">{c.chief_complaint || '(no complaint)'}</td>
+                  <td className="p-6 border-r border-black/5 font-bold group-hover:underline normal-case">{c.patient_name || 'Unknown'}</td>
+                  <td className="p-6 border-r border-black/5 text-black/60 truncate max-w-xs normal-case">{c.chief_complaint || '(no complaint)'}</td>
                   <td className="p-6 border-r border-black/5"><span className="font-mono text-[10px] font-bold uppercase text-black/70">{c.status}</span></td>
                   <td className="p-6 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
                   <td className="p-6 text-right font-bold text-black/60 group-hover:text-black">{formatDate(c.created_at)}</td>

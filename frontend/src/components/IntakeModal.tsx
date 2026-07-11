@@ -70,31 +70,31 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={isProcessing || isSuccess ? undefined : onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm shadow-[inset_0px_0px_100px_rgba(201,167,74,0.1)]"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 10 }}
-        className="relative w-full max-w-5xl bg-background-linen border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)] flex flex-col max-h-[90vh] overflow-hidden"
+        className="relative w-full max-w-5xl bg-background-linen border border-black/10 shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
       >
-        <header className="p-8 border-b-4 border-black bg-white flex justify-between items-center sticky top-0 z-10">
+        <header className="p-8 border-b border-black/10 bg-white flex justify-between items-center sticky top-0 z-10">
           <div>
-            <h1 className="font-bebas text-5xl tracking-wider text-black text-balance">NEW INTAKE PROTOCOL</h1>
+            <h1 className="font-sans text-2xl font-bold text-black">New Intake</h1>
             <p className="font-mono text-[10px] text-black/50 uppercase tracking-[0.3em] mt-1">Initialize patient clinical intelligence pipeline</p>
           </div>
-          <button onClick={onClose} disabled={isProcessing || isSuccess} className="p-3 border-2 border-black hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer bg-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black">
+          <button onClick={onClose} disabled={isProcessing || isSuccess} className="p-3 border border-black/20 hover:bg-black/5 transition-colors active:scale-[0.96] cursor-pointer bg-white disabled:opacity-30 disabled:cursor-not-allowed">
             <X className="w-6 h-6" />
           </button>
         </header>
 
         <div className="flex-1 overflow-y-auto p-8 md:p-12">
           <div className="max-w-4xl mx-auto">
-            <div className="flex gap-0 mb-10 border-2 border-black w-fit bg-white">
+            <div className="flex gap-0 mb-10 border border-black/20 w-fit bg-white">
               <button onClick={() => setMode('text')} className={`flex items-center gap-3 px-8 py-4 font-mono font-bold uppercase text-sm cursor-pointer transition-colors ${mode === 'text' ? 'bg-black text-white' : 'hover:bg-black/5'}`}>
                 <Type className="w-4 h-4" /> Text Mode
               </button>
-              <button onClick={() => setMode('audio')} className={`flex items-center gap-3 px-8 py-4 font-mono font-bold uppercase text-sm border-l-2 border-black cursor-pointer transition-colors ${mode === 'audio' ? 'bg-black text-white' : 'hover:bg-black/5'}`}>
+              <button onClick={() => setMode('audio')} className={`flex items-center gap-3 px-8 py-4 font-mono font-bold uppercase text-sm border-l border-black/20 cursor-pointer transition-colors ${mode === 'audio' ? 'bg-black text-white' : 'hover:bg-black/5'}`}>
                 <Mic className="w-4 h-4" /> Audio Mode
               </button>
             </div>
@@ -102,19 +102,19 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-3">
                 <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Patient Name / Identifier (Optional)</label>
-                <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border-2 border-black p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT 0042 / JOHN DOE" />
+                <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border border-black/20 p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT 0042 / JOHN DOE" />
               </div>
 
               {mode === 'text' ? (
                 <div className="space-y-3">
                   <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Clinical Notes / Initial Narrative</label>
-                  <textarea required value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-64 bg-white border-2 border-black p-6 font-mono text-sm leading-relaxed outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10 resize-none" placeholder="Enter patient symptoms, history of present illness, and any relevant clinical context here..."></textarea>
+                  <textarea required value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-64 bg-white border border-black/20 p-6 font-mono text-sm leading-relaxed outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10 resize-none" placeholder="Enter patient symptoms, history of present illness, and any relevant clinical context here..."></textarea>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Audio Submission</label>
                   <input ref={audioRef} type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] || null)} className="hidden" />
-                  <div onClick={() => audioRef.current?.click()} className="w-full h-64 bg-white border-2 border-dashed border-black flex flex-col items-center justify-center p-8 text-center group hover:bg-black/5 transition-colors cursor-pointer">
+                  <div onClick={() => audioRef.current?.click()} className="w-full h-64 bg-white border border-dashed border-black/30 flex flex-col items-center justify-center p-8 text-center group hover:bg-black/5 transition-colors cursor-pointer">
                     <Upload className="w-12 h-12 text-primary mb-4 group-hover:scale-110 transition-transform" />
                     {audioFile ? (
                       <>
@@ -132,7 +132,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
               )}
 
               <div className="pt-4 flex flex-col md:flex-row gap-6 items-start md:items-center">
-                <button type="submit" disabled={isProcessing || isSuccess} className="group relative flex items-center justify-center w-full md:w-fit min-w-[300px] border-2 border-black bg-black text-white px-10 py-6 font-mono font-bold uppercase text-lg tracking-wider hover:bg-primary hover:text-black hover:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden active:scale-[0.96]">
+                <button type="submit" disabled={isProcessing || isSuccess} className="group relative flex items-center justify-center w-full md:w-fit min-w-[300px] border border-black/20 bg-black text-white px-10 py-6 font-mono font-bold uppercase text-lg tracking-wider hover:bg-primary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden active:scale-[0.96]">
                   <span className="relative z-10">{isProcessing ? 'Processing...' : isSuccess ? 'Success' : 'Submit for Analysis'}</span>
                   {!isProcessing && !isSuccess && <ArrowRight className="ml-4 w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />}
                   <AnimatePresence>
@@ -144,7 +144,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
 
                 <AnimatePresence>
                   {(isProcessing || isSuccess || error) && (
-                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 font-mono font-bold italic">
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 font-mono font-bold">
                       {isProcessing ? (
                         <><Loader2 className="w-5 h-5 animate-spin text-primary-ink" /><span className="text-primary-ink text-sm uppercase tracking-widest">{processStep}</span></>
                       ) : isSuccess ? (

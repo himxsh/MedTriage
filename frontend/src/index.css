@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #c9a74a;
-  --color-primary-ink: #705500;
-  --color-background-linen: #F5F0E8;
+  --color-primary: #4A90D9;
+  --color-primary-ink: #1E5A8B;
+  --color-background-linen: #F0F5FA;
   --color-urgency-critical: #ef4444;
   --color-urgency-high: #f59e0b;
   --color-urgency-medium: #eab308;
@@ -11,7 +11,7 @@
   
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-bebas: "Bebas Neue", cursive;
-  --font-mono: "IBM Plex Mono", "JetBrains Mono", monospace;
+  --font-mono: "IBM Plex Mono", monospace;
 }
 
 @layer base {
@@ -22,12 +22,12 @@
 
 @layer components {
   .brutalist-border {
-    @apply border-2 border-black;
+    @apply border border-black/10;
   }
   .brutalist-rule-y {
-    @apply border-r-2 border-black;
+    @apply border-r border-black/10;
   }
   .brutalist-rule-x {
-    @apply border-b-2 border-black;
+    @apply border-b border-black/10;
   }
 }

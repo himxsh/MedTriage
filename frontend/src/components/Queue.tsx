@@ -87,7 +87,7 @@ export default function Queue() {
 
   return (
     <>
-      <div className="flex items-center gap-4 px-10 py-4 border-b-2 border-black bg-white shrink-0">
+      <div className="flex items-center gap-4 px-10 py-4 border-b border-black/10 bg-white shrink-0">
         <div className={`flex items-center gap-2 font-mono text-[10px] font-bold uppercase ${wsStatus === 'live' ? 'text-green-600' : 'text-red-500'}`}>
           <span className={`w-2 h-2 rounded-full ${wsStatus === 'live' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
           {wsStatus === 'live' ? 'LIVE' : 'OFFLINE'}
@@ -95,14 +95,14 @@ export default function Queue() {
         <span className="font-mono text-[10px] text-black/50 uppercase tracking-widest">QUEUE</span>
       </div>
 
-      <div className="flex divide-x-2 divide-black border-b-2 border-black bg-white shrink-0">
+      <div className="flex divide-x divide-black/10 border-b border-black/10 bg-white shrink-0">
         {[
           { label: 'Pending', count: pendingCount, color: 'text-black' },
           { label: 'Completed', count: completedCount, color: 'text-black/50' }
         ].map((stat, i) => (
           <div key={i} className="flex-1 p-6 hover:bg-black/5 transition-colors group cursor-default">
             <p className="font-mono text-[10px] font-bold text-black/60 uppercase tracking-[0.3em] mb-2">{stat.label}</p>
-            <p className={`font-bebas text-6xl ${stat.color} group-hover:scale-105 transition-transform origin-left tabular-nums`}>{stat.count}</p>
+            <p className={`font-sans text-4xl font-bold ${stat.color} group-hover:scale-105 transition-transform origin-left tabular-nums`}>{stat.count}</p>
           </div>
         ))}
       </div>
@@ -119,20 +119,20 @@ export default function Queue() {
         <div className="mb-8 flex justify-between items-end">
           <div className="flex gap-4">
             {URGENCY_FILTERS.map(u => (
-              <button key={u} onClick={() => setFilterUrgency(u)} className={`px-6 py-2 border-2 border-black font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer active:scale-[0.96] ${filterUrgency === u ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}>
+              <button key={u} onClick={() => setFilterUrgency(u)} className={`px-6 py-2 border border-black/20 font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer active:scale-[0.96] ${filterUrgency === u ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}>
                 {u}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-3 border-b-2 border-black pb-2 px-2">
+          <div className="flex items-center gap-3 border-b border-black/10 pb-2 px-2">
             <Search className="w-4 h-4 text-black/50" />
             <input type="text" placeholder="FILTER RECORDS..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-48 uppercase" />
           </div>
         </div>
 
-        <div className="border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <table className="w-full text-left font-mono text-xs border-collapse">
-            <thead className="sticky top-0 bg-neutral-100 z-10 border-b-2 border-black">
+        <div className="border border-black/10 bg-white shadow-sm">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="sticky top-0 bg-neutral-100 z-10 border-b border-black/10">
               <tr>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">ID</th>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Patient Name</th>
@@ -142,15 +142,15 @@ export default function Queue() {
                 <th className="p-5 text-black font-bold uppercase tracking-widest text-right">Time</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-black/10 italic">
+            <tbody className="divide-y divide-black/10">
               {loading ? (
                 <tr><td colSpan={6} className="p-20 text-center font-mono text-black/50">LOADING...</td></tr>
               ) : sorted.length === 0 ? (
-                <tr><td colSpan={6} className="p-20 text-center"><h3 className="font-bebas text-6xl text-black/10 tracking-widest text-balance">NO RECORDS FOUND</h3></td></tr>
+                <tr><td colSpan={6} className="p-20 text-center"><h3 className="font-sans text-3xl font-bold text-black/10 text-balance">No records found</h3></td></tr>
               ) : sorted.map(c => (
                 <tr key={c.id} onClick={() => setSelectedCase(c)} className={`hover:bg-primary/5 cursor-pointer transition-colors group ${selectedCase?.id === c.id ? 'bg-primary/10' : ''}`}>
                   <td className="p-5 text-primary-ink font-bold border-r border-black/5">{c.id.substring(0, 8)}</td>
-                  <td className="p-5 text-black font-bold uppercase border-r border-black/5 group-hover:underline">{c.patient_name || 'Unknown'}</td>
+                  <td className="p-5 text-black font-bold border-r border-black/5 group-hover:underline normal-case">{c.patient_name || 'Unknown'}</td>
                   <td className="p-5 text-black/60 truncate max-w-[300px] border-r border-black/5">{c.chief_complaint || '(no complaint)'}</td>
                   <td className="p-5 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
                   <td className="p-5 border-r border-black/5">

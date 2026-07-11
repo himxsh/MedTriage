@@ -49,7 +49,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <div className="flex flex-col md:flex-row gap-6">
             <button
               onClick={() => onNavigate('register')}
-              className="group relative inline-flex items-center justify-center border-4 border-black bg-primary px-16 py-6 text-black font-mono text-xl font-bold uppercase transition-colors transition-shadow transition-transform hover:translate-x-2 hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] active:scale-[0.96] cursor-pointer"
+              className="group relative inline-flex items-center justify-center border-2 border-black/20 bg-primary px-16 py-6 text-white font-mono text-xl font-bold uppercase transition-colors hover:bg-primary-ink active:scale-[0.96] cursor-pointer"
             >
               Get Started
             </button>

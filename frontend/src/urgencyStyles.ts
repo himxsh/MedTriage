@@ -17,7 +17,7 @@ export function getUrgencyClasses(level: UrgencyLevel) {
 
 export function getUrgencyButtonClasses(level: UrgencyLevel, selected: boolean): string {
   const s = STYLES[level];
-  const base = 'flex-1 py-3 border-2 font-mono text-xs font-bold uppercase cursor-pointer transition-colors';
+  const base = 'flex-1 py-3 border font-mono text-xs font-bold uppercase cursor-pointer transition-colors';
   return selected
     ? `${base} ${s.bg} ${s.text} ${s.border}`
     : `${base} bg-white ${s.fg} ${s.outline} ${s.hoverBorder}`;
