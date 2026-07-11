@@ -15,6 +15,7 @@ export type UrgencyLevel = 'Critical' | 'High' | 'Medium' | 'Low';
 export interface PatientCase {
   id: string;
   patient_name: string | null;
+  mrn: string | null;
   input_type: string;
   raw_text: string;
   transcription: string | null;

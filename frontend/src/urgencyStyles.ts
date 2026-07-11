@@ -7,6 +7,16 @@ const STYLES: Record<UrgencyLevel, { bg: string; text: string; fg: string; borde
   Low: { bg: 'bg-urgency-low', text: 'text-black', fg: 'text-urgency-low', border: 'border-urgency-low', outline: 'border-urgency-low/30', hoverBorder: 'hover:border-urgency-low' },
 };
 
+export const URGENCY_RANK: Record<UrgencyLevel, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+
+export function isDownTriage(current: UrgencyLevel, next: UrgencyLevel): boolean {
+  return URGENCY_RANK[next] > URGENCY_RANK[current];
+}
+
+export function isUpTriage(current: UrgencyLevel, next: UrgencyLevel): boolean {
+  return URGENCY_RANK[next] < URGENCY_RANK[current];
+}
+
 export function toUrgencyLevel(s: string): UrgencyLevel {
   return s === 'Critical' || s === 'High' || s === 'Medium' || s === 'Low' ? s : 'Low';
 }

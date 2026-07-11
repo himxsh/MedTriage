@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
@@ -27,3 +28,8 @@ async def init_db():
         # Import models here to register them with SQLModel.metadata
         from app.models.case import Case, AuditLog
         await conn.run_sync(SQLModel.metadata.create_all)
+        # ponytail: no Alembic — ALTER IF NOT EXISTS for mrn column added in Phase 3
+        try:
+            await conn.execute(text('ALTER TABLE "case" ADD COLUMN IF NOT EXISTS mrn VARCHAR'))
+        except Exception:
+            pass  # ponytail: postgres-specific IF NOT EXISTS; safe fallback

@@ -5,7 +5,7 @@ __pycache__/
 .venv/
 *.pdf
 *.docx
-models/
+/models/
 temp_uploads/
 *.pt
 *.bin

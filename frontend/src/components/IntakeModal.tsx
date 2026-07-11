@@ -13,6 +13,7 @@ interface IntakeModalProps {
 export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModalProps) {
   const [mode, setMode] = useState<'text' | 'audio'>('text');
   const [patientName, setPatientName] = useState('');
+  const [mrn, setMrn] = useState('');
   const [notes, setNotes] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -25,6 +26,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
     if (isOpen) {
       setMode('text');
       setPatientName('');
+      setMrn('');
       setNotes('');
       setAudioFile(null);
       setIsProcessing(false);
@@ -42,11 +44,11 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
       if (mode === 'text') {
         if (!notes.trim()) { setError('Clinical notes required'); setIsProcessing(false); return; }
         setProcessStep('SUBMITTING...');
-        await intakeText(notes, patientName || undefined);
+        await intakeText(notes, patientName || undefined, mrn || undefined);
       } else {
         if (!audioFile) { setError('Audio file required'); setIsProcessing(false); return; }
         setProcessStep('UPLOADING...');
-        await intakeAudio(audioFile, patientName || undefined);
+        await intakeAudio(audioFile, patientName || undefined, mrn || undefined);
       }
       setProcessStep('PROCESSING...');
       setIsProcessing(false);
@@ -102,10 +104,15 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-3">
                 <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Patient Name / Identifier (Optional)</label>
-                <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border border-black/20 p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT 0042 / JOHN DOE" />
-              </div>
+                  <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border border-black/20 p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT 0042 / JOHN DOE" />
+                </div>
 
-              {mode === 'text' ? (
+                <div className="space-y-3">
+                  <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">MRN (Medical Record Number) — Optional</label>
+                  <input type="text" value={mrn} onChange={(e) => setMrn(e.target.value)} className="w-full bg-white border border-black/20 p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: MRN-0042-98765" />
+                </div>
+
+                {mode === 'text' ? (
                 <div className="space-y-3">
                   <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Clinical Notes / Initial Narrative</label>
                   <textarea required value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-64 bg-white border border-black/20 p-6 font-mono text-sm leading-relaxed outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10 resize-none" placeholder="Enter patient symptoms, history of present illness, and any relevant clinical context here..."></textarea>

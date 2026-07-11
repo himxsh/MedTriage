@@ -15,7 +15,7 @@ from app.services.queue import queue_service
 
 router = APIRouter()
 
-async def run_ai_pipeline(case_id: uuid.UUID, raw_text: str, transcription: Optional[str], patient_name: Optional[str], input_type: str):
+async def run_ai_pipeline(case_id: uuid.UUID, raw_text: str, transcription: Optional[str], patient_name: Optional[str], mrn: Optional[str], input_type: str):
     """
     Background task to run the heavy AI pipeline.
     """
@@ -43,6 +43,7 @@ async def run_ai_pipeline(case_id: uuid.UUID, raw_text: str, transcription: Opti
         new_case = Case(
             id=case_id,
             patient_name=patient_name,
+            mrn=mrn,
             input_type=input_type,
             raw_text=raw_text,
             transcription=transcription,
@@ -72,6 +73,7 @@ async def run_ai_pipeline(case_id: uuid.UUID, raw_text: str, transcription: Opti
 async def create_intake(
     background_tasks: BackgroundTasks,
     patient_name: Optional[str] = Form(None),
+    mrn: Optional[str] = Form(None),
     input_type: str = Form(...),  # text, audio
     text_content: Optional[str] = Form(None),
     audio_file: Optional[UploadFile] = File(None)
@@ -100,7 +102,7 @@ async def create_intake(
         async def process_audio_background():
             try:
                 trans_text = nlp_service.transcribe_audio(file_path)
-                await run_ai_pipeline(case_id, trans_text, trans_text, patient_name, input_type)
+                await run_ai_pipeline(case_id, trans_text, trans_text, patient_name, mrn, input_type)
             finally:
                 if os.path.exists(file_path):
                     os.remove(file_path)
@@ -110,7 +112,7 @@ async def create_intake(
     elif input_type == "text":
         if not text_content:
             raise HTTPException(status_code=400, detail="text_content required")
-        background_tasks.add_task(run_ai_pipeline, case_id, text_content, None, patient_name, input_type)
+        background_tasks.add_task(run_ai_pipeline, case_id, text_content, None, patient_name, mrn, input_type)
     else:
         raise HTTPException(status_code=400, detail="Invalid input_type")
 

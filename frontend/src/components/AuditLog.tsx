@@ -26,9 +26,9 @@ export default function AuditLog() {
   // ponytail: simple CSV from loaded rows, no server-side export
   const esc = (s: string) => s.replace(/"/g, '""');
   const exportCSV = () => {
-    const headers = ['Timestamp,Clinician ID,Case Reference,Action,Previous Level,New Level'];
+    const headers = ['Timestamp,Clinician ID,Case Reference,Action,Previous Level,New Level,Reason'];
     const rows = filteredLogs.map(l =>
-      `"${esc(formatTs(l.timestamp))}","${esc(l.clinician_id)}","${esc(l.case_id)}","${esc(l.action)}","${esc(l.previous_level || '')}","${esc(l.new_level)}"`
+      `"${esc(formatTs(l.timestamp))}","${esc(l.clinician_id)}","${esc(l.case_id)}","${esc(l.action)}","${esc(l.previous_level || '')}","${esc(l.new_level)}","${esc(l.reason || '')}"`
     );
     const blob = new Blob([[...headers, ...rows].join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -61,8 +61,8 @@ export default function AuditLog() {
                 <th className="p-6 border-r border-white/10">Clinician ID</th>
                 <th className="p-6 border-r border-white/10">Case Reference</th>
                 <th className="p-6 border-r border-white/10">Action</th>
-                <th className="p-6 border-r border-white/10 text-center">Prev Lvl</th>
-                <th className="p-6 text-center">New Lvl</th>
+                <th className="p-6 border-r border-white/10">Level Change</th>
+                <th className="p-6">Reason</th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-black/10">
@@ -86,12 +86,14 @@ export default function AuditLog() {
                        'bg-primary text-white border-primary-ink'
                     }`}>{log.action}</span>
                   </td>
-                  <td className="p-6 text-center border-r border-black/5">
-                    {log.previous_level ? <UrgencyBadge urgency={toUrgencyLevel(log.previous_level)} /> : '—'}
+                  <td className="p-6 border-r border-black/5">
+                    <span className="flex items-center gap-2">
+                      {log.previous_level ? <UrgencyBadge urgency={toUrgencyLevel(log.previous_level)} /> : <span className="text-black/30 font-mono text-[10px]">—</span>}
+                      <span className="text-black/20 font-mono text-xs">→</span>
+                      <UrgencyBadge urgency={toUrgencyLevel(log.new_level)} />
+                    </span>
                   </td>
-                  <td className="p-6 text-center">
-                    <UrgencyBadge urgency={toUrgencyLevel(log.new_level)} />
-                  </td>
+                  <td className="p-6 text-black/70 font-mono text-[10px] max-w-[200px] truncate">{log.reason || '—'}</td>
                 </tr>
               ))}
             </tbody>

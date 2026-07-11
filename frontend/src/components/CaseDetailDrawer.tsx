@@ -4,7 +4,7 @@ import { X, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
 import { reviewCase, getClinician, pct } from '../api';
 import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
-import { getUrgencyButtonClasses } from '../urgencyStyles';
+import { getUrgencyButtonClasses, isDownTriage } from '../urgencyStyles';
 
 interface CaseDetailDrawerProps {
   isOpen: boolean;
@@ -22,6 +22,9 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
   const [reviewing, setReviewing] = useState(false);
   const [error, setError] = useState('');
   const [showRaw, setShowRaw] = useState(false);
+  const [reasonError, setReasonError] = useState('');
+
+  const sc = selectedCase;
 
   // ponytail: reset override UI on case switch, prevents stale state
   useEffect(() => {
@@ -30,7 +33,20 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
     setOverrideReason('');
     setError('');
     setShowRaw(false);
+    setReasonError('');
   }, [selectedCase?.id]);
+
+  const downTriage = sc ? isDownTriage(sc.urgency_level, overrideLevel) : false;
+
+  useEffect(() => {
+    if (!downTriage) { setReasonError(''); return; }
+    const trimmed = overrideReason.trim();
+    if (trimmed.length > 0 && trimmed.length < 10) {
+      setReasonError('Reason must be at least 10 characters');
+    } else {
+      setReasonError('');
+    }
+  }, [overrideReason, downTriage]);
 
   // ponytail: Escape closes drawer
   useEffect(() => {
@@ -40,7 +56,6 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
     return () => document.removeEventListener('keydown', handler);
   }, [isOpen, onClose]);
 
-  const sc = selectedCase;
   const entities = sc?.entities || [];
   const symptoms = sc?.key_symptoms || [];
   const flags = sc?.risk_flags || [];
@@ -95,6 +110,7 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                 <div className="flex gap-4 font-mono text-[10px] font-bold items-center flex-wrap">
                   <UrgencyBadge urgency={sc.urgency_level} />
                   <span className="border border-black px-2 py-1 normal-case font-sans text-sm">{sc.patient_name || 'Unknown'}</span>
+                  {sc.mrn && <span className="border border-black/30 px-2 py-1 font-mono text-[10px] text-black/60">{sc.mrn}</span>}
                   <span className="text-black/60 uppercase">{sc.status}</span>
                 </div>
               </div>
@@ -218,10 +234,11 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                       </div>
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">Reason (Optional)</label>
+                      <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">Reason {downTriage ? '(Required)' : '(Optional)'}</label>
                       <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} className="w-full border border-black/20 p-4 font-mono text-xs outline-none focus:bg-primary/5 resize-none" rows={2} placeholder="Reason for override..." />
+                      {reasonError && <p className="font-mono text-[10px] text-red-500 font-bold mt-1">{reasonError}</p>}
                     </div>
-                    <button onClick={handleOverride} disabled={reviewing} className="w-full bg-urgency-critical text-white py-4 font-mono text-xs font-bold uppercase border border-urgency-critical hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer">
+                    <button onClick={handleOverride} disabled={reviewing || (downTriage && (!overrideReason.trim() || overrideReason.trim().length < 10))} className="w-full bg-urgency-critical text-white py-4 font-mono text-xs font-bold uppercase border border-urgency-critical hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer">
                       Apply Override
                     </button>
                   </motion.div>

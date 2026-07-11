@@ -39,7 +39,7 @@ export default function Cases() {
     if (urgencyFilter !== 'ALL' && c.urgency_level !== urgencyFilter) return false;
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
-      if (!c.id.toLowerCase().includes(q) && !(c.patient_name || '').toLowerCase().includes(q) && !(c.chief_complaint || '').toLowerCase().includes(q)) return false;
+      if (!c.id.toLowerCase().includes(q) && !(c.patient_name || '').toLowerCase().includes(q) && !(c.mrn || '').toLowerCase().includes(q) && !(c.chief_complaint || '').toLowerCase().includes(q)) return false;
     }
     return true;
   });
@@ -77,6 +77,7 @@ export default function Cases() {
               <tr>
                 <th className="p-6 border-r border-white/10">Case ID</th>
                 <th className="p-6 border-r border-white/10">Patient Name</th>
+                <th className="p-6 border-r border-white/10">MRN</th>
                 <th className="p-6 border-r border-white/10">Clinical Complaint</th>
                 <th className="p-6 border-r border-white/10">Status</th>
                 <th className="p-6 border-r border-white/10">Urgency</th>
@@ -85,13 +86,14 @@ export default function Cases() {
             </thead>
             <tbody className="divide-y-2 divide-black/10">
               {loading ? (
-                <tr><td colSpan={6} className="p-20 text-center text-black/20 font-mono">LOADING...</td></tr>
+                <tr><td colSpan={7} className="p-20 text-center text-black/20 font-mono">LOADING...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="p-20 text-center text-black/20 font-sans text-3xl font-bold">// No matching records</td></tr>
+                <tr><td colSpan={7} className="p-20 text-center text-black/20 font-sans text-3xl font-bold">// No matching records</td></tr>
               ) : filtered.map(c => (
                 <tr key={c.id} onClick={() => setSelectedCase(c)} className="hover:bg-primary/5 transition-colors group cursor-pointer">
                    <td className="p-6 border-r border-black/5 font-bold text-primary-ink">{c.id.substring(0, 8)}</td>
                   <td className="p-6 border-r border-black/5 font-bold group-hover:underline normal-case">{c.patient_name || 'Unknown'}</td>
+                  <td className="p-6 border-r border-black/5 text-black/60 font-mono text-[10px]">{c.mrn || '—'}</td>
                   <td className="p-6 border-r border-black/5 text-black/60 truncate max-w-xs normal-case">{c.chief_complaint || '(no complaint)'}</td>
                   <td className="p-6 border-r border-black/5"><span className="font-mono text-[10px] font-bold uppercase text-black/70">{c.status}</span></td>
                   <td className="p-6 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>

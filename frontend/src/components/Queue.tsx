@@ -68,7 +68,7 @@ export default function Queue() {
     if (filterUrgency !== 'ALL' && c.urgency_level !== filterUrgency) return false;
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
-      if (!c.id.toLowerCase().includes(q) && !(c.patient_name || '').toLowerCase().includes(q) && !(c.chief_complaint || '').toLowerCase().includes(q)) return false;
+      if (!c.id.toLowerCase().includes(q) && !(c.patient_name || '').toLowerCase().includes(q) && !(c.mrn || '').toLowerCase().includes(q) && !(c.chief_complaint || '').toLowerCase().includes(q)) return false;
     }
     return true;
   });
@@ -158,6 +158,7 @@ export default function Queue() {
               <tr>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">ID</th>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Patient Name</th>
+                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">MRN</th>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Primary Complaint</th>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Urgency</th>
                 <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10 text-center">AI Confidence</th>
@@ -167,13 +168,14 @@ export default function Queue() {
             </thead>
             <tbody className="divide-y divide-black/10">
               {loading ? (
-                <tr><td colSpan={7} className="p-20 text-center font-mono text-black/50">LOADING...</td></tr>
+                <tr><td colSpan={8} className="p-20 text-center font-mono text-black/50">LOADING...</td></tr>
               ) : sorted.length === 0 ? (
-                <tr><td colSpan={7} className="p-20 text-center"><h3 className="font-sans text-3xl font-bold text-black/10 text-balance">No records found</h3></td></tr>
+                <tr><td colSpan={8} className="p-20 text-center"><h3 className="font-sans text-3xl font-bold text-black/10 text-balance">No records found</h3></td></tr>
               ) : sorted.map(c => (
                 <tr key={c.id} onClick={() => setSelectedCase(c)} className={`hover:bg-primary/5 cursor-pointer transition-colors group ${selectedCase?.id === c.id ? 'bg-primary/10' : ''}`}>
                   <td className="p-5 text-primary-ink font-bold border-r border-black/5">{c.id.substring(0, 8)}</td>
                   <td className="p-5 text-black font-bold border-r border-black/5 group-hover:underline normal-case">{c.patient_name || 'Unknown'}</td>
+                  <td className="p-5 text-black/60 border-r border-black/5 font-mono text-[10px]">{c.mrn || '—'}</td>
                   <td className="p-5 text-black/60 truncate max-w-[300px] border-r border-black/5">{c.chief_complaint || '(no complaint)'}</td>
                   <td className="p-5 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
                   <td className="p-5 border-r border-black/5">

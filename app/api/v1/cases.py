@@ -5,7 +5,7 @@ from typing import List, Optional
 import uuid
 
 from app.db.session import get_session
-from app.models.case import Case, AuditLog
+from app.models.case import Case, AuditLog, URGENCY_RANK
 
 router = APIRouter()
 
@@ -49,6 +49,11 @@ async def review_case(
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
     
+    if action == "Override" and URGENCY_RANK.get(new_level, 99) > URGENCY_RANK.get(case.urgency_level, 0):
+        stripped = (reason or "").strip()
+        if len(stripped) < 10:
+            raise HTTPException(status_code=400, detail="Down-triage override requires a reason (min 10 characters)")
+
     previous_level = case.urgency_level
     case.urgency_level = new_level
     case.status = "Completed"

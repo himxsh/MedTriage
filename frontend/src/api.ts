@@ -16,21 +16,23 @@ async function apiGet<T>(path: string): Promise<T> {
   return res.json();
 }
 
-export async function intakeText(text: string, patientName?: string) {
+export async function intakeText(text: string, patientName?: string, mrn?: string) {
   const fd = new FormData();
   fd.append('input_type', 'text');
   fd.append('text_content', text);
   if (patientName) fd.append('patient_name', patientName);
+  if (mrn) fd.append('mrn', mrn);
   const res = await fetch(`${BASE}/api/v1/intake`, { method: 'POST', body: fd });
   if (!res.ok) throw new Error(`intake ${res.status}`);
   return res.json() as Promise<{ id: string; status: string; message: string }>;
 }
 
-export async function intakeAudio(file: File, patientName?: string) {
+export async function intakeAudio(file: File, patientName?: string, mrn?: string) {
   const fd = new FormData();
   fd.append('input_type', 'audio');
   fd.append('audio_file', file);
   if (patientName) fd.append('patient_name', patientName);
+  if (mrn) fd.append('mrn', mrn);
   const res = await fetch(`${BASE}/api/v1/intake`, { method: 'POST', body: fd });
   if (!res.ok) throw new Error(`intake ${res.status}`);
   return res.json() as Promise<{ id: string; status: string; message: string }>;
