@@ -38,7 +38,7 @@ export default function Register({ onNavigate }: RegisterProps) {
               <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60">Full Name</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-4 w-4 text-black/40 group-focus-within:text-primary transition-colors" />
+                  <User className="h-4 w-4 text-black/50 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full pl-10 pr-4 py-4 border-2 border-black outline-none font-mono text-sm focus:bg-primary/5 transition-colors placeholder:text-black/20" placeholder="DR. ARTHUR CONAN" />
               </div>
@@ -47,7 +47,7 @@ export default function Register({ onNavigate }: RegisterProps) {
               <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60">Email Address</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-black/40 group-focus-within:text-primary transition-colors" />
+                  <Mail className="h-4 w-4 text-black/50 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full pl-10 pr-4 py-4 border-2 border-black outline-none font-mono text-sm focus:bg-primary/5 transition-colors placeholder:text-black/20" placeholder="name@institute.edu" />
               </div>
@@ -56,7 +56,7 @@ export default function Register({ onNavigate }: RegisterProps) {
               <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60">Clinician ID</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Shield className="h-4 w-4 text-black/40 group-focus-within:text-primary transition-colors" />
+                  <Shield className="h-4 w-4 text-black/50 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input type="text" required value={formData.clinicianId} onChange={(e) => setFormData({ ...formData, clinicianId: e.target.value })} className="w-full pl-10 pr-4 py-4 border-2 border-black outline-none font-mono text-sm focus:bg-primary/5 transition-colors placeholder:text-black/20 uppercase" placeholder="MED-D042-X" />
               </div>
@@ -73,18 +73,18 @@ export default function Register({ onNavigate }: RegisterProps) {
               <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black/60">Create Password</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-black/40 group-focus-within:text-primary transition-colors" />
+                  <Lock className="h-4 w-4 text-black/50 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input type="password" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="w-full pl-10 pr-4 py-4 border-2 border-black outline-none font-mono text-sm focus:bg-primary/5 transition-colors placeholder:text-black/20" placeholder="••••••••" />
               </div>
             </div>
-            <button type="submit" className="md:col-span-2 w-full flex items-center justify-between border-2 border-black bg-black text-white px-6 py-5 font-mono font-bold uppercase hover:bg-primary hover:border-primary transition-colors transition-transform active:scale-[0.96] group cursor-pointer">
+            <button type="submit" className="md:col-span-2 w-full flex items-center justify-between border-2 border-black bg-black text-white px-6 py-5 font-mono font-bold uppercase hover:bg-primary hover:text-black hover:border-primary transition-colors transition-transform active:scale-[0.96] group cursor-pointer">
               <span>Submit</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </form>
           <div className="mt-12 pt-8 border-t-2 border-black/10 flex flex-col items-center gap-4">
-            <p className="font-mono text-[10px] uppercase text-black/40">Already have an account?</p>
+            <p className="font-mono text-[10px] uppercase text-black/60">Already have an account?</p>
             <button onClick={() => onNavigate('login')} className="w-full border-2 border-black bg-transparent text-black px-6 py-4 font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer">Log In</button>
           </div>
         </motion.div>

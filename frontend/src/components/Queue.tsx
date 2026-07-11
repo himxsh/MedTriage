@@ -92,16 +92,16 @@ export default function Queue() {
           <span className={`w-2 h-2 rounded-full ${wsStatus === 'live' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
           {wsStatus === 'live' ? 'LIVE' : 'OFFLINE'}
         </div>
-        <span className="font-mono text-[10px] text-black/30 uppercase tracking-widest">QUEUE</span>
+        <span className="font-mono text-[10px] text-black/50 uppercase tracking-widest">QUEUE</span>
       </div>
 
       <div className="flex divide-x-2 divide-black border-b-2 border-black bg-white shrink-0">
         {[
           { label: 'Pending', count: pendingCount, color: 'text-black' },
-          { label: 'Completed', count: completedCount, color: 'text-black/30' }
+          { label: 'Completed', count: completedCount, color: 'text-black/50' }
         ].map((stat, i) => (
           <div key={i} className="flex-1 p-6 hover:bg-black/5 transition-colors group cursor-default">
-            <p className="font-mono text-[10px] font-bold text-black/40 uppercase tracking-[0.3em] mb-2">{stat.label}</p>
+            <p className="font-mono text-[10px] font-bold text-black/60 uppercase tracking-[0.3em] mb-2">{stat.label}</p>
             <p className={`font-bebas text-6xl ${stat.color} group-hover:scale-105 transition-transform origin-left tabular-nums`}>{stat.count}</p>
           </div>
         ))}
@@ -125,8 +125,8 @@ export default function Queue() {
             ))}
           </div>
           <div className="flex items-center gap-3 border-b-2 border-black pb-2 px-2">
-            <Search className="w-4 h-4 text-black/30" />
-            <input type="text" placeholder="FILTER_RECORDS..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-48 uppercase" />
+            <Search className="w-4 h-4 text-black/50" />
+            <input type="text" placeholder="FILTER RECORDS..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-48 uppercase" />
           </div>
         </div>
 
@@ -144,12 +144,12 @@ export default function Queue() {
             </thead>
             <tbody className="divide-y-2 divide-black/10 italic">
               {loading ? (
-                <tr><td colSpan={6} className="p-20 text-center font-mono text-black/30">LOADING...</td></tr>
+                <tr><td colSpan={6} className="p-20 text-center font-mono text-black/50">LOADING...</td></tr>
               ) : sorted.length === 0 ? (
-                <tr><td colSpan={6} className="p-20 text-center"><h3 className="font-bebas text-6xl text-black/10 tracking-widest text-balance">NO_RECORDS_FOUND</h3></td></tr>
+                <tr><td colSpan={6} className="p-20 text-center"><h3 className="font-bebas text-6xl text-black/10 tracking-widest text-balance">NO RECORDS FOUND</h3></td></tr>
               ) : sorted.map(c => (
                 <tr key={c.id} onClick={() => setSelectedCase(c)} className={`hover:bg-primary/5 cursor-pointer transition-colors group ${selectedCase?.id === c.id ? 'bg-primary/10' : ''}`}>
-                  <td className="p-5 text-primary font-bold border-r border-black/5">{c.id.substring(0, 8)}</td>
+                  <td className="p-5 text-primary-ink font-bold border-r border-black/5">{c.id.substring(0, 8)}</td>
                   <td className="p-5 text-black font-bold uppercase border-r border-black/5 group-hover:underline">{c.patient_name || 'Unknown'}</td>
                   <td className="p-5 text-black/60 truncate max-w-[300px] border-r border-black/5">{c.chief_complaint || '(no complaint)'}</td>
                   <td className="p-5 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
@@ -161,7 +161,7 @@ export default function Queue() {
                       </div>
                     </div>
                   </td>
-                  <td className="p-5 text-black/40 text-right font-bold">{formatTime(c.created_at)}</td>
+                  <td className="p-5 text-black/60 text-right font-bold">{formatTime(c.created_at)}</td>
                 </tr>
               ))}
             </tbody>

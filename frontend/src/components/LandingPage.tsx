@@ -17,10 +17,10 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <h2 className="text-2xl font-bold tracking-tighter font-mono">MEDTRIAGE</h2>
         </div>
         <div className="hidden md:flex items-center gap-10 font-mono text-sm uppercase">
-          <a className="hover:text-primary transition-colors" href="#">Docs</a>
+          <a className="hover:text-primary-ink transition-colors" href="#">Docs</a>
           <button
             onClick={() => onNavigate('login')}
-            className="font-bold hover:text-primary transition-colors cursor-pointer"
+            className="font-bold hover:text-primary-ink transition-colors cursor-pointer"
           >
             LOGIN
           </button>
@@ -36,7 +36,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             animate={{ opacity: 1, scale: 1 }}
               className="font-bebas text-[90px] md:text-[200px] leading-[0.8] text-black mb-10 tracking-tighter text-balance"
           >
-            TRIAGE. <span className="text-primary italic">FASTER.</span>
+            TRIAGE. <span className="text-primary-ink italic">FASTER.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -49,7 +49,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <div className="flex flex-col md:flex-row gap-6">
             <button
               onClick={() => onNavigate('register')}
-              className="group relative inline-flex items-center justify-center border-4 border-black bg-primary px-16 py-6 text-white font-mono text-xl font-bold uppercase transition-colors transition-shadow transition-transform hover:translate-x-2 hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] active:scale-[0.96] cursor-pointer"
+              className="group relative inline-flex items-center justify-center border-4 border-black bg-primary px-16 py-6 text-black font-mono text-xl font-bold uppercase transition-colors transition-shadow transition-transform hover:translate-x-2 hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] active:scale-[0.96] cursor-pointer"
             >
               Get Started
             </button>
@@ -101,26 +101,26 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-16">
             <div className="space-y-4">
-              <p className="font-bold text-primary">RESOURCES</p>
+              <p className="font-bold text-primary-ink">RESOURCES</p>
               <ul className="space-y-2 opacity-50">
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">API_DOCS</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">WHITE_PAPER</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">SECURITY_SHA</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">API DOCS</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">WHITE PAPER</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">SECURITY SHA</li>
               </ul>
             </div>
             <div className="space-y-4">
-              <p className="font-bold text-primary">PLATFORM</p>
+              <p className="font-bold text-primary-ink">PLATFORM</p>
               <ul className="space-y-2 opacity-50">
-                <li className="hover:opacity-100 transition-opacity cursor-pointer" onClick={() => onNavigate('audit')}>AUDIT_LOGS</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">SYSTEM_STATUS</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">NETWORK_NODES</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer" onClick={() => onNavigate('audit')}>AUDIT LOGS</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">SYSTEM STATUS</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">NETWORK NODES</li>
               </ul>
             </div>
             <div className="space-y-4">
-              <p className="font-bold text-primary">LEGAL</p>
+              <p className="font-bold text-primary-ink">LEGAL</p>
               <ul className="space-y-2 opacity-50">
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">PRIVACY_MD</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">COMPLIANCE_JSON</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">PRIVACY MD</li>
+                <li className="hover:opacity-100 transition-opacity cursor-pointer">COMPLIANCE JSON</li>
               </ul>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
         <div className="h-0.5 w-full bg-black/10 mb-8"></div>
         <div className="flex justify-between items-center opacity-30 text-[8px] tracking-[0.4em]">
           <span>BUILT FOR PRECISION / 2024</span>
-          <span>SECURE_SESSION_ACTIVE</span>
+          <span>SECURE SESSION ACTIVE</span>
         </div>
       </footer>
     </div>

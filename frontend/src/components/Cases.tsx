@@ -50,14 +50,8 @@ export default function Cases() {
   const statuses = ['ALL', ...new Set(allCases.map(c => c.status))];
 
   return (
-    <div className="p-12">
+    <div className="pt-6 px-12 pb-12">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-10">
-          <h1 className="font-bebas text-7xl text-black text-balance">CASES</h1>
-          <p className="font-mono text-[10px] text-black/40 uppercase tracking-widest mt-1">// FULL CASE INDEX</p>
-          <div className="h-2 w-full bg-black mt-4"></div>
-        </div>
-
         <div className="mb-8 flex flex-wrap gap-4 items-end justify-between">
           <div className="flex gap-4 flex-wrap items-center">
             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border-2 border-black px-4 py-2 font-mono text-[10px] font-bold uppercase bg-white cursor-pointer">
@@ -72,7 +66,7 @@ export default function Cases() {
             </div>
           </div>
           <div className="flex items-center gap-3 border-b-2 border-black pb-2 px-2">
-            <Search className="w-4 h-4 text-black/30" />
+            <Search className="w-4 h-4 text-black/50" />
             <input type="text" placeholder="SEARCH id/patient/complaint..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-64 uppercase" />
           </div>
         </div>
@@ -81,27 +75,27 @@ export default function Cases() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-black text-white uppercase text-[11px] font-bold tracking-[0.2em] border-b-4 border-black">
               <tr>
-                <th className="p-6 border-r border-white/10">Case_ID</th>
-                <th className="p-6 border-r border-white/10">Patient_Name</th>
-                <th className="p-6 border-r border-white/10">Clinical_Complaint</th>
+                <th className="p-6 border-r border-white/10">Case ID</th>
+                <th className="p-6 border-r border-white/10">Patient Name</th>
+                <th className="p-6 border-r border-white/10">Clinical Complaint</th>
                 <th className="p-6 border-r border-white/10">Status</th>
                 <th className="p-6 border-r border-white/10">Urgency</th>
-                <th className="p-6 text-right">Date_Logged</th>
+                <th className="p-6 text-right">Date Logged</th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-black/10">
               {loading ? (
                 <tr><td colSpan={6} className="p-20 text-center text-black/20 font-mono">LOADING...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="p-20 text-center text-black/20 font-bebas text-5xl tracking-widest">// NO_MATCHING_RECORDS</td></tr>
+                <tr><td colSpan={6} className="p-20 text-center text-black/20 font-bebas text-5xl tracking-widest">// NO MATCHING RECORDS</td></tr>
               ) : filtered.map(c => (
                 <tr key={c.id} onClick={() => setSelectedCase(c)} className="hover:bg-primary/5 transition-colors group cursor-pointer">
-                  <td className="p-6 border-r border-black/5 font-bold text-primary">{c.id.substring(0, 8)}</td>
+                   <td className="p-6 border-r border-black/5 font-bold text-primary-ink">{c.id.substring(0, 8)}</td>
                   <td className="p-6 border-r border-black/5 font-bold uppercase group-hover:underline">{c.patient_name || 'Unknown'}</td>
                   <td className="p-6 border-r border-black/5 text-black/60 italic truncate max-w-xs">{c.chief_complaint || '(no complaint)'}</td>
-                  <td className="p-6 border-r border-black/5"><span className="font-mono text-[10px] font-bold uppercase text-black/50">{c.status}</span></td>
+                  <td className="p-6 border-r border-black/5"><span className="font-mono text-[10px] font-bold uppercase text-black/70">{c.status}</span></td>
                   <td className="p-6 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
-                  <td className="p-6 text-right font-bold text-black/40 group-hover:text-black">{formatDate(c.created_at)}</td>
+                  <td className="p-6 text-right font-bold text-black/60 group-hover:text-black">{formatDate(c.created_at)}</td>
                 </tr>
               ))}
             </tbody>

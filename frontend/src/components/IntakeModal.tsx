@@ -80,7 +80,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
       >
         <header className="p-8 border-b-4 border-black bg-white flex justify-between items-center sticky top-0 z-10">
           <div>
-            <h1 className="font-bebas text-5xl tracking-wider text-black text-balance">NEW_INTAKE_PROTOCOL</h1>
+            <h1 className="font-bebas text-5xl tracking-wider text-black text-balance">NEW INTAKE PROTOCOL</h1>
             <p className="font-mono text-[10px] text-black/50 uppercase tracking-[0.3em] mt-1">Initialize patient clinical intelligence pipeline</p>
           </div>
           <button onClick={onClose} disabled={isProcessing || isSuccess} className="p-3 border-2 border-black hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer bg-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black">
@@ -102,7 +102,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-3">
                 <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Patient Name / Identifier (Optional)</label>
-                <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border-2 border-black p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT_0042 / JOHN_DOE" />
+                <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border-2 border-black p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT 0042 / JOHN DOE" />
               </div>
 
               {mode === 'text' ? (
@@ -132,7 +132,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
               )}
 
               <div className="pt-4 flex flex-col md:flex-row gap-6 items-start md:items-center">
-                <button type="submit" disabled={isProcessing || isSuccess} className="group relative flex items-center justify-center w-full md:w-fit min-w-[300px] border-2 border-black bg-black text-white px-10 py-6 font-mono font-bold uppercase text-lg tracking-wider hover:bg-primary hover:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden active:scale-[0.96]">
+                <button type="submit" disabled={isProcessing || isSuccess} className="group relative flex items-center justify-center w-full md:w-fit min-w-[300px] border-2 border-black bg-black text-white px-10 py-6 font-mono font-bold uppercase text-lg tracking-wider hover:bg-primary hover:text-black hover:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden active:scale-[0.96]">
                   <span className="relative z-10">{isProcessing ? 'Processing...' : isSuccess ? 'Success' : 'Submit for Analysis'}</span>
                   {!isProcessing && !isSuccess && <ArrowRight className="ml-4 w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />}
                   <AnimatePresence>
@@ -146,7 +146,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
                   {(isProcessing || isSuccess || error) && (
                     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 font-mono font-bold italic">
                       {isProcessing ? (
-                        <><Loader2 className="w-5 h-5 animate-spin text-primary" /><span className="text-primary text-sm uppercase tracking-widest">{processStep}</span></>
+                        <><Loader2 className="w-5 h-5 animate-spin text-primary-ink" /><span className="text-primary-ink text-sm uppercase tracking-widest">{processStep}</span></>
                       ) : isSuccess ? (
                         <><CheckCircle2 className="w-5 h-5 text-green-600" /><span className="text-green-600 text-sm uppercase tracking-widest">Cycle Complete // Redirecting</span></>
                       ) : (
@@ -161,8 +161,8 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
         </div>
 
         <footer className="bg-black text-[8px] font-mono text-primary/60 p-4 flex justify-between uppercase tracking-widest">
-          <span>Secure_Intake_Layer: active</span>
-          <span>Encrypted_Stream: AES4096</span>
+          <span>Secure Intake Layer: active</span>
+          <span>Encrypted Stream: AES4096</span>
         </footer>
       </motion.div>
     </div>

@@ -10,11 +10,21 @@ interface AppShellProps {
   onNavigate: (screen: Screen) => void;
 }
 
+const TITLE_SUBTITLES: Record<string, string> = {
+  cases: 'FULL CASE INDEX',
+  audit: 'DECISION LOG',
+  account: 'Clinician Configuration',
+};
+
 export default function AppShell({ children, onNavigate }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const clinician = getClinician();
   const currentPath = location.pathname.replace('/', '');
+
+  const currentNav = NAV_ITEMS.find(item => item.id === currentPath);
+  const pageTitle = currentNav?.label ?? '';
+  const pageSubtitle = TITLE_SUBTITLES[currentPath];
 
   return (
     <div className="flex h-screen bg-background-linen">
@@ -34,7 +44,7 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
                   className={`w-full flex items-center gap-4 px-6 py-4 border-2 cursor-pointer transition-colors ${
                     isActive
                       ? 'bg-black text-white border-black shadow-[4px_4px_0px_0px_rgba(201,167,74,1)]'
-                      : 'text-black/40 hover:text-black hover:bg-black/5 border-transparent'
+                      : 'text-black/50 hover:text-black hover:bg-black/5 border-transparent'
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
@@ -53,15 +63,21 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
             </div>
             <div className="overflow-hidden flex-1">
               <p className="font-mono text-[13px] font-bold text-black uppercase truncate">{clinician.name}</p>
-              <button onClick={() => navigate('/')} className="font-mono text-[10px] text-primary font-bold uppercase tracking-widest hover:underline cursor-pointer">LOGOUT</button>
+              <button onClick={() => navigate('/')} className="font-mono text-[10px] text-primary-ink font-bold uppercase tracking-widest hover:underline cursor-pointer">LOGOUT</button>
             </div>
           </div>
         </div>
       </aside>
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-20 border-b-2 border-black flex items-center px-10 bg-white shrink-0">
+          {pageTitle && pageSubtitle && (
+            <div className="flex items-center gap-4">
+              <h1 className="font-bebas text-3xl text-black leading-none uppercase tracking-widest">{pageTitle}</h1>
+              <span className="font-mono text-[10px] text-black/60 uppercase tracking-widest mt-0.5">// {pageSubtitle}</span>
+            </div>
+          )}
           <div className="ml-auto flex items-center gap-4">
-            <button onClick={() => onNavigate('intake')} className="bg-primary text-white px-8 py-3 border-2 border-black font-mono text-sm font-bold uppercase transition-colors transition-shadow transition-transform hover:translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:scale-[0.96] cursor-pointer">
+            <button onClick={() => onNavigate('intake')} className="bg-primary text-black px-8 py-3 border-2 border-black font-mono text-sm font-bold uppercase transition-colors transition-shadow transition-transform hover:translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:scale-[0.96] cursor-pointer">
               + New Intake
             </button>
           </div>

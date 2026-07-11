@@ -20,12 +20,8 @@ export default function Account() {
   };
 
   return (
-    <div className="p-12 overflow-y-auto">
+    <div className="pt-6 px-12 pb-12 overflow-y-auto">
       <div className="max-w-3xl">
-        <h1 className="font-bebas text-7xl text-black mb-2">ACCOUNT</h1>
-        <p className="font-mono text-[10px] text-black/40 uppercase tracking-widest mb-8">// Clinician Configuration</p>
-        <div className="h-1.5 w-full bg-black mb-10"></div>
-
         <div className="space-y-10">
           <div className="bg-white border-2 border-black p-8 space-y-6">
             <h2 className="font-bebas text-3xl text-black uppercase tracking-wide">Identity</h2>
@@ -39,7 +35,7 @@ export default function Account() {
                 <input type="text" value={clinicianId} onChange={e => setClinicianId(e.target.value)} className="w-full bg-white border-2 border-black p-4 font-bold outline-none focus:bg-primary/5 uppercase" />
               </div>
             </div>
-            <button onClick={handleSave} className="bg-black text-white px-8 py-4 border-2 border-black font-mono text-xs font-bold uppercase hover:bg-primary hover:border-primary transition-colors active:scale-[0.96] cursor-pointer">
+            <button onClick={handleSave} className="bg-black text-white px-8 py-4 border-2 border-black font-mono text-xs font-bold uppercase hover:bg-primary hover:text-black hover:border-primary transition-colors active:scale-[0.96] cursor-pointer">
               {saved ? 'Saved' : 'Save'}
             </button>
           </div>
