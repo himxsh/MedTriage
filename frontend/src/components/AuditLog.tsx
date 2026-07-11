@@ -3,6 +3,8 @@ import { Search, Download } from 'lucide-react';
 import { listAudit, getCase } from '../api';
 import type { AuditEntry, PatientCase } from '../types';
 import CaseDetailModal from './CaseDetailModal';
+import UrgencyBadge from './UrgencyBadge';
+import { toUrgencyLevel } from '../urgencyStyles';
 
 export default function AuditLog() {
   const [logs, setLogs] = useState<AuditEntry[]>([]);
@@ -70,9 +72,9 @@ export default function AuditLog() {
                 <tr><td colSpan={6} className="p-20 text-center"><h3 className="font-bebas text-5xl text-black/10 tracking-widest">NO AUDIT RECORDS</h3></td></tr>
               ) : filteredLogs.map((log, i) => (
                 <tr key={log.id || i} className="hover:bg-primary/5 transition-colors group">
-                   <td className="p-6 text-black/70 border-r border-black/5 font-bold group-hover:text-black transition-colors">{formatTs(log.timestamp)}</td>
+                  <td className="p-6 text-black/70 border-r border-black/5 font-bold group-hover:text-black transition-colors">{formatTs(log.timestamp)}</td>
                   <td className="p-6 font-bold uppercase border-r border-black/5">{log.clinician_id}</td>
-                   <td className="p-6 text-primary-ink font-bold border-r border-black/5">
+                  <td className="p-6 text-primary-ink font-bold border-r border-black/5">
                     <span onClick={() => getCase(log.case_id).then(setSelectedCase)} className="underline decoration-2 decoration-primary/30 hover:decoration-primary cursor-pointer transition-all">
                       {log.case_id.substring(0, 8)}
                     </span>
@@ -84,9 +86,11 @@ export default function AuditLog() {
                        'bg-primary text-black border-black'
                     }`}>{log.action}</span>
                   </td>
-                   <td className="p-6 text-center border-r border-black/5 text-black/50 font-bold italic">{log.previous_level || '—'}</td>
+                  <td className="p-6 text-center border-r border-black/5">
+                    {log.previous_level ? <UrgencyBadge urgency={toUrgencyLevel(log.previous_level)} /> : '—'}
+                  </td>
                   <td className="p-6 text-center">
-                    <span className={`text-base font-bebas tracking-widest px-4 py-1 ${log.new_level === 'Critical' ? 'text-red-600 bg-red-50' : 'text-black'}`}>{log.new_level}</span>
+                    <UrgencyBadge urgency={toUrgencyLevel(log.new_level)} />
                   </td>
                 </tr>
               ))}

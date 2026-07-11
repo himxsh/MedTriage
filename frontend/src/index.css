@@ -6,7 +6,8 @@
   --color-background-linen: #F5F0E8;
   --color-urgency-critical: #ef4444;
   --color-urgency-high: #f59e0b;
-  --color-urgency-moderate: #14b8a6;
+  --color-urgency-medium: #eab308;
+  --color-urgency-low: #22c55e;
   
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-bebas: "Bebas Neue", cursive;

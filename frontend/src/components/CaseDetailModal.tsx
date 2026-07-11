@@ -4,6 +4,7 @@ import { X, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
 import { reviewCase, getClinician, pct } from '../api';
 import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
+import { getUrgencyButtonClasses } from '../urgencyStyles';
 
 interface CaseDetailModalProps {
   isOpen: boolean;
@@ -195,7 +196,7 @@ export default function CaseDetailModal({ isOpen, onClose, selectedCase, onRevie
                       <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">New Level</label>
                       <div className="flex gap-2">
                         {URGENCY_LEVELS.map(l => (
-                          <button key={l} onClick={() => setOverrideLevel(l)} className={`flex-1 py-3 border-2 font-mono text-xs font-bold uppercase cursor-pointer transition-colors ${overrideLevel === l ? 'bg-black text-white border-black' : 'bg-white text-black border-black/30 hover:border-black'}`}>{l}</button>
+                          <button key={l} onClick={() => setOverrideLevel(l)} className={getUrgencyButtonClasses(l, overrideLevel === l)}>{l}</button>
                         ))}
                       </div>
                     </div>
