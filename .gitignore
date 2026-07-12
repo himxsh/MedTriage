@@ -35,5 +35,3 @@ tech\ stack_pitch.txt
 .env
 synthetic_data/
 scripts/capture-screenshots.mjs
-
-*.png
