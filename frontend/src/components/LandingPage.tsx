@@ -63,7 +63,13 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
         </div>
         <div className="hidden md:flex items-center gap-10 font-mono text-sm uppercase">
           <a className="hover:text-primary-ink transition-colors" href="#pricing">Pricing</a>
-          <a className="hover:text-primary-ink transition-colors" href="#">Docs</a>
+          <button
+            type="button"
+            onClick={() => onNavigate('docs')}
+            className="hover:text-primary-ink transition-colors cursor-pointer"
+          >
+            Docs
+          </button>
           <button
             onClick={() => onNavigate('login')}
             className="font-bold hover:text-primary-ink transition-colors cursor-pointer"
@@ -228,7 +234,12 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                 <li className="hover:opacity-100 transition-opacity cursor-pointer">
                   <a href="#pricing">PRICING</a>
                 </li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">API DOCS</li>
+                <li
+                  className="hover:opacity-100 transition-opacity cursor-pointer"
+                  onClick={() => onNavigate('docs')}
+                >
+                  DOCS
+                </li>
                 <li className="hover:opacity-100 transition-opacity cursor-pointer">WHITE PAPER</li>
                 <li className="hover:opacity-100 transition-opacity cursor-pointer">SECURITY SHA</li>
               </ul>

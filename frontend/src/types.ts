@@ -1,5 +1,6 @@
 export type Screen =
   | 'landing'
+  | 'docs'
   | 'login'
   | 'register'
   | 'queue'

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
+import Docs from './components/Docs';
 import AppShell from './components/AppShell';
 import Queue from './components/Queue';
 import Cases from './components/Cases';
@@ -18,6 +19,7 @@ function AppContent() {
   const handleNavigate = (screen: Screen) => {
     switch (screen) {
       case 'landing': navigate('/'); break;
+      case 'docs': navigate('/docs'); break;
       case 'login': navigate('/login'); break;
       case 'register': navigate('/register'); break;
       case 'queue': navigate('/queue'); break;
@@ -25,8 +27,11 @@ function AppContent() {
       case 'intake': setIsIntakeModalOpen(true); break;
       case 'audit': navigate('/audit'); break;
       case 'account': navigate('/account'); break;
-
-      default: navigate('/');
+      default: {
+        const _exhaustive: never = screen;
+        void _exhaustive;
+        navigate('/');
+      }
     }
     if (screen !== 'intake') {
       window.scrollTo(0, 0);
@@ -37,6 +42,7 @@ function AppContent() {
     <div className="min-h-screen font-sans bg-background-linen">
       <Routes>
         <Route path="/" element={<LandingPage onNavigate={handleNavigate} />} />
+        <Route path="/docs" element={<Docs onNavigate={handleNavigate} />} />
         <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
         <Route path="/register" element={<Register onNavigate={handleNavigate} />} />
         <Route path="/queue" element={<AppShell onNavigate={handleNavigate}><Queue /></AppShell>} />
