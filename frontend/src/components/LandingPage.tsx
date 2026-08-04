@@ -263,7 +263,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
         </div>
         <div className="h-0.5 w-full bg-black/10 mb-8"></div>
         <div className="flex justify-between items-center opacity-30 text-[8px] tracking-[0.4em]">
-          <span>BUILT FOR PRECISION / 2024</span>
+          <span>BUILT FOR PRECISION</span>
           <span>SECURE SESSION ACTIVE</span>
         </div>
       </footer>

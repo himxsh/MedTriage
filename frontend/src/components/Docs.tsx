@@ -1,5 +1,22 @@
 import React from 'react';
-import { LayoutGrid, ArrowLeft, Mic, ListOrdered, CheckCircle2, ScrollText } from 'lucide-react';
+import {
+  LayoutGrid,
+  ArrowLeft,
+  ArrowRight,
+  ArrowDown,
+  Mic,
+  ListOrdered,
+  CheckCircle2,
+  ScrollText,
+  FileText,
+  ScanSearch,
+  ShieldOff,
+  GitBranch,
+  Sparkles,
+  Database,
+  Radio,
+  MonitorSmartphone,
+} from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Screen } from '../types';
 
@@ -33,6 +50,54 @@ const STEPS = [
     body: 'Every Confirm or Override is logged with previous → new urgency, clinician id, and reason. Use the Audit screen for a full decision trail.',
   },
 ] as const;
+
+const FLOW_STAGES = [
+  {
+    label: 'Capture',
+    nodes: [
+      { icon: FileText, title: 'Text / Audio', detail: 'Clinical notes or Whisper STT' },
+    ],
+  },
+  {
+    label: 'AI pipeline',
+    nodes: [
+      { icon: ScanSearch, title: 'Clinical NER', detail: 'Entities + UMLS linking' },
+      { icon: ShieldOff, title: 'De-ID', detail: 'Mask PHI, keep meds/dx' },
+      { icon: GitBranch, title: 'Relations', detail: 'Negation & modifiers' },
+      { icon: Sparkles, title: 'Gemini triage', detail: 'Urgency + evidence JSON' },
+    ],
+  },
+  {
+    label: 'Deliver',
+    nodes: [
+      { icon: Database, title: 'Postgres', detail: 'Case persisted' },
+      { icon: Radio, title: 'Redis → WS', detail: 'Live queue push' },
+      { icon: MonitorSmartphone, title: 'Queue UI', detail: 'Clinician sees case' },
+    ],
+  },
+  {
+    label: 'Decide',
+    nodes: [
+      { icon: CheckCircle2, title: 'Confirm / Override', detail: 'Human-in-the-loop' },
+      { icon: ScrollText, title: 'Audit log', detail: 'Previous → new + reason' },
+    ],
+  },
+] as const;
+
+function FlowArrow({ vertical = false }: { vertical?: boolean }) {
+  if (vertical) {
+    return (
+      <div className="flex justify-center py-3 text-primary" aria-hidden>
+        <ArrowDown className="w-5 h-5" />
+      </div>
+    );
+  }
+  return (
+    <div className="hidden md:flex items-center px-1 text-primary shrink-0" aria-hidden>
+      <ArrowRight className="w-5 h-5" />
+    </div>
+  );
+}
 
 export default function Docs({ onNavigate }: DocsProps) {
   return (
@@ -80,6 +145,73 @@ export default function Docs({ onNavigate }: DocsProps) {
               AI assists — licensed clinicians confirm or override before any clinical action.
             </p>
           </motion.div>
+        </section>
+
+        <section className="px-6 md:px-10 py-16 md:py-20 brutalist-rule-x bg-background-linen">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-ink mb-4">System flow</p>
+          <h2 className="font-bebas text-4xl md:text-6xl tracking-tight leading-none uppercase mb-4">
+            How a case moves
+          </h2>
+          <p className="max-w-2xl font-mono text-sm uppercase tracking-wide text-black/50 text-pretty leading-relaxed mb-12">
+            Intake is accepted fast. The AI pipeline runs in the background, then the case lands on the live queue for clinician review.
+          </p>
+
+          <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+            <ol className="flex flex-col md:flex-row md:items-stretch gap-0 md:gap-0 min-w-0 md:min-w-max list-none p-0 m-0">
+              {FLOW_STAGES.map((stage, stageIdx) => (
+                <React.Fragment key={stage.label}>
+                  <li className="flex flex-col md:w-[220px] shrink-0">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary-ink mb-3">
+                      {String(stageIdx + 1).padStart(2, '0')} · {stage.label}
+                    </span>
+                    <div className="flex flex-col gap-2 flex-grow border-2 border-black/15 bg-white p-3">
+                      {stage.nodes.map((node, nodeIdx) => {
+                        const Icon = node.icon;
+                        return (
+                          <React.Fragment key={node.title}>
+                            {nodeIdx > 0 && (
+                              <div className="flex justify-center text-black/25" aria-hidden>
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </div>
+                            )}
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true, margin: '-40px' }}
+                              transition={{ delay: stageIdx * 0.08 + nodeIdx * 0.04 }}
+                              className="flex items-start gap-3 border border-black/10 bg-background-linen/60 p-3"
+                            >
+                              <Icon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                              <div className="min-w-0">
+                                <p className="font-bebas text-lg tracking-widest leading-none uppercase">
+                                  {node.title}
+                                </p>
+                                <p className="mt-1.5 font-mono text-[10px] uppercase tracking-wide text-black/50 leading-snug text-pretty">
+                                  {node.detail}
+                                </p>
+                              </div>
+                            </motion.div>
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  </li>
+                  {stageIdx < FLOW_STAGES.length - 1 && (
+                    <>
+                      <FlowArrow />
+                      <div className="md:hidden">
+                        <FlowArrow vertical />
+                      </div>
+                    </>
+                  )}
+                </React.Fragment>
+              ))}
+            </ol>
+          </div>
+
+          <p className="mt-10 font-mono text-[10px] uppercase tracking-[0.25em] text-black/40 max-w-3xl leading-relaxed">
+            Pipeline: Intake → NER → De-ID → Relations → Gemini → DB → Redis → WebSocket → Queue → Review → Audit
+          </p>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-2 bg-black/5 brutalist-rule-x">
