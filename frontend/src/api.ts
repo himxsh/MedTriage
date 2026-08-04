@@ -1,6 +1,9 @@
 import type { PatientCase, AuditEntry } from './types';
 
-const BASE = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000';
+// Default to same host as the page so LAN clients don't hit their own localhost.
+const BASE =
+  (import.meta.env.VITE_API_URL as string) ||
+  `${window.location.protocol}//${window.location.hostname}:8000`;
 
 export function getApiBase(): string {
   return BASE;

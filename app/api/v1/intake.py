@@ -18,18 +18,23 @@ router = APIRouter()
 async def run_ai_pipeline(case_id: uuid.UUID, raw_text: str, transcription: Optional[str], patient_name: Optional[str], mrn: Optional[str], input_type: str):
     """
     Background task to run the heavy AI pipeline.
+    Sync NLP runs in a worker thread so the event loop stays responsive.
     """
     # 1. Initial Clinical Extraction on RAW text to identify terms to protect
     # We do this specifically to prevent De-ID from masking medications/diseases
-    initial_extraction = nlp_service.extract_clinical_data(raw_text)
+    initial_extraction = await asyncio.to_thread(nlp_service.extract_clinical_data, raw_text)
     clinical_entities = initial_extraction.get("entities", [])
     
     # 2. De-identification (Protecting the medical terms found in step 1)
     # This now returns the updated entity list with projected offsets
-    masked_text, entities = deid_service.mask_pii(raw_text, protected_entities=clinical_entities)
+    masked_text, entities = await asyncio.to_thread(
+        deid_service.mask_pii, raw_text, clinical_entities
+    )
     
     # 3. Relationship Extraction (Stage skipped here, using entities from Step 2)
-    relations = nlp_service.extract_relationships(masked_text, entities)
+    relations = await asyncio.to_thread(
+        nlp_service.extract_relationships, masked_text, entities
+    )
     
     # 5. Gemini Analysis (Summary & Triage)
     analysis = await intelligence_service.analyze_case(masked_text, entities, relations)
@@ -101,7 +106,7 @@ async def create_intake(
         
         async def process_audio_background():
             try:
-                trans_text = nlp_service.transcribe_audio(file_path)
+                trans_text = await asyncio.to_thread(nlp_service.transcribe_audio, file_path)
                 await run_ai_pipeline(case_id, trans_text, trans_text, patient_name, mrn, input_type)
             finally:
                 if os.path.exists(file_path):
