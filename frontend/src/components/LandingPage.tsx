@@ -1,11 +1,33 @@
-import React from 'react';
-import { LayoutGrid, ShieldCheck, Stethoscope, ClipboardList, CalendarDays, CalendarRange, Building2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useState, FormEvent, useRef, useLayoutEffect, type CSSProperties } from 'react';
+import { MacbookPro } from './eldoraui/macbook-pro';
+import { getLenis } from '../lenis';
 import { Screen } from '../types';
+import Footer from './Footer';
 
 interface LandingPageProps {
   onNavigate: (screen: Screen) => void;
 }
+
+const MAC_GAP = 16; // px below email field (before content nudge)
+const CONTENT_NUDGE = 5; // Coming Soon → waitlist shifted up; keep MacBook fixed
+
+const FEATURES = [
+  {
+    title: 'De-ID Generator',
+    blurb:
+      'Automated PHI scrubbing with zero-latency overhead. Built for high-volume clinical streams.',
+  },
+  {
+    title: 'Clinical NER',
+    blurb:
+      'UMLS-mapped entity extraction. Identify diagnosis, medications, and symptoms in real-time.',
+  },
+  {
+    title: 'Triage Core',
+    blurb:
+      'Dynamic prioritization engine with human-in-the-loop validation flow.',
+  },
+] as const;
 
 const PLANS = [
   {
@@ -17,7 +39,7 @@ const PLANS = [
     blurb: 'Full triage stack for a short clinical evaluation window.',
     features: ['Text + voice intake', 'Live queue + audit log', 'Up to 5 clinician seats'],
     cta: 'Start Pilot',
-    action: 'register' as const,
+    action: 'waitlist' as const,
     featured: false,
   },
   {
@@ -29,7 +51,7 @@ const PLANS = [
     blurb: 'Continuous deployment for a single acute-care site.',
     features: ['Everything in Pilot', 'Priority model updates', 'Up to 25 clinician seats'],
     cta: 'Subscribe',
-    action: 'register' as const,
+    action: 'waitlist' as const,
     featured: true,
   },
   {
@@ -46,227 +68,454 @@ const PLANS = [
   },
 ] as const;
 
-const PLAN_ICONS = {
-  'two-week': CalendarDays,
-  month: CalendarRange,
-  sales: Building2,
-} as const;
+const pillBtn: CSSProperties = {
+  background: 'white',
+  padding: '10px 25px',
+  borderRadius: 9999,
+  fontSize: 12,
+  cursor: 'pointer',
+  border: 'none',
+  fontFamily: 'inherit',
+};
+
+// translucent shell — keep a visible box so MacBook pull (emailRef bottom) still reads against a real pill edge
+const pillShell: CSSProperties = {
+  borderRadius: 9999,
+  backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  backdropFilter: 'blur(10px)',
+};
 
 export default function LandingPage({ onNavigate }: LandingPageProps) {
+  const [joined, setJoined] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const emailRef = useRef<HTMLDivElement>(null);
+  const [pull, setPull] = useState(0);
+
+  function onSubmit(e: FormEvent) {
+    // ponytail: local-only until waitlist API exists
+    e.preventDefault();
+    setJoined(true);
+  }
+
+  function scrollToWaitlist() {
+    if (emailRef.current) getLenis()?.scrollTo(emailRef.current, { offset: -40 });
+  }
+
+  function onPlanCta(action: (typeof PLANS)[number]['action']) {
+    switch (action) {
+      case 'waitlist':
+        scrollToWaitlist();
+        return;
+      case 'sales':
+        window.location.href =
+          'mailto:sales@medtriage.ai?subject=MedTriage%20Enterprise';
+        return;
+      default: {
+        const _exhaustive: never = action;
+        return _exhaustive;
+      }
+    }
+  }
+
+  useLayoutEffect(() => {
+    const place = () => {
+      const hero = heroRef.current;
+      const email = emailRef.current;
+      if (!hero || !email) return;
+      const heroBox = hero.getBoundingClientRect();
+      const emailBox = email.getBoundingClientRect();
+      // compensate CONTENT_NUDGE so MacBook stays where it was pre-nudge
+      setPull(heroBox.bottom - emailBox.bottom - MAC_GAP - CONTENT_NUDGE);
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [joined]);
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 md:px-10 py-6 brutalist-rule-x bg-white sticky top-0 z-50">
-        <div className="flex items-center gap-4 cursor-pointer" onClick={() => onNavigate('landing')}>
-          <LayoutGrid className="w-8 h-8 text-primary" />
-          <h2 className="text-2xl font-bold tracking-tighter font-mono">MEDTRIAGE</h2>
-        </div>
-        <div className="hidden md:flex items-center gap-10 font-mono text-sm uppercase">
-          <a className="hover:text-primary-ink transition-colors" href="#pricing">Pricing</a>
-          <button
-            type="button"
-            onClick={() => onNavigate('docs')}
-            className="hover:text-primary-ink transition-colors cursor-pointer"
-          >
-            Docs
-          </button>
-          <button
-            onClick={() => onNavigate('login')}
-            className="font-bold hover:text-primary-ink transition-colors cursor-pointer"
-          >
-            LOGIN
-          </button>
+    <div
+      style={{
+        padding: 10,
+        boxSizing: 'border-box',
+        fontFamily: '"Instrument Serif", serif',
+      }}
+    >
+      {/* Hero — fixed height; MacBook is a sibling so it can't stretch this */}
+      <div
+        ref={heroRef}
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          overflow: 'hidden',
+          width: '100%',
+          height: 'calc(100vh - 20px)',
+          borderRadius: '3%',
+          background:
+            'linear-gradient(180deg, #5FA9E8 0%, #7CBCEF 55%, #A7D2F5 100%)',
+        }}
+      >
+        {/* Left Glow */}
+        <div
+          style={{
+            position: 'absolute',
+            width: 900,
+            height: 900,
+            left: -350,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'white',
+            borderRadius: '50%',
+            filter: 'blur(220px)',
+            opacity: 0.22,
+            pointerEvents: 'none',
+          }}
+        />
 
-        </div>
-      </header>
+        {/* Center Glow */}
+        <div
+          style={{
+            position: 'absolute',
+            width: 700,
+            height: 700,
+            left: '50%',
+            top: '45%',
+            transform: 'translate(-50%, -50%)',
+            background: 'white',
+            borderRadius: '50%',
+            filter: 'blur(180px)',
+            opacity: 0.12,
+            pointerEvents: 'none',
+          }}
+        />
 
-      {/* Hero */}
-      <main className="flex-grow bg-background-linen">
-        <section className="flex flex-col items-center justify-center text-center py-24 md:py-40 px-6 md:px-10 brutalist-rule-x">
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-              className="font-bebas text-[90px] md:text-[200px] leading-[0.8] text-black mb-10 tracking-tighter text-balance"
+        {/* Right Glow */}
+        <div
+          style={{
+            position: 'absolute',
+            width: 900,
+            height: 900,
+            right: -350,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'white',
+            borderRadius: '50%',
+            filter: 'blur(220px)',
+            opacity: 0.22,
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingTop: 20,
+              paddingLeft: 50,
+              paddingRight: 50,
+            }}
           >
-            TRIAGE. <span className="text-primary-ink italic">FASTER.</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="font-mono text-black text-lg md:text-3xl mb-16 uppercase tracking-[0.2em] max-w-4xl text-balance"
-          >
-            Next-generation clinical intelligence for critical care environments.
-          </motion.p>
-          <div className="flex flex-col md:flex-row gap-6">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <img src="/favicon.png" alt="" width={28} height={28} />
+              MedTriage
+            </div>
             <button
-              onClick={() => onNavigate('register')}
-              className="group relative inline-flex items-center justify-center border-2 border-black/20 bg-primary px-16 py-6 text-white font-mono text-xl font-bold uppercase transition-colors hover:bg-primary-ink active:scale-[0.96] cursor-pointer"
+              type="button"
+              onClick={() => onNavigate('login')}
+              style={{
+                background: 'white',
+                padding: '10px 25px',
+                borderRadius: 9999,
+                fontSize: 12,
+                cursor: 'pointer',
+                border: 'none',
+                fontFamily: 'inherit',
+              }}
             >
-              Get Started
+              Login
             </button>
-
           </div>
-        </section>
-
-
-        {/* Features */}
-        <section className="grid grid-cols-1 md:grid-cols-3 brutalist-rule-x bg-black/5">
-          <div className="p-12 md:p-20 flex flex-col gap-10 brutalist-rule-y bg-white">
-            <ShieldCheck className="text-primary w-16 h-16" />
-            <div className="flex flex-col gap-6">
-              <h3 className="text-5xl font-bold uppercase font-bebas tracking-widest leading-none">DE-ID GENERATOR</h3>
-               <p className="text-black/60 font-mono text-sm leading-relaxed uppercase text-pretty">
-                Automated PHI scrubbing with zero-latency overhead. Built for high-volume clinical streams.
-              </p>
+          <br />
+          <br />
+          <div style={{ transform: `translateY(-${CONTENT_NUDGE}px)` }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div
+              style={{
+                ...pillShell,
+                display: 'inline-block',
+              }}
+            >
+              <div style={{ padding: 10 }}>Coming Soon</div>
             </div>
           </div>
-          <div className="p-12 md:p-20 flex flex-col gap-10 brutalist-rule-y">
-            <Stethoscope className="text-black w-16 h-16" />
-            <div className="flex flex-col gap-6">
-              <h3 className="text-5xl font-bold uppercase font-bebas tracking-widest leading-none">CLINICAL NER</h3>
-               <p className="text-black/60 font-mono text-sm leading-relaxed uppercase text-pretty">
-                UMLS-mapped entity extraction. Identify diagnosis, medications, and symptoms in real-time.
-              </p>
-            </div>
+          <br />
+          <div style={{ textAlign: 'center', fontSize: 110 }}>TRIAGE. FASTER.</div>
+          <br />
+          <div style={{ textAlign: 'center' }}>
+            Next-generation clinical intelligence for critical care environments.
           </div>
-          <div className="p-12 md:p-20 flex flex-col gap-10 bg-white">
-            <ClipboardList className="text-primary w-16 h-16" />
-            <div className="flex flex-col gap-6">
-              <h3 className="text-5xl font-bold uppercase font-bebas tracking-widest leading-none">TRIAGE CORE</h3>
-               <p className="text-black/60 font-mono text-sm leading-relaxed uppercase text-pretty">
-                Dynamic prioritization engine with human-in-the-loop validation flow.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section id="pricing" className="brutalist-rule-x scroll-mt-24">
-          <div className="px-6 md:px-10 py-16 md:py-20 bg-white brutalist-rule-x">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-ink mb-4">Access Plans</p>
-            <h2 className="font-bebas text-6xl md:text-8xl tracking-tight leading-none uppercase">
-              Pricing
-            </h2>
-            <p className="mt-6 max-w-2xl font-mono text-sm uppercase tracking-wide text-black/50 text-pretty">
-              Short pilots, monthly sites, or enterprise rollout. AI assists — clinicians decide.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 bg-black/5">
-            {PLANS.map((plan, i) => {
-              const Icon = PLAN_ICONS[plan.id];
-              const onCta = () => {
-                if (plan.action === 'sales') {
-                  window.location.href = 'mailto:sales@medtriage.ai?subject=MedTriage%20Enterprise';
-                  return;
-                }
-                onNavigate('register');
-              };
-              return (
-                <div
-                  key={plan.id}
-                  className={`p-10 md:p-14 flex flex-col gap-8 ${i < PLANS.length - 1 ? 'brutalist-rule-y' : ''} ${plan.featured ? 'bg-primary text-white' : 'bg-white'}`}
+          <br />
+          <div ref={emailRef} style={{ display: 'flex', justifyContent: 'center' }}>
+            {joined ? (
+              <div style={{ textAlign: 'center', fontSize: 14 }}>
+                You&apos;re on the list — we&apos;ll be in touch.
+              </div>
+            ) : (
+              <form
+                onSubmit={onSubmit}
+                style={{
+                  ...pillShell,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: 450,
+                  padding: '10px 12px',
+                }}
+              >
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="Your email address"
+                  style={{
+                    flex: 1,
+                    border: 'none',
+                    background: 'transparent',
+                    fontSize: 14,
+                    outline: 'none',
+                    minWidth: 0,
+                    fontFamily: 'inherit',
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    background: 'white',
+                    padding: '10px 25px',
+                    borderRadius: 9999,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    border: 'none',
+                    fontFamily: 'inherit',
+                  }}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <Icon className={`w-12 h-12 shrink-0 ${plan.featured ? 'text-white' : 'text-primary'}`} />
-                    <span className={`font-mono text-[10px] tracking-[0.35em] ${plan.featured ? 'text-white/70' : 'text-black/40'}`}>
-                      {plan.label}
-                    </span>
-                  </div>
+                  JOIN WAITLIST
+                </button>
+              </form>
+            )}
+          </div>
+          </div>
+        </div>
+      </div>
 
-                  <div className="flex flex-col gap-3">
-                    <h3 className="font-bebas text-4xl md:text-5xl tracking-widest leading-none uppercase">
-                      {plan.name}
-                    </h3>
-                    <div className="flex items-baseline gap-3">
-                      <span className="font-bebas text-6xl tracking-tight leading-none">{plan.price}</span>
-                      <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${plan.featured ? 'text-white/70' : 'text-black/40'}`}>
-                        {plan.cadence}
-                      </span>
-                    </div>
-                    <p className={`font-mono text-sm leading-relaxed uppercase text-pretty ${plan.featured ? 'text-white/80' : 'text-black/60'}`}>
-                      {plan.blurb}
-                    </p>
-                  </div>
+      {/* Above hero in z; pulled up to sit just below the email field */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: pull > 0 ? -pull : undefined,
+          paddingBottom: 48,
+        }}
+      >
+        <div style={{ position: 'relative', width: '80.85vw' }}>
+          <MacbookPro
+            width={650}
+            height={400}
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <video
+            src="/medtriage-ad.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              position: 'absolute',
+              // screen slot inside MacbookPro SVG (viewBox 650×400)
+              left: `${(74.52 / 650) * 100}%`,
+              top: `${(21.32 / 400) * 100}%`,
+              width: `${(501.22 / 650) * 100}%`,
+              height: `${(323.85 / 400) * 100}%`,
+              // screen ~1.55:1 vs video 16:9 — cover was cropping the sides
+              objectFit: 'contain',
+              background: '#000',
+              borderRadius: 5,
+            }}
+          />
+        </div>
+      </div>
 
-                  <ul className={`flex flex-col gap-3 font-mono text-xs uppercase tracking-wide ${plan.featured ? 'text-white/90' : 'text-black/70'}`}>
-                    {plan.features.map((f) => (
-                      <li key={f} className={`border-t pt-3 ${plan.featured ? 'border-white/20' : 'border-black/10'}`}>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
+      {/* Features */}
+      <section
+        style={{
+          marginTop: 24,
+          padding: '72px 50px',
+          borderRadius: '3%',
+          background:
+            'linear-gradient(180deg, #E8F3FB 0%, #F5FAFD 100%)',
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 56 }}>
+          <div
+            style={{
+              ...pillShell,
+              display: 'inline-block',
+              padding: '8px 16px',
+              fontSize: 13,
+              marginBottom: 20,
+            }}
+          >
+            Capabilities
+          </div>
+          <div style={{ fontSize: 48, lineHeight: 1.1 }}>Built for the bedside.</div>
+          <div style={{ marginTop: 12, opacity: 0.55, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
+            The clinical stack that sits under every triage decision.
+          </div>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 40,
+            maxWidth: 1100,
+            margin: '0 auto',
+          }}
+        >
+          {FEATURES.map((f) => (
+            <div key={f.title}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>{f.title}</div>
+              <div style={{ opacity: 0.55, lineHeight: 1.6, fontSize: 15 }}>{f.blurb}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-                  <button
-                    type="button"
-                    onClick={onCta}
-                    className={`mt-auto w-full px-6 py-4 font-mono text-sm font-bold uppercase border-2 transition-colors active:scale-[0.96] cursor-pointer ${
-                      plan.featured
-                        ? 'border-white bg-white text-primary-ink hover:bg-background-linen'
-                        : plan.action === 'sales'
-                          ? 'border-black/20 bg-black text-white hover:bg-primary-ink'
-                          : 'border-black/20 bg-primary text-white hover:bg-primary-ink'
-                    }`}
+      {/* Pricing */}
+      <section
+        id="pricing"
+        style={{
+          marginTop: 24,
+          padding: '72px 50px',
+          borderRadius: '3%',
+          background:
+            'linear-gradient(180deg, #5FA9E8 0%, #7CBCEF 55%, #A7D2F5 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            width: 700,
+            height: 700,
+            left: '50%',
+            top: '40%',
+            transform: 'translate(-50%, -50%)',
+            background: 'white',
+            borderRadius: '50%',
+            filter: 'blur(180px)',
+            opacity: 0.15,
+            pointerEvents: 'none',
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: 48 }}>
+          <div
+            style={{
+              ...pillShell,
+              display: 'inline-block',
+              padding: '8px 16px',
+              fontSize: 13,
+              marginBottom: 20,
+            }}
+          >
+            Access Plans
+          </div>
+          <div style={{ fontSize: 48, lineHeight: 1.1 }}>Pricing</div>
+          <div style={{ marginTop: 12, opacity: 0.7, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
+            Short pilots, monthly sites, or enterprise rollout. AI assists — clinicians decide.
+          </div>
+        </div>
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: 20,
+            maxWidth: 1100,
+            margin: '0 auto',
+          }}
+        >
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 20,
+                padding: 32,
+                borderRadius: 28,
+                background: plan.featured ? 'white' : 'rgba(255,255,255,0.35)',
+                backdropFilter: plan.featured ? undefined : 'blur(8px)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ fontSize: 26 }}>{plan.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.45 }}>{plan.label}</div>
+              </div>
+              <div>
+                <span style={{ fontSize: 42, lineHeight: 1 }}>{plan.price}</span>
+                <span style={{ marginLeft: 8, fontSize: 12, opacity: 0.5 }}>{plan.cadence}</span>
+              </div>
+              <div style={{ fontSize: 14, opacity: 0.6, lineHeight: 1.5 }}>{plan.blurb}</div>
+              <ul
+                style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  margin: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                  fontSize: 13,
+                  opacity: 0.7,
+                }}
+              >
+                {plan.features.map((feat) => (
+                  <li
+                    key={feat}
+                    style={{
+                      borderTop: '1px solid rgba(0,0,0,0.08)',
+                      paddingTop: 10,
+                    }}
                   >
-                    {plan.cta}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      </main>
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => onPlanCta(plan.action)}
+                style={{
+                  ...pillBtn,
+                  marginTop: 'auto',
+                  width: '100%',
+                  background: plan.featured ? '#5FA9E8' : 'white',
+                  color: plan.featured ? 'white' : 'inherit',
+                  padding: '14px 25px',
+                }}
+              >
+                {plan.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* Footer */}
-      <footer className="p-8 md:p-16 font-mono text-[10px] uppercase text-black bg-white">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12">
-          <div className="max-w-md">
-            <h4 className="text-xl font-bold font-bebas tracking-widest mb-4">MEDTRIAGE INTELLIGENCE CORP</h4>
-            <p className="opacity-50 leading-relaxed uppercase">
-              The leading edge in clinical triage automation. Providing rapid deployment nodes for acute care centers globally.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-16">
-            <div className="space-y-4">
-              <p className="font-bold text-primary-ink">RESOURCES</p>
-              <ul className="space-y-2 opacity-50">
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">
-                  <a href="#pricing">PRICING</a>
-                </li>
-                <li
-                  className="hover:opacity-100 transition-opacity cursor-pointer"
-                  onClick={() => onNavigate('docs')}
-                >
-                  DOCS
-                </li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">WHITE PAPER</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">SECURITY SHA</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <p className="font-bold text-primary-ink">PLATFORM</p>
-              <ul className="space-y-2 opacity-50">
-                <li className="hover:opacity-100 transition-opacity cursor-pointer" onClick={() => onNavigate('audit')}>AUDIT LOGS</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">SYSTEM STATUS</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">NETWORK NODES</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <p className="font-bold text-primary-ink">LEGAL</p>
-              <ul className="space-y-2 opacity-50">
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">PRIVACY MD</li>
-                <li className="hover:opacity-100 transition-opacity cursor-pointer">COMPLIANCE JSON</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="h-0.5 w-full bg-black/10 mb-8"></div>
-        <div className="flex justify-between items-center opacity-30 text-[8px] tracking-[0.4em]">
-          <span>BUILT FOR PRECISION</span>
-          <span>SECURE SESSION ACTIVE</span>
-        </div>
-      </footer>
+      <Footer onNavigate={onNavigate} />
+
     </div>
   );
 }

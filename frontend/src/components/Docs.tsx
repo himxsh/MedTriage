@@ -1,24 +1,6 @@
-import React from 'react';
-import {
-  LayoutGrid,
-  ArrowLeft,
-  ArrowRight,
-  ArrowDown,
-  Mic,
-  ListOrdered,
-  CheckCircle2,
-  ScrollText,
-  FileText,
-  ScanSearch,
-  ShieldOff,
-  GitBranch,
-  Sparkles,
-  Database,
-  Radio,
-  MonitorSmartphone,
-} from 'lucide-react';
-import { motion } from 'motion/react';
+import type { CSSProperties } from 'react';
 import type { Screen } from '../types';
+import Footer from './Footer';
 
 interface DocsProps {
   onNavigate: (screen: Screen) => void;
@@ -27,25 +9,21 @@ interface DocsProps {
 const STEPS = [
   {
     n: '01',
-    icon: Mic,
     title: 'Intake',
     body: 'Open New Intake from the app nav. Submit free-text clinical notes or a voice recording, optionally with patient name and MRN. The case is accepted immediately while AI triage runs in the background.',
   },
   {
     n: '02',
-    icon: ListOrdered,
     title: 'Live queue',
     body: 'When triage finishes, the case appears on the Queue with urgency, chief complaint, and confidence. Open a row to see symptoms, risk flags, entities, and evidence.',
   },
   {
     n: '03',
-    icon: CheckCircle2,
     title: 'Review',
     body: 'Confirm the AI urgency, or Override to a different level. Down-triaging (lowering priority) requires a reason of at least 10 characters. Completed cases no longer show Confirm/Override.',
   },
   {
     n: '04',
-    icon: ScrollText,
     title: 'Audit',
     body: 'Every Confirm or Override is logged with previous → new urgency, clinician id, and reason. Use the Audit screen for a full decision trail.',
   },
@@ -55,214 +33,337 @@ const FLOW_STAGES = [
   {
     label: 'Capture',
     nodes: [
-      { icon: FileText, title: 'Text / Audio', detail: 'Clinical notes or Whisper STT' },
+      { title: 'Text / Audio', detail: 'Clinical notes or Whisper STT' },
     ],
   },
   {
     label: 'AI pipeline',
     nodes: [
-      { icon: ScanSearch, title: 'Clinical NER', detail: 'Entities + UMLS linking' },
-      { icon: ShieldOff, title: 'De-ID', detail: 'Mask PHI, keep meds/dx' },
-      { icon: GitBranch, title: 'Relations', detail: 'Negation & modifiers' },
-      { icon: Sparkles, title: 'Gemini triage', detail: 'Urgency + evidence JSON' },
+      { title: 'Clinical NER', detail: 'Entities + UMLS linking' },
+      { title: 'De-ID', detail: 'Mask PHI, keep meds/dx' },
+      { title: 'Relations', detail: 'Negation & modifiers' },
+      { title: 'Gemini triage', detail: 'Urgency + evidence JSON' },
     ],
   },
   {
     label: 'Deliver',
     nodes: [
-      { icon: Database, title: 'Postgres', detail: 'Case persisted' },
-      { icon: Radio, title: 'Redis → WS', detail: 'Live queue push' },
-      { icon: MonitorSmartphone, title: 'Queue UI', detail: 'Clinician sees case' },
+      { title: 'Postgres', detail: 'Case persisted' },
+      { title: 'Redis → WS', detail: 'Live queue push' },
+      { title: 'Queue UI', detail: 'Clinician sees case' },
     ],
   },
   {
     label: 'Decide',
     nodes: [
-      { icon: CheckCircle2, title: 'Confirm / Override', detail: 'Human-in-the-loop' },
-      { icon: ScrollText, title: 'Audit log', detail: 'Previous → new + reason' },
+      { title: 'Confirm / Override', detail: 'Human-in-the-loop' },
+      { title: 'Audit log', detail: 'Previous → new + reason' },
     ],
   },
 ] as const;
 
-function FlowArrow({ vertical = false }: { vertical?: boolean }) {
-  if (vertical) {
-    return (
-      <div className="flex justify-center py-3 text-primary" aria-hidden>
-        <ArrowDown className="w-5 h-5" />
-      </div>
-    );
-  }
-  return (
-    <div className="hidden md:flex items-center px-1 text-primary shrink-0" aria-hidden>
-      <ArrowRight className="w-5 h-5" />
-    </div>
-  );
-}
+const pillBtn: CSSProperties = {
+  background: 'white',
+  padding: '10px 25px',
+  borderRadius: 9999,
+  fontSize: 12,
+  cursor: 'pointer',
+  border: 'none',
+  fontFamily: 'inherit',
+};
+
+const pillShell: CSSProperties = {
+  borderRadius: 9999,
+  backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  backdropFilter: 'blur(10px)',
+};
+
+const page: CSSProperties = {
+  padding: 10,
+  boxSizing: 'border-box',
+  fontFamily: '"Instrument Serif", serif',
+};
+
+const bluePanel: CSSProperties = {
+  position: 'relative',
+  overflow: 'hidden',
+  borderRadius: '3%',
+  background: 'linear-gradient(180deg, #5FA9E8 0%, #7CBCEF 55%, #A7D2F5 100%)',
+};
+
+const lightPanel: CSSProperties = {
+  marginTop: 24,
+  padding: '72px 50px',
+  borderRadius: '3%',
+  background: 'linear-gradient(180deg, #E8F3FB 0%, #F5FAFD 100%)',
+};
+
+const glow: CSSProperties = {
+  position: 'absolute',
+  background: 'white',
+  borderRadius: '50%',
+  filter: 'blur(180px)',
+  opacity: 0.15,
+  pointerEvents: 'none',
+};
+
+const linkBtn: CSSProperties = {
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  font: 'inherit',
+  color: 'inherit',
+  cursor: 'pointer',
+};
 
 export default function Docs({ onNavigate }: DocsProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-background-linen">
-      <header className="flex items-center justify-between px-6 md:px-10 py-6 brutalist-rule-x bg-white sticky top-0 z-50">
-        <div className="flex items-center gap-4 cursor-pointer" onClick={() => onNavigate('landing')}>
-          <LayoutGrid className="w-8 h-8 text-primary" />
-          <h2 className="text-2xl font-bold tracking-tighter font-mono">MEDTRIAGE</h2>
-        </div>
-        <div className="flex items-center gap-6 md:gap-10 font-mono text-sm uppercase">
-          <button
-            type="button"
-            onClick={() => onNavigate('landing')}
-            className="hidden md:inline hover:text-primary-ink transition-colors cursor-pointer"
+    <div style={page}>
+      {/* Hero */}
+      <div style={{ ...bluePanel, padding: '20px 50px 72px' }}>
+        <div
+          style={{
+            ...glow,
+            width: 700,
+            height: 700,
+            left: '50%',
+            top: '40%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 56,
+            }}
           >
-            Home
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate('login')}
-            className="font-bold hover:text-primary-ink transition-colors cursor-pointer"
-          >
-            LOGIN
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-grow">
-        <section className="px-6 md:px-10 py-16 md:py-24 brutalist-rule-x bg-white">
-          <button
-            type="button"
-            onClick={() => onNavigate('landing')}
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-black/50 hover:text-primary-ink transition-colors mb-10 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-ink mb-4">Documentation</p>
-            <h1 className="font-bebas text-6xl md:text-8xl tracking-tight leading-none uppercase mb-6">
-              How to use
-            </h1>
-            <p className="max-w-2xl font-mono text-sm uppercase tracking-wide text-black/50 text-pretty leading-relaxed">
-              MedTriage turns unstructured intake into a structured triage assessment for ER staff.
-              AI assists — licensed clinicians confirm or override before any clinical action.
-            </p>
-          </motion.div>
-        </section>
-
-        <section className="px-6 md:px-10 py-16 md:py-20 brutalist-rule-x bg-background-linen">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-ink mb-4">System flow</p>
-          <h2 className="font-bebas text-4xl md:text-6xl tracking-tight leading-none uppercase mb-4">
-            How a case moves
-          </h2>
-          <p className="max-w-2xl font-mono text-sm uppercase tracking-wide text-black/50 text-pretty leading-relaxed mb-12">
-            Intake is accepted fast. The AI pipeline runs in the background, then the case lands on the live queue for clinician review.
-          </p>
-
-          <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
-            <ol className="flex flex-col md:flex-row md:items-stretch gap-0 md:gap-0 min-w-0 md:min-w-max list-none p-0 m-0">
-              {FLOW_STAGES.map((stage, stageIdx) => (
-                <React.Fragment key={stage.label}>
-                  <li className="flex flex-col md:w-[220px] shrink-0">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary-ink mb-3">
-                      {String(stageIdx + 1).padStart(2, '0')} · {stage.label}
-                    </span>
-                    <div className="flex flex-col gap-2 flex-grow border-2 border-black/15 bg-white p-3">
-                      {stage.nodes.map((node, nodeIdx) => {
-                        const Icon = node.icon;
-                        return (
-                          <React.Fragment key={node.title}>
-                            {nodeIdx > 0 && (
-                              <div className="flex justify-center text-black/25" aria-hidden>
-                                <ArrowDown className="w-3.5 h-3.5" />
-                              </div>
-                            )}
-                            <motion.div
-                              initial={{ opacity: 0, y: 8 }}
-                              whileInView={{ opacity: 1, y: 0 }}
-                              viewport={{ once: true, margin: '-40px' }}
-                              transition={{ delay: stageIdx * 0.08 + nodeIdx * 0.04 }}
-                              className="flex items-start gap-3 border border-black/10 bg-background-linen/60 p-3"
-                            >
-                              <Icon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                              <div className="min-w-0">
-                                <p className="font-bebas text-lg tracking-widest leading-none uppercase">
-                                  {node.title}
-                                </p>
-                                <p className="mt-1.5 font-mono text-[10px] uppercase tracking-wide text-black/50 leading-snug text-pretty">
-                                  {node.detail}
-                                </p>
-                              </div>
-                            </motion.div>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-                  </li>
-                  {stageIdx < FLOW_STAGES.length - 1 && (
-                    <>
-                      <FlowArrow />
-                      <div className="md:hidden">
-                        <FlowArrow vertical />
-                      </div>
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
-            </ol>
+            <button
+              type="button"
+              onClick={() => onNavigate('landing')}
+              style={{
+                ...linkBtn,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              <img src="/favicon.png" alt="" width={28} height={28} />
+              MedTriage
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('login')}
+              style={pillBtn}
+            >
+              Login
+            </button>
           </div>
 
-          <p className="mt-10 font-mono text-[10px] uppercase tracking-[0.25em] text-black/40 max-w-3xl leading-relaxed">
-            Pipeline: Intake → NER → De-ID → Relations → Gemini → DB → Redis → WebSocket → Queue → Review → Audit
-          </p>
-        </section>
+          <div style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
+            <div
+              style={{
+                ...pillShell,
+                display: 'inline-block',
+                padding: '8px 16px',
+                fontSize: 13,
+                marginBottom: 20,
+              }}
+            >
+              Documentation
+            </div>
+            <div style={{ fontSize: 72, lineHeight: 1.05 }}>How to use</div>
+            <div
+              style={{
+                marginTop: 16,
+                opacity: 0.7,
+                fontSize: 16,
+                lineHeight: 1.6,
+              }}
+            >
+              MedTriage turns unstructured intake into a structured triage assessment for ER staff.
+              AI assists — licensed clinicians confirm or override before any clinical action.
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 bg-black/5 brutalist-rule-x">
-          {STEPS.map((step, i) => {
-            const Icon = step.icon;
-            const edge = i % 2 === 0;
-            return (
-              <div
-                key={step.n}
-                className={`p-10 md:p-14 flex flex-col gap-6 ${edge ? 'brutalist-rule-y' : ''} ${i < 2 ? 'brutalist-rule-x md:brutalist-rule-x' : ''} ${i === 0 || i === 3 ? 'bg-white' : ''}`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <Icon className="w-10 h-10 text-primary shrink-0" />
-                  <span className="font-mono text-[10px] tracking-[0.35em] text-black/40">{step.n}</span>
-                </div>
-                <h2 className="font-bebas text-4xl md:text-5xl tracking-widest leading-none uppercase">
-                  {step.title}
-                </h2>
-                <p className="font-mono text-sm leading-relaxed uppercase text-black/60 text-pretty">
-                  {step.body}
-                </p>
+      {/* System flow */}
+      <section style={lightPanel}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div
+            style={{
+              ...pillShell,
+              display: 'inline-block',
+              padding: '8px 16px',
+              fontSize: 13,
+              marginBottom: 20,
+            }}
+          >
+            System flow
+          </div>
+          <div style={{ fontSize: 48, lineHeight: 1.1 }}>How a case moves</div>
+          <div
+            style={{
+              marginTop: 12,
+              opacity: 0.55,
+              maxWidth: 520,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              lineHeight: 1.6,
+            }}
+          >
+            Intake is accepted fast. The AI pipeline runs in the background, then the case lands on
+            the live queue for clinician review.
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 20,
+            maxWidth: 1100,
+            margin: '0 auto',
+          }}
+        >
+          {FLOW_STAGES.map((stage, stageIdx) => (
+            <div key={stage.label}>
+              <div style={{ fontSize: 12, opacity: 0.45, marginBottom: 12 }}>
+                {String(stageIdx + 1).padStart(2, '0')} · {stage.label}
               </div>
-            );
-          })}
-        </section>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {stage.nodes.map((node) => (
+                  <div key={node.title}>
+                    <div style={{ fontSize: 22, marginBottom: 4 }}>{node.title}</div>
+                    <div style={{ opacity: 0.55, fontSize: 14, lineHeight: 1.5 }}>{node.detail}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
 
-        <section className="px-6 md:px-10 py-16 md:py-20 brutalist-rule-x bg-white">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-ink mb-4">Safety</p>
-          <h2 className="font-bebas text-4xl md:text-5xl tracking-tight leading-none uppercase mb-6">
-            Clinical decision support
-          </h2>
-          <p className="max-w-3xl font-mono text-sm uppercase tracking-wide text-black/50 text-pretty leading-relaxed mb-10">
-            MedTriage is not a medical device. It does not diagnose or order care. Urgency from the model
-            must be reviewed. Treat AI output as a draft until a clinician Confirm or Override is recorded.
-          </p>
+        <div
+          style={{
+            marginTop: 40,
+            textAlign: 'center',
+            opacity: 0.4,
+            fontSize: 13,
+            lineHeight: 1.6,
+          }}
+        >
+          Intake → NER → De-ID → Relations → Gemini → DB → Redis → WebSocket → Queue → Review → Audit
+        </div>
+      </section>
+
+      {/* Steps */}
+      <section
+        style={{
+          ...bluePanel,
+          marginTop: 24,
+          padding: '72px 50px',
+        }}
+      >
+        <div
+          style={{
+            ...glow,
+            width: 700,
+            height: 700,
+            left: '50%',
+            top: '30%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: 48 }}>
+          <div
+            style={{
+              ...pillShell,
+              display: 'inline-block',
+              padding: '8px 16px',
+              fontSize: 13,
+              marginBottom: 20,
+            }}
+          >
+            Clinician path
+          </div>
+          <div style={{ fontSize: 48, lineHeight: 1.1 }}>Four steps</div>
+        </div>
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 20,
+            maxWidth: 1100,
+            margin: '0 auto',
+          }}
+        >
+          {STEPS.map((step) => (
+            <div
+              key={step.n}
+              style={{
+                padding: 32,
+                borderRadius: 28,
+                background: 'rgba(255,255,255,0.35)',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              <div style={{ fontSize: 12, opacity: 0.45, marginBottom: 12 }}>{step.n}</div>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>{step.title}</div>
+              <div style={{ opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>{step.body}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Safety */}
+      <section style={lightPanel}>
+        <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
+          <div
+            style={{
+              ...pillShell,
+              display: 'inline-block',
+              padding: '8px 16px',
+              fontSize: 13,
+              marginBottom: 20,
+            }}
+          >
+            Safety
+          </div>
+          <div style={{ fontSize: 48, lineHeight: 1.1 }}>Clinical decision support</div>
+          <div
+            style={{
+              marginTop: 16,
+              opacity: 0.55,
+              lineHeight: 1.6,
+              fontSize: 15,
+            }}
+          >
+            MedTriage is not a medical device. It does not diagnose or order care. Urgency from the
+            model must be reviewed. Treat AI output as a draft until a clinician Confirm or Override
+            is recorded.
+          </div>
           <button
             type="button"
-            onClick={() => onNavigate('register')}
-            className="inline-flex items-center justify-center border-2 border-black/20 bg-primary px-10 py-5 text-white font-mono text-sm font-bold uppercase transition-colors hover:bg-primary-ink active:scale-[0.96] cursor-pointer"
+            onClick={() => onNavigate('landing')}
+            style={{
+              ...pillBtn,
+              marginTop: 32,
+              background: '#5FA9E8',
+              color: 'white',
+              padding: '14px 28px',
+            }}
           >
-            Get Started
+            Back to home
           </button>
-        </section>
-      </main>
-
-      <footer className="p-8 md:p-12 font-mono text-[10px] uppercase text-black/40 bg-white brutalist-rule-x">
-        <div className="flex justify-between items-center tracking-[0.3em]">
-          <span>MedTriage Docs</span>
-          <span>AI assists / clinicians decide</span>
         </div>
-      </footer>
+      </section>
+
+      <Footer onNavigate={onNavigate} />
     </div>
   );
 }

@@ -21,6 +21,7 @@ dist/
 build/
 .eslintcache
 frontend/dist/
+.vite/
 
 # --- Remotion ---
 remotion-ad/out/

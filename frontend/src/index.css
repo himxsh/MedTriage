@@ -15,8 +15,20 @@
 }
 
 @layer base {
+  html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* legacy Edge */
+  }
+  html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
   body {
     @apply bg-background-linen text-black antialiased;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  body::-webkit-scrollbar {
+    display: none;
   }
 }
 

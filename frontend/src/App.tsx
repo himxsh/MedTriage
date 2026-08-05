@@ -10,11 +10,13 @@ import Account from './components/Account';
 import Login from './components/Login';
 import Register from './components/Register';
 import IntakeModal from './components/IntakeModal';
+import { getLenis, useLenisRoot } from './lenis';
 import { Screen } from './types';
 
 function AppContent() {
   const navigate = useNavigate();
   const [isIntakeModalOpen, setIsIntakeModalOpen] = useState(false);
+  useLenisRoot();
 
   const handleNavigate = (screen: Screen) => {
     switch (screen) {
@@ -34,7 +36,7 @@ function AppContent() {
       }
     }
     if (screen !== 'intake') {
-      window.scrollTo(0, 0);
+      getLenis()?.scrollTo(0, { immediate: true });
     }
   };
 
