@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { User, Plus } from 'lucide-react';
 import { NAV_ITEMS } from '../nav';
 import { getClinician } from '../api';
 import type { Screen } from '../types';
@@ -11,9 +11,9 @@ interface AppShellProps {
 }
 
 const TITLE_SUBTITLES: Record<string, string> = {
-  cases: 'FULL CASE INDEX',
-  audit: 'DECISION LOG',
-  account: 'Clinician Configuration',
+  cases: 'Full case index',
+  audit: 'Decision log',
+  account: 'Clinician configuration',
 };
 
 export default function AppShell({ children, onNavigate }: AppShellProps) {
@@ -27,13 +27,14 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
   const pageSubtitle = TITLE_SUBTITLES[currentPath];
 
   return (
-    <div className="flex h-screen bg-background-linen">
-      <aside className="w-[240px] flex-shrink-0 flex flex-col border-r border-black/10 bg-white">
-        <div className="p-8 border-b border-black/10 cursor-pointer bg-white" onClick={() => navigate('/')}>
-          <h1 className="font-sans text-2xl font-bold tracking-widest text-black leading-none uppercase">MEDTRIAGE</h1>
+    <div className="app-ui flex h-screen">
+      {/* Syncra: Sidebar navigation */}
+      <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-syncra-border bg-white">
+        <div className="px-5 py-5 border-b border-syncra-border cursor-pointer" onClick={() => navigate('/')}>
+          <h1 className="text-[15px] font-semibold tracking-tight text-syncra-ink">MedTriage</h1>
         </div>
-        <nav className="flex-1 py-6 overflow-y-auto">
-          <div className="space-y-2 px-4">
+        <nav className="flex-1 py-4 overflow-y-auto px-3">
+          <div className="space-y-1">
             {NAV_ITEMS.map((item) => {
               const isActive = currentPath === item.id;
               const Icon = item.icon;
@@ -41,48 +42,58 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
                 <button
                   key={item.id}
                   onClick={() => navigate(`/${item.id}`)}
-                   className={`w-full flex items-center gap-4 px-6 py-4 border cursor-pointer transition-colors ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-colors ${
                     isActive
-                      ? 'bg-black text-white border-black'
-                      : 'text-black/50 hover:text-black hover:bg-black/5 border-transparent'
+                      ? 'bg-syncra-card-stroke text-syncra-ink'
+                      : 'text-syncra-secondary hover:bg-syncra-card-stroke/70 hover:text-syncra-ink'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
-                  <span className={`font-mono text-xs font-bold uppercase tracking-widest ${isActive ? 'text-primary' : ''}`}>
-                    {item.label}
-                  </span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{item.label}</span>
                 </button>
               );
             })}
           </div>
         </nav>
-        <div className="p-6 border-t border-black/10 bg-black/5">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary/20 flex items-center justify-center border-2 border-primary">
-              <User className="text-primary w-6 h-6" />
+        <div className="p-4 border-t border-syncra-border">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-syncra-card-stroke flex items-center justify-center border border-syncra-border">
+              <User className="text-syncra-tertiary w-4 h-4" />
             </div>
-            <div className="overflow-hidden flex-1">
-              <p className="font-mono text-[13px] font-bold text-black uppercase truncate">{clinician.name}</p>
-              <button onClick={() => navigate('/')} className="font-mono text-[10px] text-primary-ink font-bold uppercase tracking-widest hover:underline cursor-pointer">LOGOUT</button>
+            <div className="overflow-hidden flex-1 min-w-0">
+              <p className="text-[13px] font-medium text-syncra-ink truncate">{clinician.name}</p>
+              <button onClick={() => navigate('/')} className="text-[11px] text-syncra-muted hover:text-syncra-ink cursor-pointer">
+                Logout
+              </button>
             </div>
           </div>
         </div>
       </aside>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 border-b border-black/10 flex items-center px-10 bg-white shrink-0">
-          {pageTitle && pageSubtitle && (
-            <div className="flex items-center gap-4">
-              <h1 className="font-sans text-xl font-bold text-black leading-none">{pageTitle}</h1>
-              <span className="font-mono text-[10px] text-black/60 uppercase tracking-widest mt-0.5">// {pageSubtitle}</span>
-            </div>
-          )}
-          <div className="ml-auto flex items-center gap-4">
-            <button onClick={() => onNavigate('intake')} className="bg-primary text-white px-8 py-3 border border-black/20 font-mono text-sm font-bold uppercase transition-colors hover:bg-primary-ink active:scale-[0.96] cursor-pointer">
-              + New Intake
+
+      <div className="flex-1 flex flex-col overflow-hidden bg-syncra-surface">
+        {/* Syncra: Navigation / Top Bar */}
+        <header className="h-[78px] border-b border-syncra-border flex items-center px-6 bg-white shrink-0 gap-4">
+          <div className="min-w-0">
+            {pageTitle && (
+              <div className="flex items-baseline gap-2">
+                <h1 className="text-xl font-medium text-syncra-ink leading-none">{pageTitle}</h1>
+                {pageSubtitle && (
+                  <span className="text-xs text-syncra-muted truncate">{pageSubtitle}</span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={() => onNavigate('intake')}
+              className="syncra-btn-primary cursor-pointer active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4" />
+              New Intake
             </button>
           </div>
         </header>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto min-h-0 flex flex-col">
           {children}
         </main>
       </div>

@@ -50,54 +50,76 @@ export default function Cases() {
   const statuses = ['ALL', ...new Set(allCases.map(c => c.status))];
 
   return (
-    <div className="pt-6 px-12 pb-12">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-wrap gap-4 items-end justify-between">
-          <div className="flex gap-4 flex-wrap items-center">
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-black/20 px-4 py-2 font-mono text-[10px] font-bold uppercase bg-white cursor-pointer">
-              {statuses.map(s => <option key={s} value={s}>{s === 'ALL' ? 'ALL STATUSES' : s.replace(/_/g, ' ').toUpperCase()}</option>)}
+        <div className="mb-5 flex flex-wrap gap-3 items-center justify-between">
+          <div className="flex gap-2 flex-wrap items-center">
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="syncra-input !w-auto !py-2 cursor-pointer"
+            >
+              {statuses.map(s => <option key={s} value={s}>{s === 'ALL' ? 'All statuses' : s.replace(/_/g, ' ')}</option>)}
             </select>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               {URGENCY_FILTERS.map(u => (
-                <button key={u} onClick={() => setUrgencyFilter(u)} className={`px-4 py-2 border border-black/20 font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer ${urgencyFilter === u ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}>
-                  {u}
+                <button
+                  key={u}
+                  onClick={() => setUrgencyFilter(u)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                    urgencyFilter === u
+                      ? 'bg-syncra-ink text-white border-syncra-ink'
+                      : 'bg-white text-syncra-tertiary border-syncra-border hover:bg-syncra-card-stroke'
+                  }`}
+                >
+                  {u === 'ALL' ? 'All' : u}
                 </button>
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-3 border-b border-black/10 pb-2 px-2">
-            <Search className="w-4 h-4 text-black/50" />
-            <input type="text" placeholder="SEARCH id/patient/complaint..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-64 uppercase" />
+          <div className="flex items-center gap-2 rounded-lg border border-syncra-border bg-white px-3 py-2">
+            <Search className="w-3.5 h-3.5 text-syncra-muted" />
+            <input
+              type="text"
+              placeholder="Search id / patient / complaint..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="bg-transparent border-none outline-none text-xs w-56 text-syncra-ink placeholder:text-syncra-muted"
+            />
           </div>
         </div>
 
-        <div className="border border-black/10 bg-white shadow-sm">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-black text-white uppercase text-[11px] font-bold tracking-[0.2em] border-b border-black/10">
+        <div className="syncra-card syncra-table-wrap overflow-hidden">
+          <table className="syncra-table text-left text-xs">
+            <thead className="bg-syncra-card-stroke border-b border-syncra-border text-syncra-secondary">
               <tr>
-                <th className="p-6 border-r border-white/10">Case ID</th>
-                <th className="p-6 border-r border-white/10">Patient Name</th>
-                <th className="p-6 border-r border-white/10">MRN</th>
-                <th className="p-6 border-r border-white/10">Clinical Complaint</th>
-                <th className="p-6 border-r border-white/10">Status</th>
-                <th className="p-6 border-r border-white/10">Urgency</th>
-                <th className="p-6 text-right">Date Logged</th>
+                <th className="w-[10%]">Case ID</th>
+                <th className="w-[14%]">Patient Name</th>
+                <th className="w-[10%]">MRN</th>
+                <th className="w-[28%]">Clinical Complaint</th>
+                <th className="w-[12%]">Status</th>
+                <th className="w-[10%]">Urgency</th>
+                <th className="w-[16%] text-right">Date Logged</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-black/10">
+            <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="p-20 text-center text-black/20 font-mono">LOADING...</td></tr>
+                <tr className="!h-auto"><td colSpan={7} className="!h-auto !max-h-none p-16 text-center text-syncra-muted">Loading...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="p-20 text-center text-black/20 font-sans text-3xl font-bold">// No matching records</td></tr>
+                <tr className="!h-auto"><td colSpan={7} className="!h-auto !max-h-none p-16 text-center text-syncra-muted text-sm">No matching records</td></tr>
               ) : filtered.map(c => (
-                <tr key={c.id} onClick={() => setSelectedCase(c)} className="hover:bg-primary/5 transition-colors group cursor-pointer">
-                   <td className="p-6 border-r border-black/5 font-bold text-primary-ink">{c.id.substring(0, 8)}</td>
-                  <td className="p-6 border-r border-black/5 font-bold group-hover:underline normal-case">{c.patient_name || 'Unknown'}</td>
-                  <td className="p-6 border-r border-black/5 text-black/60 font-mono text-[10px]">{c.mrn || '—'}</td>
-                  <td className="p-6 border-r border-black/5 text-black/60 truncate max-w-xs normal-case">{c.chief_complaint || '(no complaint)'}</td>
-                  <td className="p-6 border-r border-black/5"><span className="font-mono text-[10px] font-bold uppercase text-black/70">{c.status}</span></td>
-                  <td className="p-6 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
-                  <td className="p-6 text-right font-bold text-black/60 group-hover:text-black">{formatDate(c.created_at)}</td>
+                <tr key={c.id} onClick={() => setSelectedCase(c)} className="border-t border-syncra-border hover:bg-syncra-card-stroke/60 transition-colors cursor-pointer">
+                  <td className="font-medium text-syncra-ink whitespace-nowrap">{c.id.substring(0, 8)}</td>
+                  <td className="font-medium text-syncra-ink truncate">{c.patient_name || 'Unknown'}</td>
+                  <td className="text-syncra-secondary whitespace-nowrap">{c.mrn || '—'}</td>
+                  <td className="text-syncra-secondary truncate">{c.chief_complaint || '(no complaint)'}</td>
+                  <td>
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full bg-syncra-card-stroke text-[11px] font-medium text-syncra-tertiary">
+                      {c.status}
+                    </span>
+                  </td>
+                  <td><UrgencyBadge urgency={c.urgency_level} /></td>
+                  <td className="text-right text-syncra-secondary whitespace-nowrap">{formatDate(c.created_at)}</td>
                 </tr>
               ))}
             </tbody>

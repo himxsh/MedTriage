@@ -104,94 +104,112 @@ export default function Queue() {
   };
 
   return (
-    <>
-      <div className="flex items-center gap-4 px-10 py-4 border-b border-black/10 bg-white shrink-0">
-        <div className={`flex items-center gap-2 font-mono text-[10px] font-bold uppercase ${wsStatus === 'live' ? 'text-green-600' : 'text-red-500'}`}>
-          <span className={`w-2 h-2 rounded-full ${wsStatus === 'live' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-          {wsStatus === 'live' ? 'LIVE' : 'OFFLINE'}
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex items-center gap-3 px-6 py-3 border-b border-syncra-border bg-white shrink-0">
+        <div className={`flex items-center gap-2 text-[11px] font-medium ${wsStatus === 'live' ? 'text-syncra-up' : 'text-syncra-down'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'live' ? 'bg-syncra-up animate-pulse' : 'bg-syncra-down'}`} />
+          {wsStatus === 'live' ? 'Live' : 'Offline'}
         </div>
-        <span className="font-mono text-[10px] text-black/50 uppercase tracking-widest">QUEUE</span>
+        <span className="text-[11px] text-syncra-muted">Queue</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6 min-h-0">
         {fetchError && (
-          <div className="mb-6 flex items-center gap-4 bg-red-50 border-2 border-red-500 p-4 font-mono text-[10px] font-bold uppercase">
-            <span className="text-red-600">{fetchError}</span>
-            <button onClick={fetchCases} className="ml-auto flex items-center gap-2 bg-red-500 text-white px-4 py-2 hover:bg-red-600 transition-colors cursor-pointer">
+          <div className="mb-4 flex items-center gap-3 rounded-xl border border-syncra-down/30 bg-syncra-down-soft px-4 py-3 text-xs font-medium text-syncra-down">
+            <span>{fetchError}</span>
+            <button onClick={fetchCases} className="ml-auto syncra-btn-primary !bg-syncra-down cursor-pointer">
               <RefreshCw className="w-3 h-3" /> Retry
             </button>
           </div>
         )}
-        <div className="mb-8 flex justify-between items-end">
-          <div className="flex items-center gap-4">
-            <div className="flex gap-4">
-              {URGENCY_FILTERS.map(u => (
-                <button key={u} onClick={() => setFilterUrgency(u)} className={`px-6 py-2 border border-black/20 font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer active:scale-[0.96] ${filterUrgency === u ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}>
-                  {u}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-3 items-center pl-4 border-l border-black/10">
-              <span className="px-3 py-1.5 bg-black/[0.03] font-mono text-[10px] font-bold border border-black/10">
-                PENDING <span className="ml-1">{pendingCount}</span>
+
+        <div className="mb-5 flex flex-wrap justify-between items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {URGENCY_FILTERS.map(u => (
+              <button
+                key={u}
+                onClick={() => setFilterUrgency(u)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  filterUrgency === u
+                    ? 'bg-syncra-ink text-white border-syncra-ink'
+                    : 'bg-white text-syncra-tertiary border-syncra-border hover:bg-syncra-card-stroke'
+                }`}
+              >
+                {u === 'ALL' ? 'All' : u}
+              </button>
+            ))}
+            <div className="flex gap-2 items-center pl-3 ml-1 border-l border-syncra-border">
+              <span className="px-2.5 py-1 rounded-full bg-syncra-card-stroke text-[11px] font-medium text-syncra-ink">
+                Pending {pendingCount}
               </span>
-              <span className="px-3 py-1.5 bg-black/[0.03] font-mono text-[10px] font-bold border border-black/10 text-black/50">
-                COMPLETED <span className="ml-1">{completedCount}</span>
+              <span className="px-2.5 py-1 rounded-full bg-white border border-syncra-border text-[11px] font-medium text-syncra-muted">
+                Completed {completedCount}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3 border-b border-black/10 pb-2 px-2">
-            <Search className="w-4 h-4 text-black/50" />
-            <input type="text" placeholder="FILTER RECORDS..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none font-mono text-[10px] w-48 uppercase" />
+          <div className="flex items-center gap-2 rounded-lg border border-syncra-border bg-white px-3 py-2">
+            <Search className="w-3.5 h-3.5 text-syncra-muted" />
+            <input
+              type="text"
+              placeholder="Search records..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="bg-transparent border-none outline-none text-xs w-48 text-syncra-ink placeholder:text-syncra-muted"
+            />
           </div>
         </div>
 
         {confirmError && (
-          <div className="mb-4 flex items-center gap-2 bg-red-50 border border-red-500 p-3 font-mono text-[10px] font-bold text-red-600">
+          <div className="mb-4 rounded-lg border border-syncra-down/30 bg-syncra-down-soft px-3 py-2 text-xs font-medium text-syncra-down">
             {confirmError}
           </div>
         )}
 
-        <div className="border border-black/10 bg-white shadow-sm">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="sticky top-0 bg-neutral-100 z-10 border-b border-black/10">
-              <tr>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">ID</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Patient Name</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">MRN</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Primary Complaint</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10">Urgency</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10 text-center">AI Confidence</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest border-r border-black/10 text-right">Time</th>
-                <th className="p-5 text-black font-bold uppercase tracking-widest text-center w-20">Confirm</th>
+        {/* Syncra: Customers / Tasks data table */}
+        <div className="syncra-card syncra-table-wrap overflow-hidden">
+          <table className="syncra-table text-left text-xs">
+            <thead className="sticky top-0 bg-syncra-card-stroke z-10 border-b border-syncra-border">
+              <tr className="text-syncra-secondary">
+                <th className="w-[7%]">ID</th>
+                <th className="w-[14%]">Patient Name</th>
+                <th className="w-[10%]">MRN</th>
+                <th className="w-[26%]">Primary Complaint</th>
+                <th className="w-[10%]">Urgency</th>
+                <th className="w-[14%] text-center">AI Confidence</th>
+                <th className="w-[10%] text-right">Time</th>
+                <th className="w-[9%] text-center">Confirm</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/10">
+            <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="p-20 text-center font-mono text-black/50">LOADING...</td></tr>
+                <tr className="!h-auto"><td colSpan={8} className="!h-auto !max-h-none p-16 text-center text-syncra-muted">Loading...</td></tr>
               ) : sorted.length === 0 ? (
-                <tr><td colSpan={8} className="p-20 text-center"><h3 className="font-sans text-3xl font-bold text-black/10 text-balance">No records found</h3></td></tr>
+                <tr className="!h-auto"><td colSpan={8} className="!h-auto !max-h-none p-16 text-center text-syncra-muted text-sm">No records found</td></tr>
               ) : sorted.map(c => (
-                <tr key={c.id} onClick={() => setSelectedCase(c)} className={`hover:bg-primary/5 cursor-pointer transition-colors group ${selectedCase?.id === c.id ? 'bg-primary/10' : ''}`}>
-                  <td className="p-5 text-primary-ink font-bold border-r border-black/5">{c.id.substring(0, 8)}</td>
-                  <td className="p-5 text-black font-bold border-r border-black/5 group-hover:underline normal-case">{c.patient_name || 'Unknown'}</td>
-                  <td className="p-5 text-black/60 border-r border-black/5 font-mono text-[10px]">{c.mrn || '—'}</td>
-                  <td className="p-5 text-black/60 truncate max-w-[300px] border-r border-black/5">{c.chief_complaint || '(no complaint)'}</td>
-                  <td className="p-5 border-r border-black/5"><UrgencyBadge urgency={c.urgency_level} /></td>
-                  <td className="p-5 border-r border-black/5">
-                    <div className="flex items-center gap-3 justify-center">
-                      <span className="font-bold text-black tabular-nums">{pct(c.confidence_score)}%</span>
-                      <div className="w-16 bg-black/10 h-1.5 flex-shrink-0">
-                        <div className="bg-primary h-full" style={{ width: `${pct(c.confidence_score)}%` }}></div>
+                <tr
+                  key={c.id}
+                  onClick={() => setSelectedCase(c)}
+                  className={`border-t border-syncra-border hover:bg-syncra-card-stroke/60 cursor-pointer transition-colors ${selectedCase?.id === c.id ? 'bg-syncra-card-stroke' : ''}`}
+                >
+                  <td className="font-medium text-syncra-ink whitespace-nowrap">{c.id.substring(0, 8)}</td>
+                  <td className="font-medium text-syncra-ink truncate">{c.patient_name || 'Unknown'}</td>
+                  <td className="text-syncra-secondary whitespace-nowrap">{c.mrn || '—'}</td>
+                  <td className="text-syncra-secondary truncate">{c.chief_complaint || '(no complaint)'}</td>
+                  <td><UrgencyBadge urgency={c.urgency_level} /></td>
+                  <td>
+                    <div className="flex items-center gap-2 justify-center">
+                      <span className="font-medium text-syncra-ink tabular-nums">{pct(c.confidence_score)}%</span>
+                      <div className="w-14 bg-syncra-border h-1.5 rounded-full overflow-hidden flex-shrink-0">
+                        <div className="bg-syncra-ink h-full rounded-full" style={{ width: `${pct(c.confidence_score)}%` }} />
                       </div>
                     </div>
                   </td>
-                  <td className="p-5 text-black/60 text-right font-bold border-r border-black/5">{formatTime(c.created_at)}</td>
-                  <td className="p-5 text-center">
+                  <td className="text-syncra-secondary text-right whitespace-nowrap">{formatTime(c.created_at)}</td>
+                  <td className="text-center">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleQuickConfirm(c); }}
                       disabled={confirmingId === c.id}
-                      className="p-2 border border-black/20 hover:bg-green-50 hover:border-green-500 hover:text-green-600 transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer active:scale-[0.96]"
+                      className="p-1.5 rounded-lg border border-syncra-border text-syncra-secondary hover:bg-syncra-up-soft hover:border-syncra-up/30 hover:text-syncra-up transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                       title="Confirm triage"
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -205,6 +223,6 @@ export default function Queue() {
       </div>
 
       <CaseDetailDrawer isOpen={selectedCase !== null} onClose={() => setSelectedCase(null)} selectedCase={selectedCase} onReviewed={fetchCases} />
-    </>
+    </div>
   );
 }
