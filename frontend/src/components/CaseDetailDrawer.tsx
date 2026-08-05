@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { reviewCase, getClinician, pct } from '../api';
 import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
@@ -21,7 +21,6 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
   const [overrideReason, setOverrideReason] = useState('');
   const [reviewing, setReviewing] = useState(false);
   const [error, setError] = useState('');
-  const [showRaw, setShowRaw] = useState(false);
   const [reasonError, setReasonError] = useState('');
 
   const sc = selectedCase;
@@ -32,7 +31,6 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
     setOverrideLevel('Medium');
     setOverrideReason('');
     setError('');
-    setShowRaw(false);
     setReasonError('');
   }, [selectedCase?.id]);
 
@@ -95,57 +93,57 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
   return (
     <AnimatePresence>
       {isOpen && sc && (
-        <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[110]">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/20" />
+        <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="app-ui fixed inset-0 z-[110]">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-syncra-ink/25" />
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute right-0 top-0 h-full w-full max-w-[560px] bg-white border-l border-black/10 shadow-xl flex flex-col overflow-hidden"
+            className="absolute right-0 top-0 h-full w-full max-w-[560px] bg-white border-l border-syncra-border shadow-xl flex flex-col overflow-hidden rounded-l-2xl"
           >
-            <div className="p-6 md:p-8 border-b border-black/10 flex justify-between items-start bg-background-linen sticky top-0 z-10">
+            <div className="p-6 border-b border-syncra-border flex justify-between items-start bg-syncra-surface sticky top-0 z-10">
               <div>
-                <h3 className="font-sans text-2xl font-bold text-black leading-none mb-4">Case {sc.id.slice(0, 8)}</h3>
-                <div className="flex gap-4 font-mono text-[10px] font-bold items-center flex-wrap">
+                <h3 className="text-xl font-medium text-syncra-ink leading-none mb-3">Case {sc.id.slice(0, 8)}</h3>
+                <div className="flex gap-2 text-xs font-medium items-center flex-wrap">
                   <UrgencyBadge urgency={sc.urgency_level} />
-                  <span className="border border-black px-2 py-1 normal-case font-sans text-sm">{sc.patient_name || 'Unknown'}</span>
-                  {sc.mrn && <span className="border border-black/30 px-2 py-1 font-mono text-[10px] text-black/60">{sc.mrn}</span>}
-                  <span className="text-black/60 uppercase">{sc.status}</span>
+                  <span className="rounded-lg border border-syncra-border bg-white px-2.5 py-1 text-sm text-syncra-ink">{sc.patient_name || 'Unknown'}</span>
+                  {sc.mrn && <span className="rounded-lg border border-syncra-border px-2.5 py-1 text-syncra-secondary">{sc.mrn}</span>}
+                  <span className="text-syncra-muted">{sc.status}</span>
                 </div>
               </div>
-              <button onClick={onClose} className="p-3 border border-black/20 hover:bg-black/5 transition-colors active:scale-[0.96] cursor-pointer bg-white">
-                <X className="w-6 h-6" />
+              <button onClick={onClose} className="p-2 rounded-lg border border-syncra-border hover:bg-syncra-card-stroke transition-colors cursor-pointer bg-white">
+                <X className="w-5 h-5 text-syncra-tertiary" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {sc.chief_complaint && (
                 <section>
-                  <h4 className="font-mono text-xs font-bold text-black/50 uppercase tracking-[0.4em] mb-4 border-b border-black/10 pb-3">CHIEF COMPLAINT</h4>
-                  <p className="font-sans text-2xl font-bold text-black leading-tight">{sc.chief_complaint}</p>
+                  <h4 className="syncra-section-title">Chief Complaint</h4>
+                  <p className="text-lg font-medium text-syncra-ink leading-snug">{sc.chief_complaint}</p>
                 </section>
               )}
 
               <section>
-                <h4 className="font-mono text-xs font-bold text-black/50 uppercase tracking-[0.4em] mb-4 border-b border-black/10 pb-3">AI INTELLIGENCE</h4>
-                <div className="flex items-stretch gap-4 mb-6">
-                  <div className="flex-1 border border-black/10 p-4">
-                    <p className="font-mono text-[10px] font-bold text-black/40 mb-1">CONFIDENCE</p>
-                    <span className="font-sans text-2xl font-bold text-black">{pct(sc.confidence_score)}</span>
-                    <span className="text-black/40 ml-0.5">%</span>
+                <h4 className="syncra-section-title">AI Intelligence</h4>
+                <div className="flex items-stretch gap-3 mb-2">
+                  <div className="flex-1 rounded-xl border border-syncra-border p-4">
+                    <p className="text-[11px] font-medium text-syncra-muted mb-1">Confidence</p>
+                    <span className="text-2xl font-medium text-syncra-ink">{pct(sc.confidence_score)}</span>
+                    <span className="text-syncra-muted ml-0.5">%</span>
                   </div>
-                  <div className="flex-1 border border-black/10 p-4 text-center">
-                    <p className="font-mono text-[10px] font-bold text-black/40 mb-1">UMLS MAPPED</p>
-                    <p className="font-sans text-2xl font-bold text-black mt-1">{entities.length}</p>
+                  <div className="flex-1 rounded-xl border border-syncra-border p-4 text-center">
+                    <p className="text-[11px] font-medium text-syncra-muted mb-1">UMLS Mapped</p>
+                    <p className="text-2xl font-medium text-syncra-ink">{entities.length}</p>
                   </div>
                 </div>
               </section>
 
               {sc.evidence && (
                 <section>
-                  <h4 className="font-mono text-xs font-bold text-black/50 uppercase tracking-[0.4em] mb-4 border-b border-black/10 pb-3">EVIDENCE</h4>
-                  <div className="bg-background-linen p-6 border-l-4 border-black/10 leading-relaxed text-sm text-black/70">
+                  <h4 className="syncra-section-title">Evidence</h4>
+                  <div className="rounded-xl bg-syncra-surface p-4 border border-syncra-border text-sm text-syncra-secondary leading-relaxed">
                     {sc.evidence}
                   </div>
                 </section>
@@ -153,26 +151,34 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
 
               {symptoms.length > 0 && (
                 <section>
-                  <h4 className="font-mono text-xs font-bold text-black/70 uppercase tracking-widest mb-3">Key Symptoms</h4>
-                  <div className="flex flex-wrap gap-2">{symptoms.map(s => <span key={s} className="border border-black px-3 py-1 font-sans text-xs font-medium">{s.replace(/_/g, ' ')}</span>)}</div>
+                  <h4 className="text-xs font-medium text-syncra-secondary mb-2">Key Symptoms</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {symptoms.map(s => (
+                      <span key={s} className="rounded-full border border-syncra-border bg-white px-2.5 py-1 text-xs text-syncra-ink">{s.replace(/_/g, ' ')}</span>
+                    ))}
+                  </div>
                 </section>
               )}
 
               {flags.length > 0 && (
                 <section>
-                  <h4 className="font-mono text-xs font-bold text-urgency-critical uppercase tracking-widest mb-3">Risk Flags</h4>
-                  <div className="flex flex-wrap gap-2">{flags.map(f => <span key={f} className="border border-urgency-critical text-urgency-critical px-3 py-1 font-sans text-xs font-medium">{f.replace(/_/g, ' ')}</span>)}</div>
+                  <h4 className="text-xs font-medium text-syncra-down mb-2">Risk Flags</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {flags.map(f => (
+                      <span key={f} className="rounded-full bg-syncra-down-soft text-syncra-down px-2.5 py-1 text-xs font-medium">{f.replace(/_/g, ' ')}</span>
+                    ))}
+                  </div>
                 </section>
               )}
 
               {entities.length > 0 && (
                 <section>
-                  <h4 className="font-mono text-xs font-bold text-black/70 uppercase tracking-widest mb-3">Extracted Entities ({entities.length})</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <h4 className="text-xs font-medium text-syncra-secondary mb-2">Extracted Entities ({entities.length})</h4>
+                  <div className="flex flex-wrap gap-1.5">
                     {entities.map((e, i) => (
-                      <span key={i} className="border border-black px-3 py-1 font-mono text-[10px] font-bold hover:bg-black hover:text-white transition-colors cursor-crosshair group relative">
+                      <span key={i} className="rounded-lg border border-syncra-border px-2.5 py-1 text-[11px] font-medium text-syncra-ink hover:bg-syncra-card-stroke transition-colors">
                         {e.text}
-                        <span className="ml-1 text-black/50 text-[8px]">{e.label}</span>
+                        <span className="ml-1 text-syncra-muted text-[10px]">{e.label}</span>
                       </span>
                     ))}
                   </div>
@@ -181,12 +187,12 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
 
               {rels.length > 0 && (
                 <section>
-                  <h4 className="font-mono text-xs font-bold text-black/70 uppercase tracking-widest mb-3">Relationships ({rels.length})</h4>
+                  <h4 className="text-xs font-medium text-syncra-secondary mb-2">Relationships ({rels.length})</h4>
                   <div className="space-y-2">
                     {rels.map((r, i) => (
-                      <div key={i} className="bg-background-linen p-4 border-l-4 border-primary font-mono text-[11px] text-black/70">
-                        <strong className="text-black">{r.source}</strong> → <span className="text-primary-ink uppercase">{r.type}</span>
-                        {r.evidence && <p className="text-xs text-black/60 mt-1 font-sans">{r.evidence.substring(0, 120)}</p>}
+                      <div key={i} className="rounded-xl bg-syncra-surface p-3 border border-syncra-border text-xs text-syncra-secondary">
+                        <strong className="text-syncra-ink">{r.source}</strong> → <span className="text-syncra-tertiary uppercase">{r.type}</span>
+                        {r.evidence && <p className="text-xs text-syncra-muted mt-1">{r.evidence.substring(0, 120)}</p>}
                       </div>
                     ))}
                   </div>
@@ -194,39 +200,30 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
               )}
 
               <section>
-                <button onClick={() => setShowRaw(!showRaw)} className="flex items-center gap-2 font-mono text-[10px] font-bold text-black/60 uppercase tracking-widest hover:text-black transition-colors cursor-pointer">
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showRaw ? 'rotate-180' : ''}`} />
-                  Raw Input
-                </button>
-                <AnimatePresence>
-                  {showRaw && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="mt-4 bg-background-linen p-6 border-l-4 border-black/10 text-sm text-black/70 whitespace-pre-wrap max-h-48 overflow-y-auto">
-                        {sc.raw_text || sc.transcription || '(no raw text)'}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <h4 className="syncra-section-title">Raw Input</h4>
+                <div className="rounded-xl bg-syncra-surface p-4 border border-syncra-border text-sm text-syncra-secondary whitespace-pre-wrap max-h-48 overflow-y-auto">
+                  {sc.raw_text || sc.transcription || '(no raw text)'}
+                </div>
               </section>
             </div>
 
-            {sc.status === 'Pending Review' && <div className="p-8 border-t border-black/10 bg-white space-y-4 shrink-0">
-              {error && <p className="font-mono text-[10px] text-red-500 font-bold">{error}</p>}
-              <div className="flex flex-col md:flex-row gap-4">
-                <button onClick={handleConfirm} disabled={reviewing} className="flex-1 w-full bg-black text-white py-5 font-mono text-xs font-bold uppercase tracking-widest border border-black/20 hover:bg-primary hover:text-white transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-3 group shadow-sm">
-                  <CheckCircle2 className="w-4 h-4 text-primary group-hover:text-black" />
+            {sc.status === 'Pending Review' && <div className="p-6 border-t border-syncra-border bg-white space-y-3 shrink-0">
+              {error && <p className="text-xs text-syncra-down font-medium">{error}</p>}
+              <div className="flex flex-col md:flex-row gap-2">
+                <button onClick={handleConfirm} disabled={reviewing} className="flex-1 syncra-btn-primary !py-3 cursor-pointer disabled:opacity-50">
+                  <CheckCircle2 className="w-4 h-4" />
                   {reviewing ? 'Processing...' : 'Confirm Triage'}
                 </button>
-                <button onClick={() => setShowOverride(!showOverride)} className="flex-1 w-full bg-white text-urgency-critical py-5 font-mono text-xs font-bold uppercase tracking-widest border border-urgency-critical hover:bg-urgency-critical hover:text-white transition-colors cursor-pointer flex items-center justify-center gap-3">
+                <button onClick={() => setShowOverride(!showOverride)} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-syncra-down/30 bg-syncra-down-soft text-syncra-down py-3 text-xs font-medium hover:bg-syncra-down hover:text-white transition-colors cursor-pointer">
                   <AlertTriangle className="w-4 h-4" />
                   Override Urgency
                 </button>
               </div>
               <AnimatePresence>
                 {showOverride && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-4 overflow-hidden">
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-3 overflow-hidden">
                     <div>
-                      <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">New Level</label>
+                      <label className="syncra-label">New Level</label>
                       <div className="flex gap-2">
                         {URGENCY_LEVELS.map(l => (
                           <button key={l} onClick={() => setOverrideLevel(l)} className={getUrgencyButtonClasses(l, overrideLevel === l)}>{l}</button>
@@ -234,11 +231,11 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                       </div>
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] font-bold uppercase text-black/60 block mb-2">Reason {downTriage ? '(Required)' : '(Optional)'}</label>
-                      <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} className="w-full border border-black/20 p-4 font-mono text-xs outline-none focus:bg-primary/5 resize-none" rows={2} placeholder="Reason for override..." />
-                      {reasonError && <p className="font-mono text-[10px] text-red-500 font-bold mt-1">{reasonError}</p>}
+                      <label className="syncra-label">Reason {downTriage ? '(Required)' : '(Optional)'}</label>
+                      <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} className="syncra-input resize-none" rows={2} placeholder="Reason for override..." />
+                      {reasonError && <p className="text-xs text-syncra-down font-medium mt-1">{reasonError}</p>}
                     </div>
-                    <button onClick={handleOverride} disabled={reviewing || (downTriage && (!overrideReason.trim() || overrideReason.trim().length < 10))} className="w-full bg-urgency-critical text-white py-4 font-mono text-xs font-bold uppercase border border-urgency-critical hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer">
+                    <button onClick={handleOverride} disabled={reviewing || (downTriage && (!overrideReason.trim() || overrideReason.trim().length < 10))} className="w-full rounded-lg bg-syncra-down text-white py-3 text-xs font-medium hover:bg-[#9a3234] transition-colors disabled:opacity-50 cursor-pointer">
                       Apply Override
                     </button>
                   </motion.div>

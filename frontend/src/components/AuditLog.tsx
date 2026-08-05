@@ -41,59 +41,69 @@ export default function AuditLog() {
 
   return (
     <>
-    <div className="pt-6 px-12 pb-12 overflow-y-auto">
+    <div className="p-6 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-end">
-          <div className="flex items-center gap-3 border border-black/20 px-4 py-2 bg-white w-fit">
-            <Search className="w-4 h-4 text-black/50" />
-            <input type="text" placeholder="SEARCH BY CASE ID or CLINICIAN..." className="bg-transparent border-none outline-none font-mono text-[10px] w-64 uppercase" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <div className="mb-5 flex flex-wrap justify-between items-center gap-3">
+          <div className="flex items-center gap-2 rounded-lg border border-syncra-border bg-white px-3 py-2">
+            <Search className="w-3.5 h-3.5 text-syncra-muted" />
+            <input
+              type="text"
+              placeholder="Search by case ID or clinician..."
+              className="bg-transparent border-none outline-none text-xs w-64 text-syncra-ink placeholder:text-syncra-muted"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
           </div>
-          <button onClick={exportCSV} className="flex items-center gap-3 border border-black/20 bg-white px-6 py-3 font-bold uppercase text-[10px] hover:bg-black hover:text-white transition-colors active:scale-[0.96] cursor-pointer">
-            <Download className="w-4 h-4" /> Export CSV
+          <button onClick={exportCSV} className="syncra-btn-ghost cursor-pointer active:scale-[0.98]">
+            <Download className="w-3.5 h-3.5" /> Export CSV
           </button>
         </div>
 
-        <div className="border border-black/10 bg-white shadow-sm overflow-hidden">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead className="bg-black text-white uppercase text-[11px] tracking-widest border-b border-black/10 font-bold">
+        <div className="syncra-card syncra-table-wrap overflow-hidden">
+          <table className="syncra-table text-left text-xs">
+            <thead className="bg-syncra-card-stroke border-b border-syncra-border text-syncra-secondary">
               <tr>
-                <th className="p-6 border-r border-white/10">Timestamp</th>
-                <th className="p-6 border-r border-white/10">Clinician ID</th>
-                <th className="p-6 border-r border-white/10">Case Reference</th>
-                <th className="p-6 border-r border-white/10">Action</th>
-                <th className="p-6 border-r border-white/10">Level Change</th>
-                <th className="p-6">Reason</th>
+                <th className="w-[16%]">Timestamp</th>
+                <th className="w-[14%]">Clinician ID</th>
+                <th className="w-[12%]">Case Reference</th>
+                <th className="w-[12%]">Action</th>
+                <th className="w-[22%]">Level Change</th>
+                <th className="w-[24%]">Reason</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-black/10">
+            <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="p-20 text-center text-black/20">LOADING...</td></tr>
+                <tr className="!h-auto"><td colSpan={6} className="!h-auto !max-h-none p-16 text-center text-syncra-muted">Loading...</td></tr>
               ) : filteredLogs.length === 0 ? (
-                <tr><td colSpan={6} className="p-20 text-center"><h3 className="font-sans text-3xl font-bold text-black/10">No audit records</h3></td></tr>
+                <tr className="!h-auto"><td colSpan={6} className="!h-auto !max-h-none p-16 text-center text-syncra-muted text-sm">No audit records</td></tr>
               ) : filteredLogs.map((log, i) => (
-                <tr key={log.id || i} className="hover:bg-black/5 transition-colors group">
-                  <td className="p-6 text-black/70 border-r border-black/5 font-bold group-hover:text-black transition-colors">{formatTs(log.timestamp)}</td>
-                  <td className="p-6 font-bold uppercase border-r border-black/5">{log.clinician_id}</td>
-                  <td className="p-6 text-primary-ink font-bold border-r border-black/5">
-                    <span onClick={() => getCase(log.case_id).then(setSelectedCase)} className="underline decoration-2 decoration-primary/30 hover:decoration-primary cursor-pointer transition-all">
+                <tr key={log.id || i} className="border-t border-syncra-border hover:bg-syncra-card-stroke/60 transition-colors">
+                  <td className="text-syncra-secondary whitespace-nowrap">{formatTs(log.timestamp)}</td>
+                  <td className="font-medium text-syncra-ink truncate">{log.clinician_id}</td>
+                  <td className="font-medium text-syncra-ink">
+                    <button
+                      type="button"
+                      onClick={() => getCase(log.case_id).then(setSelectedCase)}
+                      className="underline decoration-syncra-nested hover:decoration-syncra-ink cursor-pointer"
+                    >
                       {log.case_id.substring(0, 8)}
-                    </span>
+                    </button>
                   </td>
-                  <td className="p-6 border-r border-black/5">
-                    <span className={`px-4 py-1.5 border text-[10px] font-bold uppercase ${
-                      log.action === 'Override' ? 'bg-red-500 text-white border-red-600' :
-                      log.action === 'Confirm' ? 'bg-green-500 text-white border-green-600' :
-                       'bg-primary text-white border-primary-ink'
+                  <td>
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+                      log.action === 'Override' ? 'bg-syncra-down-soft text-syncra-down' :
+                      log.action === 'Confirm' ? 'bg-syncra-up-soft text-syncra-up' :
+                      'bg-syncra-card-stroke text-syncra-tertiary'
                     }`}>{log.action}</span>
                   </td>
-                  <td className="p-6 border-r border-black/5">
+                  <td>
                     <span className="flex items-center gap-2">
-                      {log.previous_level ? <UrgencyBadge urgency={toUrgencyLevel(log.previous_level)} /> : <span className="text-black/30 font-mono text-[10px]">—</span>}
-                      <span className="text-black/20 font-mono text-xs">→</span>
+                      {log.previous_level ? <UrgencyBadge urgency={toUrgencyLevel(log.previous_level)} /> : <span className="text-syncra-muted">—</span>}
+                      <span className="text-syncra-muted">→</span>
                       <UrgencyBadge urgency={toUrgencyLevel(log.new_level)} />
                     </span>
                   </td>
-                  <td className="p-6 text-black/70 font-mono text-[10px] max-w-[200px] truncate">{log.reason || '—'}</td>
+                  <td className="text-syncra-secondary truncate">{log.reason || '—'}</td>
                 </tr>
               ))}
             </tbody>

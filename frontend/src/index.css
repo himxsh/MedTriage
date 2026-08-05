@@ -8,10 +8,30 @@
   --color-urgency-high: #f59e0b;
   --color-urgency-medium: #eab308;
   --color-urgency-low: #22c55e;
-  
+
+  /* Syncra (app shell) — Brand/* + Stroke/* from Figma */
+  --color-syncra-ink: #131722;
+  --color-syncra-secondary: #6D6D6D;
+  --color-syncra-tertiary: #55565A;
+  --color-syncra-muted: #929498;
+  --color-syncra-input: #818181;
+  --color-syncra-border: #E7E7E7;
+  --color-syncra-nested: #D0D2D9;
+  --color-syncra-card-stroke: #F5F5F5;
+  --color-syncra-surface: #F9FBFC;
+  --color-syncra-up: #2E854A;
+  --color-syncra-down: #B43B3D;
+  --color-syncra-up-soft: #BAF2C6;
+  --color-syncra-down-soft: #FEEBED;
+  --color-syncra-high-soft: #FFF4E5;
+  --color-syncra-high: #C47A12;
+  --color-syncra-medium-soft: #FEF9C3;
+  --color-syncra-medium: #A16207;
+
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-bebas: "Bebas Neue", cursive;
   --font-mono: "IBM Plex Mono", monospace;
+  --font-app: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -41,5 +61,76 @@
   }
   .brutalist-rule-x {
     @apply border-b border-black/10;
+  }
+
+  /* Syncra app chrome — landing/docs stay on Space Grotesk / linen */
+  .app-ui {
+    font-family: var(--font-app);
+    color: var(--color-syncra-ink);
+    background: var(--color-syncra-surface);
+  }
+  .app-ui .syncra-card {
+    @apply rounded-xl border bg-white;
+    border-color: var(--color-syncra-border);
+    box-shadow: 0 1px 2px rgba(19, 23, 34, 0.04);
+  }
+  .app-ui .syncra-input {
+    @apply w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition-colors;
+    border-color: var(--color-syncra-border);
+    color: var(--color-syncra-ink);
+  }
+  .app-ui .syncra-input::placeholder {
+    color: var(--color-syncra-muted);
+  }
+  .app-ui .syncra-input:focus {
+    border-color: var(--color-syncra-nested);
+    background: #f4f8fb;
+  }
+  .app-ui .syncra-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-medium text-white transition-colors;
+    background: var(--color-syncra-ink);
+  }
+  .app-ui .syncra-btn-primary:hover {
+    background: #232836;
+  }
+  .app-ui .syncra-btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  .app-ui .syncra-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-xs font-medium transition-colors;
+    border-color: var(--color-syncra-border);
+    color: var(--color-syncra-tertiary);
+  }
+  .app-ui .syncra-btn-ghost:hover {
+    background: var(--color-syncra-card-stroke);
+  }
+  .app-ui .syncra-label {
+    @apply block text-xs font-medium mb-1.5;
+    color: var(--color-syncra-secondary);
+  }
+  .app-ui .syncra-section-title {
+    @apply text-xs font-medium uppercase tracking-wide mb-3 pb-2 border-b;
+    color: var(--color-syncra-muted);
+    border-color: var(--color-syncra-border);
+  }
+
+  /* Keep data tables content-sized — stretched tables redistribute row height when filters shrink the set */
+  .app-ui .syncra-table-wrap {
+    @apply w-full h-fit;
+  }
+  .app-ui .syncra-table {
+    @apply w-full table-fixed border-collapse;
+    height: auto;
+  }
+  .app-ui .syncra-table thead th {
+    @apply px-4 py-3 font-medium align-middle;
+  }
+  .app-ui .syncra-table tbody td {
+    @apply px-4 py-3.5 align-middle;
+    height: 3.5rem;
+    max-height: 3.5rem;
+  }
+  .app-ui .syncra-table tbody tr {
+    height: 3.5rem;
   }
 }

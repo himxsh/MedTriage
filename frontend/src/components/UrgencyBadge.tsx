@@ -11,7 +11,7 @@ export default function UrgencyBadge({ urgency, className = '' }: UrgencyBadgePr
   const { bg, text } = getUrgencyClasses(urgency);
 
   return (
-    <span className={`px-3 py-1 font-bold uppercase text-[10px] ${bg} ${text} border border-black ${className}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${bg} ${text} ${className}`}>
       {urgency}
     </span>
   );

@@ -20,48 +20,47 @@ export default function Account() {
   };
 
   return (
-    <div className="pt-6 px-12 pb-12 overflow-y-auto">
-      <div className="max-w-3xl">
-        <div className="space-y-10">
-          <div className="bg-white border border-black/10 p-8 space-y-6">
-            <h2 className="font-sans text-xl font-bold text-black">Identity</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Full Name</label>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-white border border-black/20 p-4 font-bold outline-none focus:bg-primary/5" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Clinician ID</label>
-                <input type="text" value={clinicianId} onChange={e => setClinicianId(e.target.value)} className="w-full bg-white border border-black/20 p-4 font-bold outline-none focus:bg-primary/5 uppercase" />
-              </div>
+    <div className="p-6 overflow-y-auto">
+      <div className="max-w-2xl space-y-5">
+        {/* Syncra: Edit Profile form card */}
+        <div className="syncra-card p-6 space-y-5">
+          <h2 className="text-base font-medium text-syncra-ink">Identity</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="syncra-label">Full Name</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} className="syncra-input" />
             </div>
-            <button onClick={handleSave} className="bg-black text-white px-8 py-4 border border-black/20 font-mono text-xs font-bold uppercase hover:bg-primary hover:text-white transition-colors active:scale-[0.96] cursor-pointer">
-              {saved ? 'Saved' : 'Save'}
-            </button>
+            <div>
+              <label className="syncra-label">Clinician ID</label>
+              <input type="text" value={clinicianId} onChange={e => setClinicianId(e.target.value)} className="syncra-input uppercase" />
+            </div>
           </div>
+          <button onClick={handleSave} className="syncra-btn-primary cursor-pointer active:scale-[0.98]">
+            {saved ? 'Saved' : 'Save'}
+          </button>
+        </div>
 
-          <div className="bg-white border border-black/10 p-8 space-y-6">
-            <h2 className="font-sans text-xl font-bold text-black">Connections</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-black/60 uppercase tracking-widest">API Base URL</label>
-                <input type="text" readOnly className="w-full bg-black/5 border border-black/20 p-4 font-bold outline-none opacity-60" value={getApiBase()} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-black/60 uppercase tracking-widest">WebSocket URL</label>
-                <input type="text" readOnly className="w-full bg-black/5 border border-black/20 p-4 font-bold outline-none opacity-60" value={getWsUrl()} />
-              </div>
+        <div className="syncra-card p-6 space-y-5">
+          <h2 className="text-base font-medium text-syncra-ink">Connections</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="syncra-label">API Base URL</label>
+              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={getApiBase()} />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-[10px] font-bold uppercase">API Status:</span>
-              {connStatus === 'checking' ? (
-                <span className="font-mono text-[10px] text-black/40">CHECKING...</span>
-              ) : connStatus === 'ok' ? (
-                <span className="font-mono text-[10px] text-green-600 font-bold">OK</span>
-              ) : (
-                <span className="font-mono text-[10px] text-red-500 font-bold">FAIL</span>
-              )}
+            <div>
+              <label className="syncra-label">WebSocket URL</label>
+              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={getWsUrl()} />
             </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-medium text-syncra-secondary">API Status:</span>
+            {connStatus === 'checking' ? (
+              <span className="text-syncra-muted">Checking...</span>
+            ) : connStatus === 'ok' ? (
+              <span className="inline-flex px-2.5 py-0.5 rounded-full bg-syncra-up-soft text-syncra-up font-medium">OK</span>
+            ) : (
+              <span className="inline-flex px-2.5 py-0.5 rounded-full bg-syncra-down-soft text-syncra-down font-medium">Fail</span>
+            )}
           </div>
         </div>
       </div>

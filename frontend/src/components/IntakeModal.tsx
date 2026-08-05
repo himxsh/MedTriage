@@ -43,14 +43,14 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
     try {
       if (mode === 'text') {
         if (!notes.trim()) { setError('Clinical notes required'); setIsProcessing(false); return; }
-        setProcessStep('SUBMITTING...');
+        setProcessStep('Submitting...');
         await intakeText(notes, patientName || undefined, mrn || undefined);
       } else {
         if (!audioFile) { setError('Audio file required'); setIsProcessing(false); return; }
-        setProcessStep('UPLOADING...');
+        setProcessStep('Uploading...');
         await intakeAudio(audioFile, patientName || undefined, mrn || undefined);
       }
-      setProcessStep('PROCESSING...');
+      setProcessStep('Processing...');
       setIsProcessing(false);
       setIsSuccess(true);
       setTimeout(() => {
@@ -66,98 +66,94 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+    <div className="app-ui fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={isProcessing || isSuccess ? undefined : onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-syncra-ink/40"
       />
+      {/* Syncra: Add New Task modal pattern */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.97, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.97, y: 10 }}
-        className="relative w-full max-w-5xl bg-background-linen border border-black/10 shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
+        exit={{ opacity: 0, scale: 0.98, y: 8 }}
+        className="relative w-full max-w-3xl bg-white border border-syncra-border rounded-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden"
       >
-        <header className="p-8 border-b border-black/10 bg-white flex justify-between items-center sticky top-0 z-10">
+        <header className="p-6 border-b border-syncra-border flex justify-between items-center sticky top-0 z-10 bg-white">
           <div>
-            <h1 className="font-sans text-2xl font-bold text-black">New Intake</h1>
-            <p className="font-mono text-[10px] text-black/50 uppercase tracking-[0.3em] mt-1">Initialize patient clinical intelligence pipeline</p>
+            <h1 className="text-xl font-medium text-syncra-ink">New Intake</h1>
+            <p className="text-xs text-syncra-muted mt-1">Initialize patient clinical intelligence pipeline</p>
           </div>
-          <button onClick={onClose} disabled={isProcessing || isSuccess} className="p-3 border border-black/20 hover:bg-black/5 transition-colors active:scale-[0.96] cursor-pointer bg-white disabled:opacity-30 disabled:cursor-not-allowed">
-            <X className="w-6 h-6" />
+          <button onClick={onClose} disabled={isProcessing || isSuccess} className="p-2 rounded-lg border border-syncra-border hover:bg-syncra-card-stroke transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+            <X className="w-5 h-5 text-syncra-tertiary" />
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 md:p-12">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex gap-0 mb-10 border border-black/20 w-fit bg-white">
-              <button onClick={() => setMode('text')} className={`flex items-center gap-3 px-8 py-4 font-mono font-bold uppercase text-sm cursor-pointer transition-colors ${mode === 'text' ? 'bg-black text-white' : 'hover:bg-black/5'}`}>
-                <Type className="w-4 h-4" /> Text Mode
+        <div className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex gap-1 mb-8 p-1 rounded-xl border border-syncra-border bg-syncra-card-stroke w-fit">
+              <button onClick={() => setMode('text')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${mode === 'text' ? 'bg-white text-syncra-ink shadow-sm' : 'text-syncra-secondary hover:text-syncra-ink'}`}>
+                <Type className="w-3.5 h-3.5" /> Text Mode
               </button>
-              <button onClick={() => setMode('audio')} className={`flex items-center gap-3 px-8 py-4 font-mono font-bold uppercase text-sm border-l border-black/20 cursor-pointer transition-colors ${mode === 'audio' ? 'bg-black text-white' : 'hover:bg-black/5'}`}>
-                <Mic className="w-4 h-4" /> Audio Mode
+              <button onClick={() => setMode('audio')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${mode === 'audio' ? 'bg-white text-syncra-ink shadow-sm' : 'text-syncra-secondary hover:text-syncra-ink'}`}>
+                <Mic className="w-3.5 h-3.5" /> Audio Mode
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-3">
-                <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Patient Name / Identifier (Optional)</label>
-                  <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-white border border-black/20 p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: PATIENT 0042 / JOHN DOE" />
-                </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="syncra-label">Patient Name / Identifier (Optional)</label>
+                <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} className="syncra-input" placeholder="Ex: Patient 0042 / John Doe" />
+              </div>
 
-                <div className="space-y-3">
-                  <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">MRN (Medical Record Number) — Optional</label>
-                  <input type="text" value={mrn} onChange={(e) => setMrn(e.target.value)} className="w-full bg-white border border-black/20 p-5 font-mono text-lg outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10" placeholder="Ex: MRN-0042-98765" />
-                </div>
+              <div>
+                <label className="syncra-label">MRN (Medical Record Number) — Optional</label>
+                <input type="text" value={mrn} onChange={(e) => setMrn(e.target.value)} className="syncra-input" placeholder="Ex: MRN-0042-98765" />
+              </div>
 
-                {mode === 'text' ? (
-                <div className="space-y-3">
-                  <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Clinical Notes / Initial Narrative</label>
-                  <textarea required value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-64 bg-white border border-black/20 p-6 font-mono text-sm leading-relaxed outline-none focus:bg-primary/5 transition-colors placeholder:text-black/10 resize-none" placeholder="Enter patient symptoms, history of present illness, and any relevant clinical context here..."></textarea>
+              {mode === 'text' ? (
+                <div>
+                  <label className="syncra-label">Clinical Notes / Initial Narrative</label>
+                  <textarea required value={notes} onChange={(e) => setNotes(e.target.value)} className="syncra-input h-48 resize-none leading-relaxed" placeholder="Enter patient symptoms, history of present illness, and any relevant clinical context here..." />
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <label className="font-mono text-xs font-bold uppercase tracking-widest text-black/60">Audio Submission</label>
+                <div>
+                  <label className="syncra-label">Audio Submission</label>
                   <input ref={audioRef} type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] || null)} className="hidden" />
-                  <div onClick={() => audioRef.current?.click()} className="w-full h-64 bg-white border border-dashed border-black/30 flex flex-col items-center justify-center p-8 text-center group hover:bg-black/5 transition-colors cursor-pointer">
-                    <Upload className="w-12 h-12 text-primary mb-4 group-hover:scale-110 transition-transform" />
+                  <div onClick={() => audioRef.current?.click()} className="w-full h-48 rounded-xl border border-dashed border-syncra-nested flex flex-col items-center justify-center p-6 text-center hover:bg-syncra-card-stroke transition-colors cursor-pointer">
+                    <Upload className="w-8 h-8 text-syncra-muted mb-3" />
                     {audioFile ? (
                       <>
-                        <p className="font-mono text-sm font-bold uppercase mb-2">{audioFile.name}</p>
-                        <p className="font-mono text-[10px] text-black/40 uppercase tracking-widest">{(audioFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                        <p className="text-sm font-medium text-syncra-ink mb-1">{audioFile.name}</p>
+                        <p className="text-[11px] text-syncra-muted">{(audioFile.size / 1024 / 1024).toFixed(1)} MB</p>
                       </>
                     ) : (
                       <>
-                        <p className="font-mono text-sm font-bold uppercase mb-2">Click to select audio file</p>
-                        <p className="font-mono text-[10px] text-black/40 uppercase tracking-widest">WAV / MP3 / FLAC (MAX 50MB)</p>
+                        <p className="text-sm font-medium text-syncra-ink mb-1">Click to select audio file</p>
+                        <p className="text-[11px] text-syncra-muted">WAV / MP3 / FLAC (max 50MB)</p>
                       </>
                     )}
                   </div>
                 </div>
               )}
 
-              <div className="pt-4 flex flex-col md:flex-row gap-6 items-start md:items-center">
-                <button type="submit" disabled={isProcessing || isSuccess} className="group relative flex items-center justify-center w-full md:w-fit min-w-[300px] border border-black/20 bg-black text-white px-10 py-6 font-mono font-bold uppercase text-lg tracking-wider hover:bg-primary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden active:scale-[0.96]">
-                  <span className="relative z-10">{isProcessing ? 'Processing...' : isSuccess ? 'Success' : 'Submit for Analysis'}</span>
-                  {!isProcessing && !isSuccess && <ArrowRight className="ml-4 w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />}
-                  <AnimatePresence>
-                    {isProcessing && (
-                      <motion.div initial={{ top: '-100%' }} animate={{ top: '100%' }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="absolute left-0 right-0 h-4 bg-primary/30 z-0 blur-sm" />
-                    )}
-                  </AnimatePresence>
+              <div className="pt-2 flex flex-col md:flex-row gap-4 items-start md:items-center">
+                <button type="submit" disabled={isProcessing || isSuccess} className="syncra-btn-primary !px-8 !py-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]">
+                  <span>{isProcessing ? 'Processing...' : isSuccess ? 'Success' : 'Submit for Analysis'}</span>
+                  {!isProcessing && !isSuccess && <ArrowRight className="w-4 h-4" />}
                 </button>
 
                 <AnimatePresence>
                   {(isProcessing || isSuccess || error) && (
-                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 font-mono font-bold">
+                    <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 text-xs font-medium">
                       {isProcessing ? (
-                        <><Loader2 className="w-5 h-5 animate-spin text-primary-ink" /><span className="text-primary-ink text-sm uppercase tracking-widest">{processStep}</span></>
+                        <><Loader2 className="w-4 h-4 animate-spin text-syncra-tertiary" /><span className="text-syncra-tertiary">{processStep}</span></>
                       ) : isSuccess ? (
-                        <><CheckCircle2 className="w-5 h-5 text-green-600" /><span className="text-green-600 text-sm uppercase tracking-widest">Cycle Complete // Redirecting</span></>
+                        <><CheckCircle2 className="w-4 h-4 text-syncra-up" /><span className="text-syncra-up">Complete — redirecting</span></>
                       ) : (
-                        <><X className="w-5 h-5 text-red-500" /><span className="text-red-500 text-sm uppercase tracking-widest">{error}</span></>
+                        <><X className="w-4 h-4 text-syncra-down" /><span className="text-syncra-down">{error}</span></>
                       )}
                     </motion.div>
                   )}
@@ -167,7 +163,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
           </div>
         </div>
 
-        <footer className="bg-black text-[8px] font-mono text-primary/60 p-4 flex justify-between uppercase tracking-widest">
+        <footer className="bg-syncra-card-stroke text-[10px] text-syncra-muted px-6 py-3 flex justify-between border-t border-syncra-border">
           <span>Secure Intake Layer: active</span>
           <span>Encrypted Stream: AES4096</span>
         </footer>

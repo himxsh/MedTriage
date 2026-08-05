@@ -1,10 +1,39 @@
 import type { UrgencyLevel } from './types';
 
+/** Syncra-style soft status pills (Active/Inactive pattern adapted to urgency). */
 const STYLES: Record<UrgencyLevel, { bg: string; text: string; fg: string; border: string; outline: string; hoverBorder: string }> = {
-  Critical: { bg: 'bg-urgency-critical', text: 'text-white', fg: 'text-urgency-critical', border: 'border-urgency-critical', outline: 'border-urgency-critical/30', hoverBorder: 'hover:border-urgency-critical' },
-  High: { bg: 'bg-urgency-high', text: 'text-black', fg: 'text-urgency-high', border: 'border-urgency-high', outline: 'border-urgency-high/30', hoverBorder: 'hover:border-urgency-high' },
-  Medium: { bg: 'bg-urgency-medium', text: 'text-black', fg: 'text-urgency-medium', border: 'border-urgency-medium', outline: 'border-urgency-medium/30', hoverBorder: 'hover:border-urgency-medium' },
-  Low: { bg: 'bg-urgency-low', text: 'text-black', fg: 'text-urgency-low', border: 'border-urgency-low', outline: 'border-urgency-low/30', hoverBorder: 'hover:border-urgency-low' },
+  Critical: {
+    bg: 'bg-syncra-down-soft',
+    text: 'text-syncra-down',
+    fg: 'text-syncra-down',
+    border: 'border-syncra-down/20',
+    outline: 'border-syncra-down/20',
+    hoverBorder: 'hover:border-syncra-down',
+  },
+  High: {
+    bg: 'bg-syncra-high-soft',
+    text: 'text-syncra-high',
+    fg: 'text-syncra-high',
+    border: 'border-syncra-high/20',
+    outline: 'border-syncra-high/20',
+    hoverBorder: 'hover:border-syncra-high',
+  },
+  Medium: {
+    bg: 'bg-syncra-medium-soft',
+    text: 'text-syncra-medium',
+    fg: 'text-syncra-medium',
+    border: 'border-syncra-medium/20',
+    outline: 'border-syncra-medium/20',
+    hoverBorder: 'hover:border-syncra-medium',
+  },
+  Low: {
+    bg: 'bg-syncra-up-soft',
+    text: 'text-syncra-up',
+    fg: 'text-syncra-up',
+    border: 'border-syncra-up/20',
+    outline: 'border-syncra-up/20',
+    hoverBorder: 'hover:border-syncra-up',
+  },
 };
 
 export const URGENCY_RANK: Record<UrgencyLevel, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
@@ -27,7 +56,7 @@ export function getUrgencyClasses(level: UrgencyLevel) {
 
 export function getUrgencyButtonClasses(level: UrgencyLevel, selected: boolean): string {
   const s = STYLES[level];
-  const base = 'flex-1 py-3 border font-mono text-xs font-bold uppercase cursor-pointer transition-colors';
+  const base = 'flex-1 py-2.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors';
   return selected
     ? `${base} ${s.bg} ${s.text} ${s.border}`
     : `${base} bg-white ${s.fg} ${s.outline} ${s.hoverBorder}`;
