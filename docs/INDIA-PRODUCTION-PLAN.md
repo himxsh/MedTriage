@@ -176,10 +176,10 @@ Split features into **Must (B0)**, **Should (B1)**, **Later (D+)**.
 
 #### B0.1 Organization admin console
 
-- Org name, site name, timezone (IST)
-- Invite clinicians by email/role; deactivate seats
-- Seat counter vs plan cap (5 pilot / 25 site — soft limit)
-- Show API/base URL and WS status for IT
+- [x] Org name, site name, timezone (IST)
+- [x] Invite clinicians by email/role; deactivate seats
+- [x] Seat counter vs plan cap (5 pilot / 25 site — soft limit)
+- [x] Show API/base URL and WS status for IT
 
 
 

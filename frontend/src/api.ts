@@ -1,4 +1,4 @@
-import type { PatientCase, AuditEntry, AuthUser, PilotMetrics } from './types';
+import type { PatientCase, AuditEntry, AuthUser, PilotMetrics, OrgInfo, OrgUser } from './types';
 import { getDemoAudit, getDemoCase, getDemoCases, reviewDemoCase } from './sampleData';
 
 // Empty = same-origin via Vite proxy (required so mt_session cookie isn't cross-site dropped).
@@ -203,6 +203,62 @@ export async function downloadMetricsCsv(from: string, to: string): Promise<void
   a.download = `metrics-${from}-${to}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function fetchOrg(): Promise<OrgInfo> {
+  const res = await apiFetch('/api/v1/org');
+  if (res.status === 403) throw new Error('Admin role required');
+  if (!res.ok) throw new Error(`org ${res.status}`);
+  return res.json();
+}
+
+export async function patchOrg(body: {
+  name?: string;
+  site_name?: string;
+  timezone?: string;
+  seat_cap?: number;
+}): Promise<OrgInfo> {
+  const res = await apiFetch('/api/v1/org', {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error((detail as { detail?: string }).detail || `org patch ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function listOrgUsers(): Promise<OrgUser[]> {
+  const res = await apiFetch('/api/v1/org/users');
+  if (!res.ok) throw new Error(`org users ${res.status}`);
+  return res.json();
+}
+
+export async function inviteUser(payload: {
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+}): Promise<{ id: string; email: string; role: string }> {
+  const res = await apiFetch('/api/v1/auth/invite', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error((detail as { detail?: string }).detail || `invite ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function setUserActive(userId: string, active: boolean): Promise<void> {
+  const action = active ? 'activate' : 'deactivate';
+  const res = await apiFetch(`/api/v1/org/users/${userId}/${action}`, { method: 'POST' });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error((detail as { detail?: string }).detail || `${action} ${res.status}`);
+  }
 }
 
 /** @deprecated use getMe — kept for gradual UI migration */

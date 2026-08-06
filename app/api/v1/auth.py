@@ -208,6 +208,24 @@ async def invite_user(
     if body.role not in ROLES:
         raise HTTPException(status_code=400, detail=f"role must be one of {ROLES}")
 
+    org_result = await db.execute(select(Organization).where(Organization.id == user.org_id))
+    org = org_result.scalar_one_or_none()
+    if org:
+        active = (
+            await db.execute(
+                select(func.count()).select_from(User).where(
+                    User.org_id == user.org_id,
+                    User.deleted_at.is_(None),
+                    User.is_active == True,  # noqa: E712
+                )
+            )
+        ).scalar_one()
+        if int(active) >= org.seat_cap:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Seat cap reached ({org.seat_cap}). Deactivate a seat or raise the cap.",
+            )
+
     email = body.email.lower().strip()
     existing = await db.execute(select(User).where(User.email == email))
     if existing.scalar_one_or_none():

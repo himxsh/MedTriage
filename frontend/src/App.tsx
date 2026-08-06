@@ -7,6 +7,7 @@ import Queue from './components/Queue';
 import Cases from './components/Cases';
 import AuditLog from './components/AuditLog';
 import Metrics from './components/Metrics';
+import Admin from './components/Admin';
 import Account from './components/Account';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -31,6 +32,7 @@ function AppContent() {
       case 'intake': setIsIntakeModalOpen(true); break;
       case 'audit': navigate('/audit'); break;
       case 'metrics': navigate('/metrics'); break;
+      case 'admin': navigate('/admin'); break;
       case 'account': navigate('/account'); break;
       default: {
         const _exhaustive: never = screen;
@@ -68,6 +70,11 @@ function AppContent() {
         <Route path="/metrics" element={
           <ProtectedRoute>
             <AppShell onNavigate={handleNavigate}><Metrics /></AppShell>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AppShell onNavigate={handleNavigate}><Admin /></AppShell>
           </ProtectedRoute>
         } />
         <Route path="/account" element={

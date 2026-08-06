@@ -14,6 +14,7 @@ const TITLE_SUBTITLES: Record<string, string> = {
   cases: 'Full case index',
   audit: 'Decision log',
   metrics: 'Pilot evidence export',
+  admin: 'Org settings & seats',
   account: 'Clinician configuration',
 };
 

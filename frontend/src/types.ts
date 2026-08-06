@@ -8,9 +8,10 @@ export type Screen =
   | 'intake'
   | 'audit'
   | 'metrics'
+  | 'admin'
   | 'account';
 
-export type AppScreen = 'queue' | 'cases' | 'audit' | 'metrics' | 'account';
+export type AppScreen = 'queue' | 'cases' | 'audit' | 'metrics' | 'admin' | 'account';
 
 export type UrgencyLevel = 'Critical' | 'High' | 'Medium' | 'Low';
 
@@ -91,4 +92,23 @@ export interface PilotMetrics {
   active_clinicians: number;
   open_sessions: number;
   notes: string[];
+}
+
+export interface OrgInfo {
+  id: string;
+  name: string;
+  site_name: string | null;
+  timezone: string;
+  seat_cap: number;
+  seats_used: number;
+  seats_active: number;
+}
+
+export interface OrgUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
 }
