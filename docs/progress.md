@@ -2,9 +2,59 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase A — Security & tenancy foundation
+**Current focus:** Phase A complete (eng) → Phase B kickoff
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 2 — 2026-08-06 (Phase A close-out)
+
+### Goal
+
+Finish remaining Phase A checklist items: password change, TLS/HSTS ops posture, expanded security regression.
+
+### Done
+
+#### Password change (A1)
+
+- `POST /api/v1/auth/password` — verifies current password, min 8 chars, rejects same-as-current.
+- Revokes all **other** sessions for the user (current cookie kept).
+- Account UI: change-password form with confirm field.
+- Smoke: wrong current → 401; change + restore demo password.
+
+#### TLS / HSTS / bind (A4)
+
+- `ENABLE_HSTS` setting + `SecurityHeadersMiddleware` (`Strict-Transport-Security` when on).
+- `COOKIE_SECURE` already wired; `.env.example` documents prod values.
+- `docs/ops-production.md` — reverse-proxy layout, bind rules, cookie/CORS checklist.
+- `__main__` uvicorn host default `127.0.0.1` (not public `0.0.0.0`).
+
+#### Regression expansion (A6)
+
+- `scripts/upload_path.check.py` — offline containment (evil `../` never enters path).
+- `scripts/auth_smoke.py` — password change; GET missing case → 404; optional cross-org plant via `DATABASE_URL`; intake multipart with `../../etc/passwd` filename (stores `{case_id}.bin` only).
+
+### Verified
+
+```bash
+MEDTRIAGE_API=http://127.0.0.1:8001 python scripts/auth_smoke.py  # all ✓
+python scripts/upload_path.check.py
+python scripts/security_hash.check.py
+```
+
+### Checklist vs plan (Phase A)
+
+| Item | Status |
+|------|--------|
+| A1 Password change UI | Done |
+| A4 TLS/HSTS + private bind runbook | Done (proxy terminates TLS; app flags) |
+| A4 Secrets rotation / secret manager | Ops follow-up (not coded) |
+| A3 Kiosk API key | Still deferred |
+| A6 Path-traversal + cross-org smokes | Done |
+| Alembic | Still deferred until schema settles |
+
+**Phase A eng exit:** met. Do not take real PHI until B0.6/B0.7 also signed.
 
 ---
 
@@ -80,21 +130,6 @@ Close the blocking security gaps (S1–S6, P1) enough that the SPA and API are n
 | Frontend | `api.ts`, `App.tsx`, `ProtectedRoute.tsx`, `Login.tsx`, `Register.tsx`, `Account.tsx`, `AppShell.tsx`, `CaseDetailDrawer.tsx`, `Queue.tsx`, `types.ts`, `vite.config.ts` |
 | Ops/docs | `.env.example`, `scripts/auth_smoke.py`, `scripts/security_hash.check.py`, `frontend/scripts/smoke-api.mjs`, this file |
 
-### Checklist vs plan (Phase A)
-
-| Item | Status |
-|------|--------|
-| A1 User model + sessions + `/me` + ProtectedRoute | Done |
-| A1 Invite-only register | Done (bootstrap + admin invite) |
-| A1 Password change UI | Not started |
-| A2 Server actor + org scope + review enums + Completed lock | Done |
-| A3 Upload contain + size + rate limit | Done |
-| A3 Kiosk API key | Deferred (optional) |
-| A4 CORS allowlist + authenticated WS | Done |
-| A4 TLS/HSTS + private bind runbook | Not started |
-| A5 orgs + org_id + seed + retention stubs | Done |
-| A6 Smoke / regression scripts | Done (auth + hash) |
-
 ### How to exercise locally
 
 ```bash
@@ -125,16 +160,13 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 
 ## Remaining (next sessions)
 
-### Finish Phase A
+### Phase B0 (next eng)
 
-1. Password-change endpoint + Account UI.
-2. TLS/HSTS + production CORS origins + cookie `Secure=true` behind HTTPS.
-3. Expand regression curls for path-traversal attempt and cross-org case ID → 404.
-4. Consider Alembic once schema churn settles.
-
-### Phase B (after A exit)
-
-Per plan: metrics export, Hindi+EN, admin console, India region deploy, DPA pack, INR landing — do **not** take real PHI until A + B0.6/B0.7 are signed.
+1. Pilot metrics pipeline + CSV export UI (sales asset).
+2. Org admin console (invite UI, seats, IST timezone).
+3. Hindi+EN spike (STT quality) + locale toggle.
+4. Safety chrome + queue polish.
+5. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
 
 ### Non-eng (parallel, founder)
 
@@ -151,4 +183,4 @@ Per plan: metrics export, Hindi+EN, admin console, India region deploy, DPA pack
 |------|---------|
 | 2026-08-06 | Phase A1–A6 core: auth, RBAC, org tenancy, audit actor, upload harden, SPA guards, smokes |
 | 2026-08-06 | Vite same-origin `/api`+`/ws` proxy — fixes login 200 then cases 401 (cookie drop) |
-
+| 2026-08-06 | Phase A close-out: password change, HSTS/ops runbook, path + cross-org regression |

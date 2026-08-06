@@ -97,7 +97,7 @@ Workstreams run in parallel where noted (sales outreach starts while Phase B shi
 - [x] Register → invite-only for pilots (admin creates users); public self-register **off** in production
 - [x] Login: email/password → **httpOnly secure cookie session** OR short-lived JWT in httpOnly cookie (prefer session server-side for revocation)
 - [x] Logout clears session; basic lockout after N failures
-- [ ] Password change
+- [x] Password change
 - [x] Replace `saveClinician` / localStorage identity; UI reads `/api/v1/me`
 - [x] SPA: `ProtectedRoute` for `/queue`, `/cases`, `/audit`, `/account`; redirect unauthenticated to `/login`
 - [x] All API routes + `/ws/queue` require auth
@@ -136,10 +136,10 @@ Workstreams run in parallel where noted (sales outreach starts while Phase B shi
 
 ### A4. Transport & config
 
-- [ ] TLS only in production; HSTS
+- [x] TLS only in production; HSTS (`ENABLE_HSTS` + reverse proxy; see `docs/ops-production.md`)
 - [x] CORS allowlist exact frontend origin(s); no `*` + credentials
 - [x] Authenticated WebSocket (cookie or ticket query exchanged post-login)
-- [ ] Bind API to private network / reverse proxy; never advertise open `0.0.0.0` without auth
+- [x] Bind API to private network / reverse proxy; never advertise open `0.0.0.0` without auth (runbook + `__main__` defaults to `127.0.0.1`)
 - [ ] Secrets only in env/secret manager; rotate Gemini key if ever exposed
 - [x] Remove or neutralize `vite` `GEMINI_API_KEY` client define (backend-only keys)
 
@@ -158,8 +158,9 @@ Workstreams run in parallel where noted (sales outreach starts while Phase B shi
 
 - [x] Security regression checklist from run-3 findings (each finding has a test or curl script that now fails closed)
 - [x] One runnable smoke: unauthenticated `GET /cases` → 401; authenticated cross-org id → 404/403
+- [x] Path-traversal intake filename + offline `upload_path.check.py`; password change round-trip in `auth_smoke.py`
 
-**Phase A exit:** Demo to yourself: cannot access queue logged out; cannot forge another clinician’s audit; cannot path-traverse upload.
+**Phase A exit:** Demo to yourself: cannot access queue logged out; cannot forge another clinician’s audit; cannot path-traverse upload. **Met** (eng); remaining A4 secrets rotation is ops hygiene.
 
 ---
 
