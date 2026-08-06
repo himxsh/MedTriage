@@ -227,23 +227,24 @@ Per org, date range:
 
 #### B0.6 India production deployment
 
-- Host in **India region** (e.g. Mumbai): app, Postgres, Redis
-- Automated backups (daily + PITR if available); restore drill once
-- Structured logging; error tracking (Sentry or equivalent)
-- Staging env + prod env; no prod credentials on laptops in plaintext long-term
-- Uptime target for pilot: 99% during ward hours
+- [ ] Host in **India region** (e.g. Mumbai): app, Postgres, Redis *(runbook ready — provision when cloud account ready)*
+- [ ] Automated backups (daily + PITR if available); restore drill once
+- [ ] Structured logging; error tracking (Sentry or equivalent)
+- [ ] Staging env + prod env; no prod credentials on laptops in plaintext long-term
+- [x] Uptime target for pilot: 99% during ward hours *(documented in india-deploy.md)*
+- [x] Deploy gate checklist: [`docs/india-deploy.md`](./india-deploy.md)
 
 
 
 #### B0.7 Compliance pack (lightweight but real)
 
-- DPDP-oriented privacy notice + hospital **Data Processing Agreement** template
-- Data retention policy (e.g. pilot 90 days default; configurable)
-- Patient data deletion request runbook (admin action)
-- Incident response one-pager (who to call, 72h internal)
-- Subprocessor list (Gemini/Google, host, email)
-- Document: de-ID before LLM; what still may leave India region if Gemini is foreign — **get legal eyes**
-- Clinical advisor review of claims language (CDS, not diagnosis)
+- [x] DPDP-oriented privacy notice + hospital **Data Processing Agreement** template
+- [x] Data retention policy (e.g. pilot 90 days default; configurable)
+- [x] Patient data deletion request runbook (admin action)
+- [x] Incident response one-pager (who to call, 72h internal)
+- [x] Subprocessor list (Gemini/Google, host, email)
+- [x] Document: de-ID before LLM; what still may leave India region if Gemini is foreign — **get legal eyes**
+- [x] Clinical advisor review of claims language (CDS, not diagnosis) *(draft in claims-language.md — advisor sign-off pending)*
 
 
 
@@ -251,8 +252,8 @@ Per org, date range:
 
 - Commercial license / Order Form + SaaS Terms (lawyer)
 - [x] Landing pricing → **INR** tiers; remove or footnote USD
-- Pilot success criteria one-pager (from `business.md`)
-- Security one-pager for hospital IT (auth, encryption, residency, audit)
+- [x] Pilot success criteria one-pager (from `business.md`)
+- [x] Security one-pager for hospital IT (auth, encryption, residency, audit)
 
 
 

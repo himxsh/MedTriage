@@ -261,6 +261,14 @@ export async function setUserActive(userId: string, active: boolean): Promise<vo
   }
 }
 
+export async function softDeleteCase(caseId: string): Promise<void> {
+  const res = await apiFetch(`/api/v1/org/cases/${caseId}/delete`, { method: 'POST' });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error((detail as { detail?: string }).detail || `delete ${res.status}`);
+  }
+}
+
 /** @deprecated use getMe — kept for gradual UI migration */
 export function getClinician(): { name: string; id: string } {
   if (cachedMe) return { name: cachedMe.name, id: cachedMe.id };

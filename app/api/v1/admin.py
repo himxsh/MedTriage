@@ -1,5 +1,4 @@
 """Org admin console — settings, seats, user list/deactivate."""
-from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
@@ -12,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.auth import CurrentUser, ADMIN_ROLES
 from app.db.session import get_session
 from app.models.org import Organization, User
+from app.models.case import Case
 
 router = APIRouter()
 
@@ -200,3 +200,28 @@ async def activate_user(
     db.add(target)
     await db.commit()
     return {"status": "ok", "id": str(target.id), "is_active": True}
+
+
+@router.post("/org/cases/{case_id}/delete")
+async def soft_delete_case(
+    case_id: UUID,
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_session),
+):
+    """DPDP / hospital erasure request — soft-delete within org only."""
+    user.require_role(ADMIN_ROLES)
+    result = await db.execute(
+        select(Case).where(
+            Case.id == case_id,
+            Case.org_id == user.org_id,
+            Case.deleted_at.is_(None),
+        )
+    )
+    case = result.scalar_one_or_none()
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    case.deleted_at = datetime.utcnow()
+    db.add(case)
+    await db.commit()
+    return {"status": "ok", "id": str(case_id), "deleted_at": case.deleted_at.isoformat()}

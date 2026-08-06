@@ -2,9 +2,29 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase B0 — Hindi UI + INR done; India deploy + DPA remain PHI blockers
+**Current focus:** Phase B0 — compliance pack + deploy runbook done; cloud provision + legal sign-off remain
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 7 — 2026-08-06 (B0.6 runbook + B0.7/B0.8 docs)
+
+### Goal
+
+PHI gate paperwork: compliance templates, security one-pager, India deploy checklist; admin soft-delete for erasure requests.
+
+### Done
+
+- `docs/compliance/*` — privacy notice, DPA skeleton, retention, deletion runbook, IR, subprocessors, CDS claims.
+- `docs/security-one-pager.md`, `docs/pilot-success-criteria.md`, `docs/india-deploy.md`.
+- `POST /api/v1/org/cases/{id}/delete` + Admin UI soft-delete field.
+
+### Still blocking real PHI
+
+- Provision India cloud (follow india-deploy.md).
+- Lawyer + hospital sign DPA; fill IR contacts.
+- Hindi STT quality spike (optional for text-first pilots).
 
 ---
 
@@ -238,9 +258,9 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 
 ### Phase B0 (next eng)
 
-1. Hindi voice STT quality spike (Whisper vs Gemini) — remaining B0.3.
-2. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
-3. Commercial license / security one-pager — rest of B0.8.
+1. Provision India-region staging/prod (execute `docs/india-deploy.md`).
+2. Lawyer review of DPA + commercial license / SaaS terms.
+3. Hindi voice STT quality spike (Whisper vs Gemini) — remaining B0.3.
 
 ### Non-eng (parallel, founder)
 
@@ -263,3 +283,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | Phase B0.4/B0.5: CDS banner, completed lock UI, queue filters + Critical alerts |
 | 2026-08-06 | Landing pricing → INR (₹39,999 pilot / ₹99,000 site-month) |
 | 2026-08-06 | B0.3 EN/Hindi locale toggle + Hinglish Gemini prompt |
+| 2026-08-06 | B0.7 compliance pack + security/pilot one-pagers + india-deploy runbook; case soft-delete |

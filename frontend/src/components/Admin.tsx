@@ -5,6 +5,7 @@ import {
   listOrgUsers,
   inviteUser,
   setUserActive,
+  softDeleteCase,
   getApiBase,
   getWsUrl,
   listCases,
@@ -32,6 +33,7 @@ export default function Admin() {
   const [invRole, setInvRole] = useState<string>('nurse');
   const [invPw, setInvPw] = useState('');
   const [busy, setBusy] = useState(false);
+  const [deleteCaseId, setDeleteCaseId] = useState('');
 
   const reload = async () => {
     setError('');
@@ -260,6 +262,44 @@ export default function Admin() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="syncra-card p-5 space-y-4">
+          <h3 className="text-sm font-medium text-syncra-ink">Erase case (DPDP request)</h3>
+          <p className="text-[11px] text-syncra-muted">
+            Soft-deletes a case in this org after a hospital erasure ticket. See docs/compliance/deletion-runbook.md.
+          </p>
+          <form
+            className="flex flex-wrap gap-2 items-end"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBusy(true);
+              setError('');
+              setMsg('');
+              try {
+                await softDeleteCase(deleteCaseId.trim());
+                setMsg(`Soft-deleted case ${deleteCaseId.trim()}.`);
+                setDeleteCaseId('');
+              } catch (err) {
+                setError(err instanceof Error ? err.message : 'Delete failed');
+              }
+              setBusy(false);
+            }}
+          >
+            <div className="flex-1 min-w-[200px]">
+              <label className="syncra-label">Case UUID</label>
+              <input
+                className="syncra-input font-mono text-xs"
+                value={deleteCaseId}
+                onChange={(e) => setDeleteCaseId(e.target.value)}
+                required
+                placeholder="00000000-0000-0000-0000-000000000000"
+              />
+            </div>
+            <button type="submit" disabled={busy} className="syncra-btn-ghost cursor-pointer text-syncra-down">
+              Soft-delete
+            </button>
+          </form>
         </div>
 
         <div className="syncra-card p-5 space-y-3">
