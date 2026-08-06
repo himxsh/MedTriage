@@ -1,4 +1,4 @@
-import type { PatientCase, AuditEntry, AuthUser } from './types';
+import type { PatientCase, AuditEntry, AuthUser, PilotMetrics } from './types';
 import { getDemoAudit, getDemoCase, getDemoCases, reviewDemoCase } from './sampleData';
 
 // Empty = same-origin via Vite proxy (required so mt_session cookie isn't cross-site dropped).
@@ -181,6 +181,28 @@ export async function listAudit() {
     useDemo = true;
     return getDemoAudit();
   }
+}
+
+export async function fetchMetrics(from: string, to: string): Promise<PilotMetrics> {
+  const q = new URLSearchParams({ from, to });
+  const res = await apiFetch(`/api/v1/metrics?${q}`);
+  if (res.status === 403) throw new Error('Admin role required for metrics');
+  if (!res.ok) throw new Error(`metrics ${res.status}`);
+  return res.json();
+}
+
+export async function downloadMetricsCsv(from: string, to: string): Promise<void> {
+  const q = new URLSearchParams({ from, to, format: 'csv' });
+  const res = await apiFetch(`/api/v1/metrics?${q}`);
+  if (res.status === 403) throw new Error('Admin role required for metrics');
+  if (!res.ok) throw new Error(`metrics csv ${res.status}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `metrics-${from}-${to}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /** @deprecated use getMe — kept for gradual UI migration */

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Plus, Menu } from 'lucide-react';
 import { NAV_ITEMS } from '../nav';
-import { getClinician, logout } from '../api';
+import { getClinician, getMe, logout } from '../api';
 import type { Screen } from '../types';
 
 interface AppShellProps {
@@ -13,6 +13,7 @@ interface AppShellProps {
 const TITLE_SUBTITLES: Record<string, string> = {
   cases: 'Full case index',
   audit: 'Decision log',
+  metrics: 'Pilot evidence export',
   account: 'Clinician configuration',
 };
 
@@ -20,10 +21,12 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const clinician = getClinician();
+  const me = getMe();
   const currentPath = location.pathname.replace('/', '');
   const [collapsed, setCollapsed] = useState(false);
 
-  const currentNav = NAV_ITEMS.find(item => item.id === currentPath);
+  const navItems = NAV_ITEMS.filter((item) => !item.adminOnly || me?.role === 'admin');
+  const currentNav = navItems.find(item => item.id === currentPath) ?? NAV_ITEMS.find(item => item.id === currentPath);
   const pageTitle = currentNav?.label ?? '';
   const pageSubtitle = TITLE_SUBTITLES[currentPath];
 
@@ -53,7 +56,7 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
         </div>
         <nav className={`flex-1 py-4 overflow-y-auto ${collapsed ? 'px-2' : 'px-3'}`}>
           <div className="space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const isActive = currentPath === item.id;
               const Icon = item.icon;
               return (

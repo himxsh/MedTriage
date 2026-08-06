@@ -8,7 +8,7 @@ import redis.asyncio as redis
 from app.core.config import settings
 from app.core.auth import ws_user_from_cookie
 from app.db.session import init_db
-from app.api.v1 import intake, cases, auth
+from app.api.v1 import intake, cases, auth, metrics
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -122,6 +122,7 @@ async def on_startup():
 app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["auth"])
 app.include_router(intake.router, prefix=settings.API_V1_STR, tags=["intake"])
 app.include_router(cases.router, prefix=settings.API_V1_STR, tags=["cases"])
+app.include_router(metrics.router, prefix=settings.API_V1_STR, tags=["metrics"])
 
 
 @app.get("/")

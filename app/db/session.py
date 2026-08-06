@@ -68,6 +68,7 @@ async def init_db():
             'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS org_id UUID',
             'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP',
             'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS retain_until TIMESTAMP',
+            'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMP',
             'ALTER TABLE auditlog ADD COLUMN IF NOT EXISTS org_id UUID',
         ]
         for stmt in alters:

@@ -7,9 +7,10 @@ export type Screen =
   | 'cases'
   | 'intake'
   | 'audit'
+  | 'metrics'
   | 'account';
 
-export type AppScreen = 'queue' | 'cases' | 'audit' | 'account';
+export type AppScreen = 'queue' | 'cases' | 'audit' | 'metrics' | 'account';
 
 export type UrgencyLevel = 'Critical' | 'High' | 'Medium' | 'Low';
 
@@ -67,4 +68,27 @@ export interface AuditEntry {
   new_level: string;
   reason: string | null;
   timestamp: string;
+}
+
+export interface PilotMetrics {
+  org_id: string;
+  from_ts: string;
+  to_ts: string;
+  cases_ingested: number;
+  cases_processed: number;
+  cases_failed: number;
+  latency_median_sec: number | null;
+  latency_p95_sec: number | null;
+  latency_sample_n: number;
+  reviews_total: number;
+  confirms: number;
+  overrides: number;
+  confirm_rate: number | null;
+  override_rate: number | null;
+  down_triage_overrides: number;
+  down_triage_reason_pct: number | null;
+  urgency_distribution: Record<string, number>;
+  active_clinicians: number;
+  open_sessions: number;
+  notes: string[];
 }

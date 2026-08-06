@@ -2,9 +2,31 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase A complete (eng) → Phase B kickoff
+**Current focus:** Phase B0 — pilot-ready product (metrics shipped; admin/Hindi next)
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 3 — 2026-08-06 (Phase B0.2 metrics)
+
+### Goal
+
+Ship the pilot sales asset: org-scoped metrics + CSV export.
+
+### Done
+
+- `accepted_at` on cases; intake stamps accept time; pipeline failures persist `status=Failed`.
+- `GET /api/v1/metrics?from=&to=` (admin) + `format=csv`.
+- Frontend `/metrics` page (admin nav only): date range, KPIs, urgency + review panels, CSV download.
+- Offline check: `scripts/metrics_percentile.check.py`.
+
+### Verified
+
+```bash
+# API on :8002
+# unauth → 401; admin JSON + CSV OK (ingested=6, reviews=6 on demo)
+```
 
 ---
 
@@ -162,11 +184,11 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 
 ### Phase B0 (next eng)
 
-1. Pilot metrics pipeline + CSV export UI (sales asset).
-2. Org admin console (invite UI, seats, IST timezone).
-3. Hindi+EN spike (STT quality) + locale toggle.
-4. Safety chrome + queue polish.
-5. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
+1. Org admin console (invite UI, seats, IST timezone) — B0.1.
+2. Hindi+EN spike (STT quality) + locale toggle — B0.3.
+3. Safety chrome + queue polish — B0.4/B0.5.
+4. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
+5. INR landing pricing — B0.8.
 
 ### Non-eng (parallel, founder)
 
@@ -184,3 +206,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | Phase A1–A6 core: auth, RBAC, org tenancy, audit actor, upload harden, SPA guards, smokes |
 | 2026-08-06 | Vite same-origin `/api`+`/ws` proxy — fixes login 200 then cases 401 (cookie drop) |
 | 2026-08-06 | Phase A close-out: password change, HSTS/ops runbook, path + cross-org regression |
+| 2026-08-06 | Phase B0.2: pilot metrics API + admin UI + CSV; accepted_at + Failed status |

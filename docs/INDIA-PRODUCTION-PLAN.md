@@ -187,12 +187,13 @@ Split features into **Must (B0)**, **Should (B1)**, **Later (D+)**.
 
 Per org, date range:
 
-- Cases ingested, processed, failed
-- Median / p95 time: intake accepted → triage ready
-- Confirm vs Override rates; down-triage reason completion %
-- Urgency distribution
-- Active clinicians; session uptime
-- CSV/PDF export for weekly pilot review
+- [x] Cases ingested, processed, failed
+- [x] Median / p95 time: intake accepted → triage ready (`accepted_at` → `created_at`)
+- [x] Confirm vs Override rates; down-triage reason completion %
+- [x] Urgency distribution
+- [x] Active clinicians; open sessions (now — not historical uptime)
+- [x] CSV export for weekly pilot review
+- [ ] PDF export (defer)
 
 *This is the sales asset.* Without it, you cannot run an evidence-led pilot.
 

@@ -30,10 +30,13 @@ class CaseBase(SQLModel):
     relationships: Optional[List[Dict[str, Any]]] = Field(default=None, sa_column=Column(JSON))
     
     # Status
-    status: str = "Pending Review"  # Pending Review, In Progress, Completed
+    status: str = "Pending Review"  # Pending Review, In Progress, Completed, Failed
     org_id: Optional[uuid.UUID] = Field(default=None, index=True)
     deleted_at: Optional[datetime] = None
     retain_until: Optional[datetime] = None
+    # Intake accept time (for latency); created_at ≈ triage-ready when pipeline succeeds
+    accepted_at: Optional[datetime] = None
+
 
 class Case(CaseBase, table=True):
     id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
