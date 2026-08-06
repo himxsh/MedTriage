@@ -47,6 +47,11 @@ class MeOut(BaseModel):
     org_id: str
 
 
+class PasswordChangeBody(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
 def _cookie_kwargs() -> dict:
     return {
         "key": SESSION_COOKIE,
@@ -146,6 +151,50 @@ async def me(user: CurrentUser) -> MeOut:
         role=user.role,
         org_id=str(user.org_id),
     )
+
+
+@router.post("/auth/password")
+async def change_password(
+    body: PasswordChangeBody,
+    request: Request,
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_session),
+):
+    """Change password; revoke all other sessions for this user."""
+    result = await db.execute(select(User).where(User.id == user.id))
+    db_user = result.scalar_one_or_none()
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    if not verify_password(body.current_password, db_user.password_hash):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+
+    if body.current_password == body.new_password:
+        raise HTTPException(status_code=400, detail="New password must differ from current")
+
+    db_user.password_hash = hash_password(body.new_password)
+    db.add(db_user)
+
+    current_th = None
+    token = request.cookies.get(SESSION_COOKIE)
+    if token:
+        current_th = hash_token(token)
+
+    sess_result = await db.execute(
+        select(AuthSession).where(
+            AuthSession.user_id == user.id,
+            AuthSession.revoked_at.is_(None),
+        )
+    )
+    now = datetime.utcnow()
+    for sess in sess_result.scalars().all():
+        if current_th and sess.token_hash == current_th:
+            continue
+        sess.revoked_at = now
+        db.add(sess)
+
+    await db.commit()
+    return {"status": "ok"}
 
 
 @router.post("/auth/invite")

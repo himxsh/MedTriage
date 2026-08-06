@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { listCases, getMe, fetchMe, logout, getApiBase, getWsUrl } from '../api';
+import {
+  listCases,
+  getMe,
+  fetchMe,
+  logout,
+  changePassword,
+  getApiBase,
+  getWsUrl,
+} from '../api';
 import type { AuthUser } from '../types';
 
 export default function Account() {
   const [user, setUser] = useState<AuthUser | null>(getMe());
   const [connStatus, setConnStatus] = useState<'checking' | 'ok' | 'fail'>('checking');
   const [loggingOut, setLoggingOut] = useState(false);
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [pwBusy, setPwBusy] = useState(false);
+  const [pwMsg, setPwMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
     fetchMe().then(setUser);
@@ -16,6 +29,33 @@ export default function Account() {
     setLoggingOut(true);
     await logout();
     window.location.href = '/login';
+  };
+
+  const handlePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwMsg(null);
+    if (newPw.length < 8) {
+      setPwMsg({ kind: 'err', text: 'New password must be at least 8 characters' });
+      return;
+    }
+    if (newPw !== confirmPw) {
+      setPwMsg({ kind: 'err', text: 'New passwords do not match' });
+      return;
+    }
+    setPwBusy(true);
+    try {
+      await changePassword(currentPw, newPw);
+      setCurrentPw('');
+      setNewPw('');
+      setConfirmPw('');
+      setPwMsg({ kind: 'ok', text: 'Password updated. Other sessions were signed out.' });
+    } catch (err) {
+      setPwMsg({
+        kind: 'err',
+        text: err instanceof Error ? err.message : 'Could not change password',
+      });
+    }
+    setPwBusy(false);
   };
 
   return (
@@ -51,6 +91,63 @@ export default function Account() {
           >
             {loggingOut ? 'Signing out…' : 'Sign out'}
           </button>
+        </div>
+
+        <div className="syncra-card p-6 space-y-5">
+          <h2 className="text-base font-medium text-syncra-ink">Change password</h2>
+          <form onSubmit={handlePassword} className="space-y-4 max-w-md">
+            <div>
+              <label className="syncra-label">Current password</label>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)}
+                className="syncra-input"
+              />
+            </div>
+            <div>
+              <label className="syncra-label">New password</label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+                className="syncra-input"
+              />
+            </div>
+            <div>
+              <label className="syncra-label">Confirm new password</label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+                className="syncra-input"
+              />
+            </div>
+            {pwMsg && (
+              <p
+                className={`text-xs ${
+                  pwMsg.kind === 'ok' ? 'text-syncra-up' : 'text-syncra-down'
+                }`}
+              >
+                {pwMsg.text}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={pwBusy}
+              className="syncra-btn-primary cursor-pointer active:scale-[0.98]"
+            >
+              {pwBusy ? 'Updating…' : 'Update password'}
+            </button>
+          </form>
         </div>
 
         <div className="syncra-card p-6 space-y-5">

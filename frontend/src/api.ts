@@ -77,6 +77,23 @@ export function getMe(): AuthUser | null {
   return cachedMe;
 }
 
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const res = await apiFetch('/api/v1/auth/password', {
+    method: 'POST',
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error((detail as { detail?: string }).detail || `password ${res.status}`);
+  }
+}
+
 export async function bootstrapRegister(payload: {
   email: string;
   password: string;
