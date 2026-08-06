@@ -4,6 +4,7 @@ import { User, Plus, Menu } from 'lucide-react';
 import { NAV_ITEMS } from '../nav';
 import { getClinician, getMe, logout } from '../api';
 import type { Screen } from '../types';
+import SafetyBanner from './SafetyBanner';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -127,6 +128,7 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
             </button>
           </div>
         </header>
+        <SafetyBanner />
         <main className="flex-1 overflow-auto min-h-0 flex flex-col">
           {children}
         </main>

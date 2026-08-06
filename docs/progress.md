@@ -2,9 +2,28 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase B0 — admin + metrics shipped; Hindi/safety/deploy next
+**Current focus:** Phase B0 — safety + queue shipped; Hindi / India deploy / INR next
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 5 — 2026-08-06 (B0.4 safety + B0.5 queue)
+
+### Goal
+
+Sellable nurse queue: CDS banner, immutable completed, filters, Critical keyboard + alerts.
+
+### Done
+
+- Persistent CDS safety banner in AppShell.
+- Case drawer: stronger risk flags; Completed/Failed immutable footers; confirm hint.
+- Queue: status + urgency + time filters; Critical pin/sort; `C` confirms next Critical; optional Critical sound + pulse; offline banner; empty states; tablet-friendlier padding/table scroll.
+- Review bumps `updated_at`.
+
+### Commit
+
+Pushed on `master` (this session).
 
 ---
 
@@ -202,9 +221,8 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 ### Phase B0 (next eng)
 
 1. Hindi+EN spike (STT quality) + locale toggle — B0.3.
-2. Safety chrome + queue polish — B0.4/B0.5.
-3. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
-4. INR landing pricing — B0.8.
+2. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
+3. INR landing pricing — B0.8.
 
 ### Non-eng (parallel, founder)
 
@@ -224,3 +242,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | Phase A close-out: password change, HSTS/ops runbook, path + cross-org regression |
 | 2026-08-06 | Phase B0.2: pilot metrics API + admin UI + CSV; accepted_at + Failed status |
 | 2026-08-06 | Phase B0.1: org admin console (settings, seats, invite UI) |
+| 2026-08-06 | Phase B0.4/B0.5: CDS banner, completed lock UI, queue filters + Critical alerts |

@@ -162,11 +162,18 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
 
               {flags.length > 0 && (
                 <section>
-                  <h4 className="text-xs font-medium text-syncra-down mb-2">Risk Flags</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {flags.map(f => (
-                      <span key={f} className="rounded-full bg-syncra-down-soft text-syncra-down px-2.5 py-1 text-xs font-medium">{f.replace(/_/g, ' ')}</span>
-                    ))}
+                  <h4 className="text-xs font-medium text-syncra-down mb-2 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    Risk Flags
+                  </h4>
+                  <div className="rounded-xl border border-syncra-down/40 bg-syncra-down-soft/60 p-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {flags.map(f => (
+                        <span key={f} className="rounded-full bg-white border border-syncra-down/30 text-syncra-down px-2.5 py-1 text-xs font-medium">
+                          {f.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </section>
               )}
@@ -209,6 +216,9 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
 
             {sc.status === 'Pending Review' && <div className="p-6 border-t border-syncra-border bg-white space-y-3 shrink-0">
               {error && <p className="text-xs text-syncra-down font-medium">{error}</p>}
+              <p className="text-[11px] text-syncra-muted">
+                Confirm or Override to complete. Case stays locked after review.
+              </p>
               <div className="flex flex-col md:flex-row gap-2">
                 <button onClick={handleConfirm} disabled={reviewing} className="flex-1 syncra-btn-primary !py-3 cursor-pointer disabled:opacity-50">
                   <CheckCircle2 className="w-4 h-4" />
@@ -242,6 +252,24 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                 )}
               </AnimatePresence>
             </div>}
+
+            {sc.status === 'Completed' && (
+              <div className="p-6 border-t border-syncra-border bg-syncra-surface shrink-0">
+                <p className="text-xs font-medium text-syncra-ink">Review complete — immutable</p>
+                <p className="text-[11px] text-syncra-muted mt-1">
+                  This case can no longer be Confirm/Override’d. See Audit for the clinician decision.
+                </p>
+              </div>
+            )}
+
+            {sc.status === 'Failed' && (
+              <div className="p-6 border-t border-syncra-border bg-syncra-down-soft shrink-0">
+                <p className="text-xs font-medium text-syncra-down">Pipeline failed</p>
+                <p className="text-[11px] text-syncra-down/80 mt-1">
+                  No triage decision was produced. Re-intake or check evidence notes.
+                </p>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

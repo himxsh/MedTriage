@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
+from datetime import datetime
 import uuid
 
 from app.core.auth import CurrentUser, REVIEW_ROLES, EVIDENCE_ROLES
@@ -88,6 +89,7 @@ async def review_case(
     previous_level = case.urgency_level
     case.urgency_level = new_level
     case.status = "Completed"
+    case.updated_at = datetime.utcnow()
 
     log = AuditLog(
         case_id=case_id,

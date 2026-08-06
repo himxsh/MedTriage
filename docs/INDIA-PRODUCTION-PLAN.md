@@ -208,20 +208,20 @@ Per org, date range:
 
 #### B0.4 Clinical safety chrome (product, not legal theater)
 
-- Persistent banner: “AI decision support — clinician must confirm before action”
-- Case detail: show confidence + evidence; block “complete” without Confirm/Override
-- Immutable Completed state in UI + API
-- Risk flags visually distinct; Critical cases pin/sort first (already intended — verify)
+- [x] Persistent banner: “AI decision support — clinician must confirm before action”
+- [x] Case detail: show confidence + evidence; block “complete” without Confirm/Override
+- [x] Immutable Completed state in UI + API
+- [x] Risk flags visually distinct; Critical cases pin/sort first (already intended — verify)
 
 
 
 #### B0.5 Queue UX polish (sellable feel)
 
-- Filters: urgency, status, mine vs all, time window
-- Keyboard: confirm next Critical
-- Sound/visual pulse for new Critical (optional toggle — quiet ED nights)
-- Empty states, offline banner if API/WS down
-- Mobile-usable nurse tablet layout (queue + review); desktop for audit/admin
+- [x] Filters: urgency, status, time window (mine deferred — no assignee field yet)
+- [x] Keyboard: confirm next Critical (`C`)
+- [x] Sound/visual pulse for new Critical (optional toggle — quiet ED nights)
+- [x] Empty states, offline banner if API/WS down
+- [x] Mobile-usable nurse tablet layout (queue + review); desktop for audit/admin
 
 
 
