@@ -23,6 +23,7 @@ export interface AuthUser {
   name: string;
   role: UserRole | string;
   org_id: string;
+  urgency_labels?: Record<UrgencyLevel, string>;
 }
 
 export interface PatientCase {
@@ -115,6 +116,13 @@ export interface OrgInfo {
   seat_cap: number;
   seats_used: number;
   seats_active: number;
+  urgency_labels: Record<UrgencyLevel, string>;
+  notice_accepted_at: string | null;
+  notice_accepted_by: string | null;
+  notice_version: string | null;
+  escalation_webhook_url: string | null;
+  escalation_email: string | null;
+  escalation_minutes: number;
 }
 
 export interface OrgUser {

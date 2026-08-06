@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UrgencyLevel } from '../types';
 import { getUrgencyClasses } from '../urgencyStyles';
+import { urgencyLabel } from '../orgLabels';
 
 interface UrgencyBadgeProps {
   urgency: UrgencyLevel;
@@ -12,7 +13,7 @@ export default function UrgencyBadge({ urgency, className = '' }: UrgencyBadgePr
 
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${bg} ${text} ${className}`}>
-      {urgency}
+      {urgencyLabel(urgency)}
     </span>
   );
 }

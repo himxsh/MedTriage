@@ -19,7 +19,7 @@ from app.core.security import (
     session_expiry,
 )
 from app.db.session import get_session
-from app.models.org import Organization, AuthSession, User, ROLES
+from app.models.org import Organization, AuthSession, User, ROLES, resolve_urgency_labels
 
 router = APIRouter()
 
@@ -45,6 +45,7 @@ class MeOut(BaseModel):
     name: str
     role: str
     org_id: str
+    urgency_labels: dict[str, str]
 
 
 class PasswordChangeBody(BaseModel):
@@ -113,6 +114,10 @@ async def login(
     db.add(sess)
     await db.commit()
 
+    org_r = await db.execute(select(Organization).where(Organization.id == user.org_id))
+    org = org_r.scalar_one_or_none()
+    labels = resolve_urgency_labels(org.urgency_labels if org else None)
+
     response.set_cookie(value=token, **_cookie_kwargs())
     return {
         "id": str(user.id),
@@ -120,6 +125,7 @@ async def login(
         "name": user.name,
         "role": user.role,
         "org_id": str(user.org_id),
+        "urgency_labels": labels,
     }
 
 
@@ -143,13 +149,16 @@ async def logout_session(
 
 
 @router.get("/me")
-async def me(user: CurrentUser) -> MeOut:
+async def me(user: CurrentUser, db: AsyncSession = Depends(get_session)) -> MeOut:
+    org_r = await db.execute(select(Organization).where(Organization.id == user.org_id))
+    org = org_r.scalar_one_or_none()
     return MeOut(
         id=str(user.id),
         email=user.email,
         name=user.name,
         role=user.role,
         org_id=str(user.org_id),
+        urgency_labels=resolve_urgency_labels(org.urgency_labels if org else None),
     )
 
 

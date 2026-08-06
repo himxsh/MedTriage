@@ -155,7 +155,48 @@ def main() -> None:
 
     status, me2 = c.request("GET", "/api/v1/me")
     assert status == 200 and isinstance(me2, dict) and me2["id"] == me["id"]
-    print("✓ GET /me returns session user")
+    assert isinstance(me2.get("urgency_labels"), dict) and "Critical" in me2["urgency_labels"]
+    print("✓ GET /me returns session user + urgency_labels")
+
+    # B1.4 / B1.6 org settings (admin)
+    status, org = c.request("GET", "/api/v1/org")
+    assert status == 200 and isinstance(org, dict), f"GET /org {status} {org}"
+    status, org2 = c.request(
+        "PATCH",
+        "/api/v1/org",
+        {
+            "urgency_labels": {
+                "Critical": "Red",
+                "High": "Orange",
+                "Medium": "Yellow",
+                "Low": "Green",
+            },
+            "accept_notice": True,
+            "notice_version": "hospital-triage-ops-v1",
+            "escalation_minutes": 5,
+            "escalation_email": "oncall@demo.local",
+        },
+    )
+    assert status == 200 and isinstance(org2, dict), f"PATCH /org {status} {org2}"
+    assert org2["urgency_labels"]["Critical"] == "Red"
+    assert org2.get("notice_accepted_at"), "expected notice stamp"
+    assert org2.get("notice_accepted_by") == EMAIL
+    # restore default labels
+    status, _ = c.request(
+        "PATCH",
+        "/api/v1/org",
+        {
+            "urgency_labels": {
+                "Critical": "Critical",
+                "High": "High",
+                "Medium": "Medium",
+                "Low": "Low",
+            },
+            "escalation_email": "",
+        },
+    )
+    assert status == 200
+    print("✓ org urgency labels + notice accept + restore")
 
     status, cases = c.request("GET", "/api/v1/cases")
     assert status == 200 and isinstance(cases, list)

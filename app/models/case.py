@@ -36,6 +36,8 @@ class CaseBase(SQLModel):
     retain_until: Optional[datetime] = None
     # Intake accept time (for latency); created_at ≈ triage-ready when pipeline succeeds
     accepted_at: Optional[datetime] = None
+    # B1.2 — when Critical escalation notify fired (once)
+    escalated_at: Optional[datetime] = None
 
 
 class Case(CaseBase, table=True):

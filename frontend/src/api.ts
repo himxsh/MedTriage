@@ -1,4 +1,4 @@
-import type { PatientCase, AuditEntry, AuthUser, PilotMetrics, OrgInfo, OrgUser } from './types';
+import type { PatientCase, AuditEntry, AuthUser, PilotMetrics, OrgInfo, OrgUser, UrgencyLevel } from './types';
 import { getDemoAudit, getDemoCase, getDemoCases, reviewDemoCase } from './sampleData';
 
 // Empty = same-origin via Vite proxy (required so mt_session cookie isn't cross-site dropped).
@@ -230,6 +230,12 @@ export async function patchOrg(body: {
   site_name?: string;
   timezone?: string;
   seat_cap?: number;
+  urgency_labels?: Partial<Record<UrgencyLevel, string>>;
+  accept_notice?: boolean;
+  notice_version?: string;
+  escalation_webhook_url?: string;
+  escalation_email?: string;
+  escalation_minutes?: number;
 }): Promise<OrgInfo> {
   const res = await apiFetch('/api/v1/org', {
     method: 'PATCH',

@@ -9,11 +9,13 @@ import {
   getApiBase,
   getWsUrl,
   listCases,
+  fetchMe,
 } from '../api';
-import type { OrgInfo, OrgUser } from '../types';
+import type { OrgInfo, OrgUser, UrgencyLevel } from '../types';
 
 const ROLES = ['intake', 'nurse', 'physician', 'admin'] as const;
 const TZ_PRESETS = ['Asia/Kolkata', 'Asia/Dubai', 'UTC'];
+const URGENCY_KEYS: UrgencyLevel[] = ['Critical', 'High', 'Medium', 'Low'];
 
 export default function Admin() {
   const [org, setOrg] = useState<OrgInfo | null>(null);
@@ -27,6 +29,17 @@ export default function Admin() {
   const [site, setSite] = useState('');
   const [tz, setTz] = useState('Asia/Kolkata');
   const [cap, setCap] = useState(5);
+  const [labels, setLabels] = useState<Record<UrgencyLevel, string>>({
+    Critical: 'Critical',
+    High: 'High',
+    Medium: 'Medium',
+    Low: 'Low',
+  });
+  const [acceptNotice, setAcceptNotice] = useState(false);
+  const [noticeVersion, setNoticeVersion] = useState('hospital-triage-ops-v1');
+  const [escWebhook, setEscWebhook] = useState('');
+  const [escEmail, setEscEmail] = useState('');
+  const [escMins, setEscMins] = useState(5);
 
   const [invEmail, setInvEmail] = useState('');
   const [invName, setInvName] = useState('');
@@ -35,15 +48,30 @@ export default function Admin() {
   const [busy, setBusy] = useState(false);
   const [deleteCaseId, setDeleteCaseId] = useState('');
 
-  const reload = async () => {
-    setError('');
-    const [o, u] = await Promise.all([fetchOrg(), listOrgUsers()]);
+  const applyOrgForm = (o: OrgInfo) => {
     setOrg(o);
-    setUsers(u);
     setName(o.name);
     setSite(o.site_name || '');
     setTz(o.timezone);
     setCap(o.seat_cap);
+    setLabels({
+      Critical: o.urgency_labels?.Critical || 'Critical',
+      High: o.urgency_labels?.High || 'High',
+      Medium: o.urgency_labels?.Medium || 'Medium',
+      Low: o.urgency_labels?.Low || 'Low',
+    });
+    setNoticeVersion(o.notice_version || 'hospital-triage-ops-v1');
+    setAcceptNotice(false);
+    setEscWebhook(o.escalation_webhook_url || '');
+    setEscEmail(o.escalation_email || '');
+    setEscMins(o.escalation_minutes ?? 5);
+  };
+
+  const reload = async () => {
+    setError('');
+    const [o, u] = await Promise.all([fetchOrg(), listOrgUsers()]);
+    applyOrgForm(o);
+    setUsers(u);
   };
 
   useEffect(() => {
@@ -66,8 +94,15 @@ export default function Admin() {
         site_name: site.trim(),
         timezone: tz.trim(),
         seat_cap: cap,
+        urgency_labels: labels,
+        accept_notice: acceptNotice || undefined,
+        notice_version: noticeVersion.trim() || undefined,
+        escalation_webhook_url: escWebhook.trim(),
+        escalation_email: escEmail.trim(),
+        escalation_minutes: escMins,
       });
-      setOrg(o);
+      applyOrgForm(o);
+      await fetchMe(); // refresh badge labels for this session
       setMsg('Organization saved.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -185,6 +220,109 @@ export default function Admin() {
               />
             </div>
           </div>
+
+          <div className="pt-2 border-t border-syncra-border space-y-3">
+            <div>
+              <h4 className="text-xs font-medium text-syncra-ink">Urgency display names</h4>
+              <p className="text-[11px] text-syncra-muted mt-1">
+                Cosmetic labels only. Internal values stay Critical / High / Medium / Low. Not ESI-certified.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {URGENCY_KEYS.map((k) => (
+                <div key={k}>
+                  <label className="syncra-label">{k} →</label>
+                  <input
+                    className="syncra-input"
+                    maxLength={40}
+                    value={labels[k]}
+                    onChange={(e) => setLabels((prev) => ({ ...prev, [k]: e.target.value }))}
+                    placeholder={k}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-syncra-border space-y-3">
+            <div>
+              <h4 className="text-xs font-medium text-syncra-ink">Hospital notice (purpose logging)</h4>
+              <p className="text-[11px] text-syncra-muted mt-1">
+                Record that this site processes intake under the hospital&apos;s triage ops notice. Not a patient consent UX.
+              </p>
+            </div>
+            {org?.notice_accepted_at ? (
+              <p className="text-[11px] text-syncra-secondary">
+                Accepted {org.notice_accepted_at}
+                {org.notice_accepted_by ? ` by ${org.notice_accepted_by}` : ''}
+                {org.notice_version ? ` · ${org.notice_version}` : ''}
+              </p>
+            ) : (
+              <p className="text-[11px] text-syncra-down">Not yet recorded for this org.</p>
+            )}
+            <div>
+              <label className="syncra-label">Notice version</label>
+              <input
+                className="syncra-input"
+                value={noticeVersion}
+                onChange={(e) => setNoticeVersion(e.target.value)}
+                maxLength={64}
+              />
+            </div>
+            <label className="flex items-start gap-2 text-xs text-syncra-ink cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={acceptNotice}
+                onChange={(e) => setAcceptNotice(e.target.checked)}
+              />
+              <span>
+                I confirm this site accepts the hospital notice for triage operations (stamps admin + timestamp on save).
+              </span>
+            </label>
+          </div>
+
+          <div className="pt-2 border-t border-syncra-border space-y-3">
+            <div>
+              <h4 className="text-xs font-medium text-syncra-ink">Critical escalation</h4>
+              <p className="text-[11px] text-syncra-muted mt-1">
+                When Critical stays Pending Review longer than N minutes: POST webhook and/or log email stub. Clinician must still confirm in-app.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="syncra-label">Webhook URL (optional)</label>
+                <input
+                  className="syncra-input font-mono text-xs"
+                  value={escWebhook}
+                  onChange={(e) => setEscWebhook(e.target.value)}
+                  placeholder="https://hooks.example.com/…"
+                />
+              </div>
+              <div>
+                <label className="syncra-label">On-call email (stub)</label>
+                <input
+                  type="email"
+                  className="syncra-input"
+                  value={escEmail}
+                  onChange={(e) => setEscEmail(e.target.value)}
+                  placeholder="oncall@hospital.example"
+                />
+              </div>
+              <div>
+                <label className="syncra-label">Minutes unacked</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={240}
+                  className="syncra-input"
+                  value={escMins}
+                  onChange={(e) => setEscMins(Number(e.target.value))}
+                />
+              </div>
+            </div>
+          </div>
+
           <button type="submit" disabled={busy} className="syncra-btn-primary cursor-pointer">
             Save site
           </button>

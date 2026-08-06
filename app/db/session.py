@@ -69,7 +69,15 @@ async def init_db():
             'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP',
             'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS retain_until TIMESTAMP',
             'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMP',
+            'ALTER TABLE "case" ADD COLUMN IF NOT EXISTS escalated_at TIMESTAMP',
             'ALTER TABLE auditlog ADD COLUMN IF NOT EXISTS org_id UUID',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS urgency_labels JSON',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS notice_accepted_at TIMESTAMP',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS notice_accepted_by VARCHAR',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS notice_version VARCHAR',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS escalation_webhook_url VARCHAR',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS escalation_email VARCHAR',
+            'ALTER TABLE organization ADD COLUMN IF NOT EXISTS escalation_minutes INTEGER DEFAULT 5',
         ]
         for stmt in alters:
             try:

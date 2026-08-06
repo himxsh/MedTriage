@@ -4,13 +4,19 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import CurrentUser, ADMIN_ROLES
 from app.db.session import get_session
-from app.models.org import Organization, User
+from app.models.org import (
+    Organization,
+    User,
+    DEFAULT_NOTICE_VERSION,
+    DEFAULT_URGENCY_LABELS,
+    resolve_urgency_labels,
+)
 from app.models.case import Case
 
 router = APIRouter()
@@ -24,6 +30,13 @@ class OrgOut(BaseModel):
     seat_cap: int
     seats_used: int
     seats_active: int
+    urgency_labels: dict[str, str]
+    notice_accepted_at: Optional[str]
+    notice_accepted_by: Optional[str]
+    notice_version: Optional[str]
+    escalation_webhook_url: Optional[str]
+    escalation_email: Optional[str]
+    escalation_minutes: int
 
 
 class OrgPatch(BaseModel):
@@ -31,6 +44,23 @@ class OrgPatch(BaseModel):
     site_name: Optional[str] = Field(None, max_length=200)
     timezone: Optional[str] = Field(None, min_length=1, max_length=64)
     seat_cap: Optional[int] = Field(None, ge=1, le=500)
+    urgency_labels: Optional[dict[str, str]] = None
+    accept_notice: Optional[bool] = None
+    notice_version: Optional[str] = Field(None, max_length=64)
+    escalation_webhook_url: Optional[str] = Field(None, max_length=500)
+    escalation_email: Optional[str] = Field(None, max_length=200)
+    escalation_minutes: Optional[int] = Field(None, ge=1, le=240)
+
+    @field_validator("urgency_labels")
+    @classmethod
+    def _labels_keys(cls, v: Optional[dict[str, str]]) -> Optional[dict[str, str]]:
+        if v is None:
+            return v
+        allowed = set(DEFAULT_URGENCY_LABELS)
+        bad = set(v) - allowed
+        if bad:
+            raise ValueError(f"Unknown urgency keys: {sorted(bad)}")
+        return v
 
 
 class UserOut(BaseModel):
@@ -71,11 +101,7 @@ async def _seat_counts(org_id, db: AsyncSession) -> tuple[int, int]:
     return int(total), int(active)
 
 
-@router.get("/org")
-async def get_org(user: CurrentUser, db: AsyncSession = Depends(get_session)) -> OrgOut:
-    user.require_role(ADMIN_ROLES)
-    org = await _load_org(user, db)
-    used, active = await _seat_counts(org.id, db)
+def _org_out(org: Organization, used: int, active: int) -> OrgOut:
     return OrgOut(
         id=str(org.id),
         name=org.name,
@@ -84,7 +110,22 @@ async def get_org(user: CurrentUser, db: AsyncSession = Depends(get_session)) ->
         seat_cap=org.seat_cap,
         seats_used=used,
         seats_active=active,
+        urgency_labels=resolve_urgency_labels(org.urgency_labels),
+        notice_accepted_at=org.notice_accepted_at.isoformat() if org.notice_accepted_at else None,
+        notice_accepted_by=org.notice_accepted_by,
+        notice_version=org.notice_version,
+        escalation_webhook_url=org.escalation_webhook_url,
+        escalation_email=org.escalation_email,
+        escalation_minutes=org.escalation_minutes if org.escalation_minutes is not None else 5,
     )
+
+
+@router.get("/org")
+async def get_org(user: CurrentUser, db: AsyncSession = Depends(get_session)) -> OrgOut:
+    user.require_role(ADMIN_ROLES)
+    org = await _load_org(user, db)
+    used, active = await _seat_counts(org.id, db)
+    return _org_out(org, used, active)
 
 
 @router.patch("/org")
@@ -103,19 +144,34 @@ async def patch_org(
         org.timezone = body.timezone.strip()
     if body.seat_cap is not None:
         org.seat_cap = body.seat_cap
+    if body.urgency_labels is not None:
+        org.urgency_labels = resolve_urgency_labels(body.urgency_labels)
+    if body.accept_notice is True:
+        org.notice_accepted_at = datetime.utcnow()
+        org.notice_accepted_by = user.email
+        org.notice_version = (
+            (body.notice_version.strip() if body.notice_version else None)
+            or org.notice_version
+            or DEFAULT_NOTICE_VERSION
+        )
+    elif body.notice_version is not None and body.accept_notice is not False:
+        # allow updating version text without re-stamp only if already accepted
+        ver = body.notice_version.strip()
+        if ver:
+            org.notice_version = ver
+    if body.escalation_webhook_url is not None:
+        url = body.escalation_webhook_url.strip()
+        org.escalation_webhook_url = url or None
+    if body.escalation_email is not None:
+        em = body.escalation_email.strip().lower()
+        org.escalation_email = em or None
+    if body.escalation_minutes is not None:
+        org.escalation_minutes = body.escalation_minutes
     db.add(org)
     await db.commit()
     await db.refresh(org)
     used, active = await _seat_counts(org.id, db)
-    return OrgOut(
-        id=str(org.id),
-        name=org.name,
-        site_name=org.site_name,
-        timezone=org.timezone,
-        seat_cap=org.seat_cap,
-        seats_used=used,
-        seats_active=active,
-    )
+    return _org_out(org, used, active)
 
 
 @router.get("/org/users")

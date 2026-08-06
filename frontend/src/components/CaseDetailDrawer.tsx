@@ -5,6 +5,7 @@ import { reviewCase, pct } from '../api';
 import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
 import { getUrgencyButtonClasses, isDownTriage } from '../urgencyStyles';
+import { urgencyLabel } from '../orgLabels';
 
 interface CaseDetailDrawerProps {
   isOpen: boolean;
@@ -236,7 +237,7 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                       <label className="syncra-label">New Level</label>
                       <div className="flex gap-2">
                         {URGENCY_LEVELS.map(l => (
-                          <button key={l} onClick={() => setOverrideLevel(l)} className={getUrgencyButtonClasses(l, overrideLevel === l)}>{l}</button>
+                          <button key={l} onClick={() => setOverrideLevel(l)} className={getUrgencyButtonClasses(l, overrideLevel === l)}>{urgencyLabel(l)}</button>
                         ))}
                       </div>
                     </div>

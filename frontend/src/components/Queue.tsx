@@ -4,6 +4,8 @@ import { listCases, getWsUrl, pct, reviewCase } from '../api';
 import type { PatientCase } from '../types';
 import CaseDetailDrawer from './CaseDetailDrawer';
 import UrgencyBadge from './UrgencyBadge';
+import { urgencyLabel } from '../orgLabels';
+import type { UrgencyLevel } from '../types';
 
 const URGENCY_FILTERS = ['ALL', 'Critical', 'High', 'Medium', 'Low'] as const;
 const STATUS_FILTERS = [
@@ -308,7 +310,7 @@ export default function Queue() {
                     : 'bg-white text-syncra-tertiary border-syncra-border hover:bg-syncra-card-stroke'
                 }`}
               >
-                {u === 'ALL' ? 'All urgency' : u}
+                {u === 'ALL' ? 'All urgency' : urgencyLabel(u as UrgencyLevel)}
               </button>
             ))}
             <span className="w-px h-5 bg-syncra-border mx-1 hidden sm:inline-block" />

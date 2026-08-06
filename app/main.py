@@ -117,6 +117,9 @@ async def on_startup():
     await init_db()
     print("✅ Database initialized")
     asyncio.create_task(redis_listener())
+    from app.db.session import engine
+    from app.services.escalation import escalation_loop
+    asyncio.create_task(escalation_loop(engine))
 
 
 app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["auth"])

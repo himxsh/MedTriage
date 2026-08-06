@@ -270,8 +270,8 @@ Per org, date range:
 
 #### B1.2 Critical escalation notify
 
-- Optional WhatsApp/SMS/email to on-call when urgency=Critical and unacked > N minutes
-- Nurse must still confirm in-app (notify ≠ diagnose)
+- [x] Optional webhook + email stub when urgency=Critical and unacked > N minutes (WhatsApp later)
+- [x] Nurse must still confirm in-app (notify ≠ diagnose)
 
 
 
@@ -284,8 +284,8 @@ Per org, date range:
 
 #### B1.4 Urgency protocol mapping (config)
 
-- Map Critical/High/Medium/Low → site labels (e.g. ESI-like or local color codes) **without claiming ESI certification**
-- Admin-configurable display names
+- [x] Map Critical/High/Medium/Low → site labels (e.g. ESI-like or local color codes) **without claiming ESI certification**
+- [x] Admin-configurable display names
 
 
 
@@ -298,8 +298,8 @@ Per org, date range:
 
 #### B1.6 Consent / purpose logging (org-level)
 
-- Record that site confirmed patients are processed under hospital notice for triage ops
-- Not a full consent UX in v1 unless advisor requires it
+- [x] Record that site confirmed patients are processed under hospital notice for triage ops
+- [x] Not a full consent UX in v1 unless advisor requires it
 
 
 

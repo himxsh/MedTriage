@@ -2,9 +2,33 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase B1 — templates + model monitor + handoff; cloud/legal deferred
+**Current focus:** Phase B1 almost closed; Hindi STT spike + India cloud deferred
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 9 — 2026-08-06 (B1.4 / B1.6 / B1.2)
+
+### Goal
+
+Admin-configurable urgency display names, org notice purpose logging, Critical escalation webhook/email stub.
+
+### Done
+
+- **B1.4** `organization.urgency_labels` JSON; Admin Site form; badges/filters/override buttons use display names; API enum unchanged; “not ESI” copy in Admin.
+- **B1.6** `notice_accepted_at` / `by` / `version` — admin checkbox stamps purpose acceptance on PATCH.
+- **B1.2** Org webhook URL + email stub + minutes; background scanner marks `case.escalated_at` once; email is log-only (no SMTP); WhatsApp deferred.
+- `/me` + login return `urgency_labels` for clinician UI.
+- Checks: `scripts/urgency_labels.check.py`; auth_smoke covers org PATCH labels + notice.
+
+### Verified
+
+```bash
+python scripts/urgency_labels.check.py
+# API up:
+MEDTRIAGE_API=http://127.0.0.1:8001 python scripts/auth_smoke.py
+```
 
 ---
 
@@ -270,18 +294,18 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 
 ## Remaining (next sessions)
 
-### Phase B0 (next eng)
+### Phase B0 / B1 leftovers
 
-1. Provision India-region staging/prod (execute `docs/india-deploy.md`).
-2. Lawyer review of DPA + commercial license / SaaS terms.
+1. Provision India-region staging/prod (execute `docs/india-deploy.md`) — deferred by founder.
+2. Lawyer review of DPA + commercial license / SaaS terms — deferred.
 3. Hindi voice STT quality spike (Whisper vs Gemini) — remaining B0.3.
+4. Optional: kiosk intake API key; server-side audit date-range CSV; Alembic; training mode.
 
 ### Non-eng (parallel, founder)
 
 - 50-hospital outreach list  
 - Clinical advisor + lawyer kickoff  
 - Incorporate / IP vehicle  
-- INR pricing on landing  
 
 ---
 
@@ -299,3 +323,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | B0.3 EN/Hindi locale toggle + Hinglish Gemini prompt |
 | 2026-08-06 | B0.7 compliance pack + security/pilot one-pagers + india-deploy runbook; case soft-delete |
 | 2026-08-06 | B1.3 ED templates; B1.5 model monitor; B1.1 shift handoff CSV |
+| 2026-08-06 | B1.4 urgency display labels; B1.6 notice purpose log; B1.2 Critical escalation stub |
