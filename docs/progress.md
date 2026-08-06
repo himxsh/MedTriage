@@ -2,9 +2,23 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase B0 — compliance pack + deploy runbook done; cloud provision + legal sign-off remain
+**Current focus:** Phase B1 — templates + model monitor + handoff; cloud/legal deferred
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 8 — 2026-08-06 (B1.1 / B1.3 / B1.5)
+
+### Goal
+
+Pilot should-haves that don't need cloud: ED templates, model fallback alerts, shift handoff CSV.
+
+### Done
+
+- India ED intake chips (chest pain, fever, trauma, breathlessness, abdominal, pregnancy, snake bite, stroke).
+- In-process Gemini latency / parse / fallback counters; Metrics panel + alert when fallback ≥25%.
+- `GET /api/v1/metrics/handoff?hours=8` CSV + Metrics button.
 
 ---
 
@@ -284,3 +298,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | Landing pricing → INR (₹39,999 pilot / ₹99,000 site-month) |
 | 2026-08-06 | B0.3 EN/Hindi locale toggle + Hinglish Gemini prompt |
 | 2026-08-06 | B0.7 compliance pack + security/pilot one-pagers + india-deploy runbook; case soft-delete |
+| 2026-08-06 | B1.3 ED templates; B1.5 model monitor; B1.1 shift handoff CSV |

@@ -91,6 +91,19 @@ export interface PilotMetrics {
   urgency_distribution: Record<string, number>;
   active_clinicians: number;
   open_sessions: number;
+  model: {
+    calls: number;
+    success: number;
+    parse_failures: number;
+    fallback_mock: number;
+    no_client: number;
+    fallback_rate: number | null;
+    latency_p50_ms: number | null;
+    latency_p95_ms: number | null;
+    latency_sample_n: number;
+    fallback_alert: boolean;
+    notes: string[];
+  };
   notes: string[];
 }
 

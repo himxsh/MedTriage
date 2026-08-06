@@ -13,6 +13,7 @@ from app.core.auth import CurrentUser, ADMIN_ROLES
 from app.db.session import get_session
 from app.models.case import Case, AuditLog, URGENCY_RANK
 from app.models.org import AuthSession
+from app.services.intelligence import model_stats_snapshot
 
 router = APIRouter()
 
@@ -37,6 +38,7 @@ class MetricsOut(BaseModel):
     urgency_distribution: dict[str, int]
     active_clinicians: int
     open_sessions: int
+    model: dict
     notes: list[str]
 
 
@@ -139,6 +141,8 @@ async def _compute_metrics(
         "active_clinicians = distinct audit actors in range.",
         "open_sessions = non-revoked unexpired sessions now (not historical uptime).",
     ]
+    model = model_stats_snapshot()
+    notes.extend(model.get("notes") or [])
 
     return MetricsOut(
         org_id=str(user.org_id),
@@ -160,6 +164,7 @@ async def _compute_metrics(
         urgency_distribution=urgency,
         active_clinicians=len(clinicians),
         open_sessions=open_sessions,
+        model=model,
         notes=notes,
     )
 
@@ -189,8 +194,76 @@ def _metrics_csv(m: MetricsOut) -> str:
         f"urgency_low,{m.urgency_distribution.get('Low', 0)}",
         f"active_clinicians,{m.active_clinicians}",
         f"open_sessions,{m.open_sessions}",
+        f"model_calls,{m.model.get('calls', '')}",
+        f"model_fallback_rate,{m.model.get('fallback_rate', '')}",
+        f"model_fallback_alert,{m.model.get('fallback_alert', '')}",
+        f"model_latency_p50_ms,{m.model.get('latency_p50_ms', '')}",
+        f"model_latency_p95_ms,{m.model.get('latency_p95_ms', '')}",
     ]
     return "\n".join(lines) + "\n"
+
+
+@router.get("/metrics/handoff")
+async def shift_handoff_csv(
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_session),
+    hours: int = Query(8, ge=1, le=24),
+):
+    """End-of-shift CSV: pending queue, Critical backlog, overrides this shift."""
+    user.require_role(ADMIN_ROLES)
+    since = datetime.utcnow() - timedelta(hours=hours)
+
+    cases_q = await db.execute(
+        select(Case).where(
+            Case.org_id == user.org_id,
+            Case.deleted_at.is_(None),
+            Case.status == "Pending Review",
+        )
+    )
+    pending = list(cases_q.scalars().all())
+    critical = [c for c in pending if c.urgency_level == "Critical"]
+
+    audit_q = await db.execute(
+        select(AuditLog).where(
+            AuditLog.org_id == user.org_id,
+            AuditLog.timestamp >= since,
+            AuditLog.action == "Override",
+        )
+    )
+    overrides = list(audit_q.scalars().all())
+
+    lines = [
+        "section,case_id,urgency,status,chief_complaint,patient_name,created_at,extra",
+    ]
+    for c in pending:
+        lines.append(
+            f"pending_review,{c.id},{c.urgency_level},{c.status},"
+            f"\"{(c.chief_complaint or '').replace(chr(34), '')}\","
+            f"\"{(c.patient_name or '').replace(chr(34), '')}\","
+            f"{c.created_at.isoformat() if c.created_at else ''},"
+        )
+    for c in critical:
+        lines.append(
+            f"critical_backlog,{c.id},{c.urgency_level},{c.status},"
+            f"\"{(c.chief_complaint or '').replace(chr(34), '')}\","
+            f"\"{(c.patient_name or '').replace(chr(34), '')}\","
+            f"{c.created_at.isoformat() if c.created_at else ''},"
+        )
+    for a in overrides:
+        lines.append(
+            f"override_this_shift,{a.case_id},{a.new_level},,"
+            f",,{a.timestamp.isoformat() if a.timestamp else ''},"
+            f"\"prev={a.previous_level}; reason={(a.reason or '').replace(chr(34), '')}\""
+        )
+
+    body = "\n".join(lines) + "\n"
+    return PlainTextResponse(
+        body,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="handoff-{hours}h.csv"'
+        },
+    )
 
 
 @router.get("/metrics")

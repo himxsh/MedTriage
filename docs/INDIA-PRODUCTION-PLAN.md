@@ -263,8 +263,8 @@ Per org, date range:
 
 #### B1.1 Shift & handoff report
 
-- End-of-shift PDF/CSV: open Pending Review, Critical backlog, overrides this shift
-- NABH-friendly audit export (date range)
+- [x] End-of-shift CSV: open Pending Review, Critical backlog, overrides this shift
+- [ ] NABH-friendly audit export (date range) — Audit page CSV already covers loaded rows
 
 
 
@@ -277,8 +277,8 @@ Per org, date range:
 
 #### B1.3 Intake templates (India ED)
 
-- Quick chips: chest pain, fever, trauma, breathlessness, abdominal pain, pregnancy-related, snake bite, etc.
-- Prefills structured hints; still free-text capable
+- [x] Quick chips: chest pain, fever, trauma, breathlessness, abdominal pain, pregnancy-related, snake bite, etc.
+- [x] Prefills structured hints; still free-text capable
 
 
 
@@ -291,8 +291,8 @@ Per org, date range:
 
 #### B1.5 Model monitoring basics
 
-- Log Gemini latency, parse failures, fallback-to-mock rate
-- Alert if fallback rate spikes (silent Medium defaults are dangerous)
+- [x] Log Gemini latency, parse failures, fallback-to-mock rate
+- [x] Alert if fallback rate spikes (silent Medium defaults are dangerous)
 
 
 

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { intakeText, intakeAudio } from '../api';
 import type { Screen } from '../types';
 import { getLocale, t, type Locale } from '../i18n';
+import { INDIA_ED_TEMPLATES } from '../intakeTemplates';
 
 interface IntakeModalProps {
   isOpen: boolean;
@@ -156,15 +157,37 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
               </div>
 
               {mode === 'text' ? (
-                <div>
-                  <label className="syncra-label">{t('clinicalNotes', locale)}</label>
-                  <textarea
-                    required
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="syncra-input h-48 resize-none leading-relaxed"
-                    placeholder={t('notesPlaceholder', locale)}
-                  />
+                <div className="space-y-3">
+                  <div>
+                    <label className="syncra-label">India ED templates</label>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {INDIA_ED_TEMPLATES.map((tpl) => (
+                        <button
+                          key={tpl.id}
+                          type="button"
+                          onClick={() =>
+                            setNotes((prev) => (prev.trim() ? `${prev.trim()}\n\n${tpl.hint}` : tpl.hint))
+                          }
+                          className="px-2.5 py-1 rounded-lg border border-syncra-border bg-white text-[11px] font-medium text-syncra-ink hover:bg-syncra-card-stroke cursor-pointer"
+                        >
+                          {locale === 'hi' ? tpl.labelHi : tpl.labelEn}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-syncra-muted mt-1.5">
+                      Chips prefill a structured hint — edit freely before submit.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="syncra-label">{t('clinicalNotes', locale)}</label>
+                    <textarea
+                      required
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="syncra-input h-48 resize-none leading-relaxed"
+                      placeholder={t('notesPlaceholder', locale)}
+                    />
+                  </div>
                 </div>
               ) : (
                 <div>

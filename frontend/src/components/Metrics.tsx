@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
-import { fetchMetrics, downloadMetricsCsv } from '../api';
+import { fetchMetrics, downloadMetricsCsv, downloadHandoffCsv } from '../api';
 import type { PilotMetrics } from '../types';
 
 function todayISO(): string {
@@ -53,6 +53,14 @@ export default function Metrics() {
     }
   };
 
+  const onHandoff = async () => {
+    try {
+      await downloadHandoffCsv(8);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Handoff export failed');
+    }
+  };
+
   return (
     <div className="p-6 overflow-y-auto">
       <div className="max-w-5xl mx-auto space-y-5">
@@ -87,6 +95,9 @@ export default function Metrics() {
             </button>
             <button type="button" onClick={onExport} className="syncra-btn-ghost cursor-pointer">
               <Download className="w-3.5 h-3.5" /> Export CSV
+            </button>
+            <button type="button" onClick={onHandoff} className="syncra-btn-ghost cursor-pointer">
+              <Download className="w-3.5 h-3.5" /> Shift handoff (8h)
             </button>
           </div>
         </div>
@@ -156,6 +167,57 @@ export default function Metrics() {
                 </ul>
               </div>
             </div>
+
+            {data.model && (
+              <div
+                className={`syncra-card p-5 space-y-3 ${
+                  data.model.fallback_alert ? 'border border-syncra-down/40' : ''
+                }`}
+              >
+                <div className="flex flex-wrap justify-between gap-2 items-center">
+                  <h3 className="text-sm font-medium text-syncra-ink">Model health (this API process)</h3>
+                  {data.model.fallback_alert && (
+                    <span className="text-[11px] font-medium text-syncra-down bg-syncra-down-soft px-2 py-0.5 rounded-full">
+                      Fallback rate high — silent Medium defaults are dangerous
+                    </span>
+                  )}
+                </div>
+                <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-syncra-secondary">
+                  <li>
+                    Calls{' '}
+                    <span className="block text-syncra-ink font-medium text-base">{data.model.calls}</span>
+                  </li>
+                  <li>
+                    Success{' '}
+                    <span className="block text-syncra-ink font-medium text-base">{data.model.success}</span>
+                  </li>
+                  <li>
+                    Parse fails{' '}
+                    <span className="block text-syncra-ink font-medium text-base">
+                      {data.model.parse_failures}
+                    </span>
+                  </li>
+                  <li>
+                    Fallback rate{' '}
+                    <span className="block text-syncra-ink font-medium text-base">
+                      {pct(data.model.fallback_rate)}
+                    </span>
+                  </li>
+                  <li>
+                    Gemini p50{' '}
+                    <span className="block text-syncra-ink font-medium text-base">
+                      {data.model.latency_p50_ms != null ? `${data.model.latency_p50_ms}ms` : '—'}
+                    </span>
+                  </li>
+                  <li>
+                    Gemini p95{' '}
+                    <span className="block text-syncra-ink font-medium text-base">
+                      {data.model.latency_p95_ms != null ? `${data.model.latency_p95_ms}ms` : '—'}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            )}
 
             {data.notes?.length > 0 && (
               <p className="text-[11px] text-syncra-muted leading-relaxed">

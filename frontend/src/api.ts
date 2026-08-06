@@ -205,6 +205,19 @@ export async function downloadMetricsCsv(from: string, to: string): Promise<void
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+export async function downloadHandoffCsv(hours = 8): Promise<void> {
+  const res = await apiFetch(`/api/v1/metrics/handoff?hours=${hours}`);
+  if (res.status === 403) throw new Error('Admin role required');
+  if (!res.ok) throw new Error(`handoff ${res.status}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `handoff-${hours}h.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export async function fetchOrg(): Promise<OrgInfo> {
   const res = await apiFetch('/api/v1/org');
   if (res.status === 403) throw new Error('Admin role required');
