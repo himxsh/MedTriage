@@ -2,9 +2,27 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase B0 — safety + queue shipped; Hindi / India deploy / INR next
+**Current focus:** Phase B0 — Hindi UI + INR done; India deploy + DPA remain PHI blockers
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 6 — 2026-08-06 (B0.8 INR + B0.3 locale)
+
+### Goal
+
+India GTM pricing + bilingual chrome for intake/nurses.
+
+### Done
+
+- Landing: ₹39,999 pilot / ₹99,000 site-month / custom group.
+- `frontend/src/i18n.ts` EN|HI; header toggle; SafetyBanner + nav + intake strings.
+- Gemini prompt: Hinglish in, English urgency enum out.
+
+### Commits
+
+Pushed on `master` this session.
 
 ---
 
@@ -220,9 +238,9 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 
 ### Phase B0 (next eng)
 
-1. Hindi+EN spike (STT quality) + locale toggle — B0.3.
+1. Hindi voice STT quality spike (Whisper vs Gemini) — remaining B0.3.
 2. India-region staging/prod (B0.6) + DPA pack (B0.7) — blocker for real PHI.
-3. INR landing pricing — B0.8.
+3. Commercial license / security one-pager — rest of B0.8.
 
 ### Non-eng (parallel, founder)
 
@@ -244,3 +262,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | Phase B0.1: org admin console (settings, seats, invite UI) |
 | 2026-08-06 | Phase B0.4/B0.5: CDS banner, completed lock UI, queue filters + Critical alerts |
 | 2026-08-06 | Landing pricing → INR (₹39,999 pilot / ₹99,000 site-month) |
+| 2026-08-06 | B0.3 EN/Hindi locale toggle + Hinglish Gemini prompt |

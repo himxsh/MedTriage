@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShieldAlert } from 'lucide-react';
+import { getLocale, t, type Locale } from '../i18n';
 
 /** Persistent CDS disclaimer — B0.4 safety chrome */
 export default function SafetyBanner() {
+  const [locale, setLoc] = useState<Locale>(getLocale);
+
+  useEffect(() => {
+    const onLoc = () => setLoc(getLocale());
+    window.addEventListener('mt-locale', onLoc);
+    return () => window.removeEventListener('mt-locale', onLoc);
+  }, []);
+
   return (
     <div
       role="status"
@@ -10,9 +19,9 @@ export default function SafetyBanner() {
     >
       <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-amber-800" aria-hidden />
       <p className="leading-snug">
-        <span className="font-medium">AI decision support</span>
+        <span className="font-medium">{t('safetyBannerLead', locale)}</span>
         {' — '}
-        clinician must Confirm or Override before acting. Not a diagnosis. Urgency is advisory until reviewed.
+        {t('safetyBanner', locale).replace(/^[^—]+—\s*/, '')}
       </p>
     </div>
   );

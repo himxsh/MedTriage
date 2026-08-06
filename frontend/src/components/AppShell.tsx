@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Plus, Menu } from 'lucide-react';
 import { NAV_ITEMS } from '../nav';
 import { getClinician, getMe, logout } from '../api';
 import type { Screen } from '../types';
 import SafetyBanner from './SafetyBanner';
+import { getLocale, setLocale, t, type Locale, type UiKey } from '../i18n';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -19,6 +20,15 @@ const TITLE_SUBTITLES: Record<string, string> = {
   account: 'Clinician configuration',
 };
 
+const NAV_I18N: Record<string, UiKey> = {
+  queue: 'queue',
+  cases: 'cases',
+  audit: 'audit',
+  metrics: 'metrics',
+  admin: 'admin',
+  account: 'account',
+};
+
 export default function AppShell({ children, onNavigate }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,11 +36,25 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
   const me = getMe();
   const currentPath = location.pathname.replace('/', '');
   const [collapsed, setCollapsed] = useState(false);
+  const [locale, setLoc] = useState<Locale>(getLocale);
+
+  useEffect(() => {
+    const onLoc = () => setLoc(getLocale());
+    window.addEventListener('mt-locale', onLoc);
+    return () => window.removeEventListener('mt-locale', onLoc);
+  }, []);
 
   const navItems = NAV_ITEMS.filter((item) => !item.adminOnly || me?.role === 'admin');
   const currentNav = navItems.find(item => item.id === currentPath) ?? NAV_ITEMS.find(item => item.id === currentPath);
-  const pageTitle = currentNav?.label ?? '';
+  const pageTitle = currentNav
+    ? t(NAV_I18N[currentNav.id] ?? 'queue', locale)
+    : '';
   const pageSubtitle = TITLE_SUBTITLES[currentPath];
+
+  const switchLocale = (next: Locale) => {
+    setLocale(next);
+    setLoc(next);
+  };
 
   return (
     <div className="app-ui flex h-screen">
@@ -73,7 +97,9 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>{item.label}</span>}
+                  {!collapsed && (
+                    <span>{t(NAV_I18N[item.id] ?? 'queue', locale)}</span>
+                  )}
                 </button>
               );
             })}
@@ -119,12 +145,32 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
             )}
           </div>
           <div className="ml-auto flex items-center gap-3">
+            <div className="flex rounded-lg border border-syncra-border overflow-hidden text-[11px] font-medium">
+              <button
+                type="button"
+                onClick={() => switchLocale('en')}
+                className={`px-2.5 py-1.5 cursor-pointer ${
+                  locale === 'en' ? 'bg-syncra-ink text-white' : 'bg-white text-syncra-secondary'
+                }`}
+              >
+                {t('localeEn', locale)}
+              </button>
+              <button
+                type="button"
+                onClick={() => switchLocale('hi')}
+                className={`px-2.5 py-1.5 cursor-pointer ${
+                  locale === 'hi' ? 'bg-syncra-ink text-white' : 'bg-white text-syncra-secondary'
+                }`}
+              >
+                {t('localeHi', locale)}
+              </button>
+            </div>
             <button
               onClick={() => onNavigate('intake')}
               className="syncra-btn-primary cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
-              New Intake
+              {t('newIntake', locale)}
             </button>
           </div>
         </header>

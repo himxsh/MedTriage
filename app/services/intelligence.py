@@ -38,6 +38,11 @@ class IntelligenceService:
         2. Assign a Triage Urgency Level: Critical, High, Medium, or Low.
         3. Provide clinical evidence for the urgency level.
         4. Suggest potential ICD-10 or standard medical terms if not already mapped.
+
+        LANGUAGE:
+        - Input may be English, Hindi (Devanagari), or Hinglish (mixed).
+        - urgency_level MUST be exactly one of: Critical, High, Medium, Low (English enum only).
+        - chief_complaint and evidence may be English; keep medical terms clear for Indian clinicians.
         
         OUTPUT FORMAT (JSON ONLY):
         {{

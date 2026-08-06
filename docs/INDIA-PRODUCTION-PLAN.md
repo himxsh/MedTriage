@@ -199,10 +199,10 @@ Per org, date range:
 
 #### B0.3 Hindi + English intake
 
-- UI locale toggle (EN / हिं)
-- Voice: Whisper path with Hindi-capable model or Gemini multimodal STT if Whisper Hindi quality insufficient — **measure in Week 4 spike**
-- Text intake accepts Hinglish; prompt Gemini that output urgency labels stay English enum for UI consistency; chief complaint may be bilingual
-- Disclaimer strings localized
+- [x] UI locale toggle (EN / हिं)
+- [ ] Voice: Whisper path with Hindi-capable model or Gemini multimodal STT if Whisper Hindi quality insufficient — **measure in Week 4 spike**
+- [x] Text intake accepts Hinglish; prompt Gemini that output urgency labels stay English enum for UI consistency; chief complaint may be bilingual
+- [x] Disclaimer strings localized
 
 
 
