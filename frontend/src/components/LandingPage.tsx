@@ -34,9 +34,9 @@ const PLANS = [
     id: 'two-week',
     label: '01',
     name: '2-Week Pilot',
-    price: '$499',
+    price: '₹39,999',
     cadence: 'one-time',
-    blurb: 'Full triage stack for a short clinical evaluation window.',
+    blurb: 'Supervised evaluation at one acute-care site. Metrics export included.',
     features: ['Text + voice intake', 'Live queue + audit log', 'Up to 5 clinician seats'],
     cta: 'Start Pilot',
     action: 'waitlist' as const,
@@ -45,11 +45,11 @@ const PLANS = [
   {
     id: 'month',
     label: '02',
-    name: '1-Month',
-    price: '$1,200',
-    cadence: 'recurring',
-    blurb: 'Continuous deployment for a single acute-care site.',
-    features: ['Everything in Pilot', 'Priority model updates', 'Up to 25 clinician seats'],
+    name: 'Site Monthly',
+    price: '₹99,000',
+    cadence: '/ month / site',
+    blurb: 'Ongoing deployment for a single ED or urgent-care desk (~₹12L ARR).',
+    features: ['Everything in Pilot', 'Weekly metrics review', 'Up to 25 clinician seats'],
     cta: 'Subscribe',
     action: 'waitlist' as const,
     featured: true,
@@ -57,11 +57,11 @@ const PLANS = [
   {
     id: 'sales',
     label: '03',
-    name: 'Contact Sales',
+    name: 'Hospital Group',
     price: 'Custom',
-    cadence: 'enterprise',
-    blurb: 'Multi-site rollout, SSO, and dedicated clinical onboarding.',
-    features: ['Unlimited seats', 'SLA + onboarding', 'Custom integrations'],
+    cadence: 'multi-site',
+    blurb: 'Multi-site rollout, SSO when demanded, and dedicated clinical onboarding.',
+    features: ['Volume pricing', 'SLA + onboarding', 'Custom integrations on request'],
     cta: 'Talk to Sales',
     action: 'sales' as const,
     featured: false,
@@ -433,9 +433,9 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           >
             Access Plans
           </div>
-          <div style={{ fontSize: 48, lineHeight: 1.1 }}>Pricing</div>
+          <div style={{ fontSize: 48, lineHeight: 1.1 }}>Pricing (INR)</div>
           <div style={{ marginTop: 12, opacity: 0.7, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
-            Short pilots, monthly sites, or enterprise rollout. AI assists — clinicians decide.
+            India-first list rates. AI assists — clinicians Confirm or Override. Commercial license required before PHI.
           </div>
         </div>
         <div

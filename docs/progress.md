@@ -243,3 +243,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | Phase B0.2: pilot metrics API + admin UI + CSV; accepted_at + Failed status |
 | 2026-08-06 | Phase B0.1: org admin console (settings, seats, invite UI) |
 | 2026-08-06 | Phase B0.4/B0.5: CDS banner, completed lock UI, queue filters + Critical alerts |
+| 2026-08-06 | Landing pricing → INR (₹39,999 pilot / ₹99,000 site-month) |

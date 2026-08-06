@@ -250,7 +250,7 @@ Per org, date range:
 #### B0.8 Commercial / GTM assets
 
 - Commercial license / Order Form + SaaS Terms (lawyer)
-- Landing pricing → **INR** tiers; remove or footnote USD
+- [x] Landing pricing → **INR** tiers; remove or footnote USD
 - Pilot success criteria one-pager (from `business.md`)
 - Security one-pager for hospital IT (auth, encryption, residency, audit)
 
