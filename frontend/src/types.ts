@@ -13,6 +13,16 @@ export type AppScreen = 'queue' | 'cases' | 'audit' | 'account';
 
 export type UrgencyLevel = 'Critical' | 'High' | 'Medium' | 'Low';
 
+export type UserRole = 'intake' | 'nurse' | 'physician' | 'admin';
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole | string;
+  org_id: string;
+}
+
 export interface PatientCase {
   id: string;
   patient_name: string | null;

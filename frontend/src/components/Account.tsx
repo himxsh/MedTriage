@@ -1,42 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { listCases, getClinician, saveClinician, getApiBase, getWsUrl } from '../api';
+import { listCases, getMe, fetchMe, logout, getApiBase, getWsUrl } from '../api';
+import type { AuthUser } from '../types';
 
 export default function Account() {
-  const clinician = getClinician();
-  const [name, setName] = useState(clinician.name);
-  const [clinicianId, setClinicianId] = useState(clinician.id);
-  const [saved, setSaved] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(getMe());
   const [connStatus, setConnStatus] = useState<'checking' | 'ok' | 'fail'>('checking');
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    // ponytail: simple connection check via listCases, no dedicated health endpoint
+    fetchMe().then(setUser);
     listCases().then(() => setConnStatus('ok')).catch(() => setConnStatus('fail'));
   }, []);
 
-  const handleSave = () => {
-    saveClinician(name, clinicianId);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    window.location.href = '/login';
   };
 
   return (
     <div className="p-6 overflow-y-auto">
       <div className="max-w-2xl space-y-5">
-        {/* Syncra: Edit Profile form card */}
         <div className="syncra-card p-6 space-y-5">
           <h2 className="text-base font-medium text-syncra-ink">Identity</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="syncra-label">Full Name</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} className="syncra-input" />
+              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.name || ''} />
             </div>
             <div>
-              <label className="syncra-label">Clinician ID</label>
-              <input type="text" value={clinicianId} onChange={e => setClinicianId(e.target.value)} className="syncra-input uppercase" />
+              <label className="syncra-label">Email</label>
+              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.email || ''} />
+            </div>
+            <div>
+              <label className="syncra-label">Role</label>
+              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.role || ''} />
+            </div>
+            <div>
+              <label className="syncra-label">Org ID</label>
+              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.org_id || ''} />
             </div>
           </div>
-          <button onClick={handleSave} className="syncra-btn-primary cursor-pointer active:scale-[0.98]">
-            {saved ? 'Saved' : 'Save'}
+          <p className="text-xs text-syncra-muted">
+            Identity comes from your server session. Admins invite users — you cannot forge a clinician ID in the browser.
+          </p>
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="syncra-btn-ghost cursor-pointer active:scale-[0.98]"
+          >
+            {loggingOut ? 'Signing out…' : 'Sign out'}
           </button>
         </div>
 

@@ -10,6 +10,7 @@ import Account from './components/Account';
 import Login from './components/Login';
 import Register from './components/Register';
 import IntakeModal from './components/IntakeModal';
+import ProtectedRoute from './components/ProtectedRoute';
 import { getLenis, useLenisRoot } from './lenis';
 import { Screen } from './types';
 
@@ -47,10 +48,26 @@ function AppContent() {
         <Route path="/docs" element={<Docs onNavigate={handleNavigate} />} />
         <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
         <Route path="/register" element={<Register onNavigate={handleNavigate} />} />
-        <Route path="/queue" element={<AppShell onNavigate={handleNavigate}><Queue /></AppShell>} />
-        <Route path="/cases" element={<AppShell onNavigate={handleNavigate}><Cases /></AppShell>} />
-        <Route path="/audit" element={<AppShell onNavigate={handleNavigate}><AuditLog /></AppShell>} />
-        <Route path="/account" element={<AppShell onNavigate={handleNavigate}><Account /></AppShell>} />
+        <Route path="/queue" element={
+          <ProtectedRoute>
+            <AppShell onNavigate={handleNavigate}><Queue /></AppShell>
+          </ProtectedRoute>
+        } />
+        <Route path="/cases" element={
+          <ProtectedRoute>
+            <AppShell onNavigate={handleNavigate}><Cases /></AppShell>
+          </ProtectedRoute>
+        } />
+        <Route path="/audit" element={
+          <ProtectedRoute>
+            <AppShell onNavigate={handleNavigate}><AuditLog /></AppShell>
+          </ProtectedRoute>
+        } />
+        <Route path="/account" element={
+          <ProtectedRoute>
+            <AppShell onNavigate={handleNavigate}><Account /></AppShell>
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard" element={<Navigate to="/queue" replace />} />
         <Route path="/history" element={<Navigate to="/cases" replace />} />
         <Route path="/review" element={<Navigate to="/queue" replace />} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { reviewCase, getClinician, pct } from '../api';
+import { reviewCase, pct } from '../api';
 import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
 import { getUrgencyButtonClasses, isDownTriage } from '../urgencyStyles';
@@ -68,7 +68,7 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
     setReviewing(true);
     setError('');
     try {
-      await reviewCase(s.id, getClinician().id, 'Confirm', s.urgency_level);
+      await reviewCase(s.id, 'Confirm', s.urgency_level);
       onReviewed?.();
       onClose();
     } catch (err) {
@@ -81,7 +81,7 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
     setReviewing(true);
     setError('');
     try {
-      await reviewCase(sc!.id, getClinician().id, 'Override', overrideLevel, overrideReason || undefined);
+      await reviewCase(sc!.id, 'Override', overrideLevel, overrideReason || undefined);
       onReviewed?.();
       onClose();
     } catch (err) {

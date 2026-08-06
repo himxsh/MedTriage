@@ -4,21 +4,27 @@ import path from 'path';
 import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
-  const env = loadEnv(mode, '.', '');
+  const env = loadEnv(mode, process.cwd(), '');
+  // Proxy target: where uvicorn listens. Browser talks same-origin to Vite.
+  const apiTarget = env.MEDTRIAGE_PROXY_TARGET || 'http://127.0.0.1:8001';
+
   return {
     plugins: [react(), tailwindcss()],
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
+    // GEMINI_API_KEY must stay backend-only — never define into the client bundle
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      port: 3000,
+      host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
+      // Same-origin /api + /ws so httpOnly session cookie is not cross-site dropped
+      proxy: {
+        '/api': {target: apiTarget, changeOrigin: true},
+        '/ws': {target: apiTarget, ws: true, changeOrigin: true},
+      },
     },
   };
 });

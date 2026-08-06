@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { listCases, getWsUrl, pct, reviewCase, getClinician } from '../api';
+import { listCases, getWsUrl, pct, reviewCase } from '../api';
 import type { PatientCase } from '../types';
 import CaseDetailDrawer from './CaseDetailDrawer';
 import UrgencyBadge from './UrgencyBadge';
@@ -95,7 +95,7 @@ export default function Queue() {
     setConfirmingId(c.id);
     setConfirmError('');
     try {
-      await reviewCase(c.id, getClinician().id, 'Confirm', c.urgency_level);
+      await reviewCase(c.id, 'Confirm', c.urgency_level);
       await fetchCases();
     } catch (err) {
       setConfirmError(err instanceof Error ? err.message : 'Confirm failed');
