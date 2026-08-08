@@ -44,6 +44,8 @@ export interface PatientCase {
   status: string;
   created_at: string;
   updated_at: string;
+  has_audio?: boolean;
+  audio_mime?: string | null;
 }
 
 export interface EntityData {

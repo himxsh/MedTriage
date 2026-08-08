@@ -18,6 +18,7 @@ from app.models.org import (
     resolve_urgency_labels,
 )
 from app.models.case import Case
+from app.services.case_audio import delete_audio
 
 router = APIRouter()
 
@@ -280,4 +281,6 @@ async def soft_delete_case(
     case.deleted_at = datetime.utcnow()
     db.add(case)
     await db.commit()
+    # Erase durable audio bytes on soft-delete (DPDP)
+    delete_audio(user.org_id, case_id)
     return {"status": "ok", "id": str(case_id), "deleted_at": case.deleted_at.isoformat()}

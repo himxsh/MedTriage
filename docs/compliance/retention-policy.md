@@ -5,9 +5,10 @@
 | Class | Default retain | Notes |
 |-------|----------------|-------|
 | Cases (incl. text, AI fields) | **90 days** from `created_at` | Soft-delete then purge |
+| Case intake audio (durable) | Same as case | `case_audio/{org_id}/{case_id}.bin`; deleted on soft-delete |
 | Audit logs | **90 days** (or match case) | Needed for pilot evidence |
 | Auth sessions | Until expiry / logout (≤12h typical) | Not PHI |
-| Temp audio uploads | Deleted after transcription attempt | `temp_uploads/{case_id}.bin` |
+| Temp audio uploads | Deleted after durable copy + transcription | `temp_uploads/{case_id}.bin` |
 | Metrics aggregates | Derived; no extra PHI store | CSV exports held by hospital |
 
 ## Configuration

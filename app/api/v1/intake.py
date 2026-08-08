@@ -15,6 +15,8 @@ from app.services.nlp import nlp_service
 from app.services.intelligence import intelligence_service
 from app.services.deid import deid_service
 from app.services.queue import queue_service
+from app.services.case_audio import persist_from_temp
+from app.services.stt import sniff_audio_mime
 
 router = APIRouter()
 
@@ -52,6 +54,8 @@ async def _persist_failed_case(
     org_id: uuid.UUID,
     accepted_at: datetime,
     err: Exception,
+    has_audio: bool = False,
+    audio_mime: Optional[str] = None,
 ):
     from sqlalchemy.ext.asyncio import AsyncSession as AS
     from sqlalchemy.orm import sessionmaker
@@ -72,6 +76,8 @@ async def _persist_failed_case(
                 evidence=f"pipeline error: {type(err).__name__}: {str(err)[:400]}",
                 org_id=org_id,
                 accepted_at=accepted_at,
+                has_audio=has_audio,
+                audio_mime=audio_mime,
             )
         )
         await db.commit()
@@ -86,6 +92,8 @@ async def run_ai_pipeline(
     input_type: str,
     org_id: uuid.UUID,
     accepted_at: Optional[datetime] = None,
+    has_audio: bool = False,
+    audio_mime: Optional[str] = None,
 ):
     accepted = accepted_at or datetime.utcnow()
     try:
@@ -125,6 +133,8 @@ async def run_ai_pipeline(
                 status="Pending Review",
                 org_id=org_id,
                 accepted_at=accepted,
+                has_audio=has_audio,
+                audio_mime=audio_mime,
             )
             db.add(new_case)
             await db.commit()
@@ -140,7 +150,17 @@ async def run_ai_pipeline(
     except Exception as e:
         try:
             await _persist_failed_case(
-                case_id, raw_text, transcription, patient_name, mrn, input_type, org_id, accepted, e
+                case_id,
+                raw_text,
+                transcription,
+                patient_name,
+                mrn,
+                input_type,
+                org_id,
+                accepted,
+                e,
+                has_audio=has_audio,
+                audio_mime=audio_mime,
             )
         except Exception:
             pass
@@ -192,12 +212,41 @@ async def create_intake(
         lang_hint = (language or "").strip() or None
 
         async def process_audio_background():
+            resolved_mime = mime_type
             try:
-                trans_text = await asyncio.to_thread(
-                    nlp_service.transcribe_audio, file_path, lang_hint, mime_type
-                )
+                await asyncio.to_thread(persist_from_temp, org_id, case_id, file_path)
+                if not resolved_mime or not resolved_mime.startswith("audio/"):
+                    resolved_mime = sniff_audio_mime(file_path, mime_type)
+                try:
+                    trans_text = await asyncio.to_thread(
+                        nlp_service.transcribe_audio, file_path, lang_hint, resolved_mime
+                    )
+                except Exception as e:
+                    await _persist_failed_case(
+                        case_id,
+                        "(transcription failed)",
+                        None,
+                        patient_name,
+                        mrn,
+                        input_type,
+                        org_id,
+                        accepted_at,
+                        e,
+                        has_audio=True,
+                        audio_mime=resolved_mime,
+                    )
+                    raise
                 await run_ai_pipeline(
-                    case_id, trans_text, trans_text, patient_name, mrn, input_type, org_id, accepted_at
+                    case_id,
+                    trans_text,
+                    trans_text,
+                    patient_name,
+                    mrn,
+                    input_type,
+                    org_id,
+                    accepted_at,
+                    has_audio=True,
+                    audio_mime=resolved_mime,
                 )
             finally:
                 if os.path.exists(file_path):

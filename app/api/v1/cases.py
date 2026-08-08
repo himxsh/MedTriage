@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
@@ -10,6 +11,7 @@ from app.db.session import get_session
 from app.models.case import (
     Case, AuditLog, URGENCY_RANK, VALID_URGENCY, VALID_ACTIONS, REVIEWABLE_STATUS,
 )
+from app.services.case_audio import open_audio_path
 
 router = APIRouter()
 
@@ -49,6 +51,37 @@ async def get_case_detail(
         data["evidence"] = None
         return data
     return case
+
+
+@router.get("/cases/{case_id}/audio")
+async def get_case_audio(
+    case_id: uuid.UUID,
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_session),
+):
+    """Stream durable intake audio for the case card (org-scoped)."""
+    user.require_role(REVIEW_ROLES)
+    query = select(Case).where(
+        Case.id == case_id,
+        Case.org_id == user.org_id,
+        Case.deleted_at.is_(None),
+    )
+    result = await db.execute(query)
+    case = result.scalar_one_or_none()
+    if not case or not case.has_audio:
+        raise HTTPException(status_code=404, detail="Audio not found")
+
+    path = open_audio_path(user.org_id, case_id)
+    if not path:
+        raise HTTPException(status_code=404, detail="Audio file missing")
+
+    media = case.audio_mime or "audio/wav"
+    return FileResponse(
+        path,
+        media_type=media,
+        filename=f"{case_id}.audio",
+        content_disposition_type="inline",
+    )
 
 
 @router.post("/cases/{case_id}/review")

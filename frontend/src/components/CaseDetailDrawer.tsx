@@ -208,9 +208,39 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
               )}
 
               <section>
-                <h4 className="syncra-section-title">Raw Input</h4>
-                <div className="rounded-xl bg-syncra-surface p-4 border border-syncra-border text-sm text-syncra-secondary whitespace-pre-wrap max-h-48 overflow-y-auto">
-                  {sc.raw_text || sc.transcription || '(no raw text)'}
+                <h4 className="syncra-section-title">Intake record</h4>
+                <div className="rounded-xl bg-syncra-surface p-4 border border-syncra-border space-y-3">
+                  {sc.has_audio && (
+                    <div>
+                      <p className="text-[11px] font-medium text-syncra-secondary mb-1.5">Original audio</p>
+                      <audio
+                        controls
+                        preload="metadata"
+                        className="w-full h-10"
+                        src={`/api/v1/cases/${sc.id}/audio`}
+                      >
+                        Your browser does not support audio playback.
+                      </audio>
+                    </div>
+                  )}
+                  {(sc.transcription || sc.input_type === 'audio') && (
+                    <div>
+                      <p className="text-[11px] font-medium text-syncra-secondary mb-1.5">
+                        Transcription
+                      </p>
+                      <div className="text-sm text-syncra-secondary whitespace-pre-wrap max-h-36 overflow-y-auto">
+                        {sc.transcription || '(no transcription)'}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[11px] font-medium text-syncra-secondary mb-1.5">
+                      {sc.input_type === 'audio' ? 'Raw text (from audio)' : 'Raw input'}
+                    </p>
+                    <div className="text-sm text-syncra-secondary whitespace-pre-wrap max-h-48 overflow-y-auto">
+                      {sc.raw_text || '(no raw text)'}
+                    </div>
+                  </div>
                 </div>
               </section>
             </div>

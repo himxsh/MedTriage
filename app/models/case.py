@@ -38,6 +38,9 @@ class CaseBase(SQLModel):
     accepted_at: Optional[datetime] = None
     # B1.2 — when Critical escalation notify fired (once)
     escalated_at: Optional[datetime] = None
+    # Audio intake: bytes on disk (case_audio/); DB flags only
+    has_audio: bool = False
+    audio_mime: Optional[str] = None
 
 
 class Case(CaseBase, table=True):

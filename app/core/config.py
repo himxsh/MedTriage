@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     # Default Whisper language when intake omits language= (empty = auto-detect)
     WHISPER_LANGUAGE: str = ""
     WHISPER_MODEL_SIZE: str = "small"  # spike: try medium if Hindi WER high
+    # Durable intake audio (not temp); relative to process cwd
+    CASE_AUDIO_DIR: str = "case_audio"
 
     # --- Auth / tenancy ---
     COOKIE_SECURE: bool = False  # True behind HTTPS in production

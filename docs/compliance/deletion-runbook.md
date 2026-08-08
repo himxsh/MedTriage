@@ -11,7 +11,7 @@
 
 1. Verify requester is authorized for that hospital org (do not accept patient-direct emails into MedTriage support without hospital ticket).
 2. Identify cases: MRN and/or approximate time window + patient name as entered.
-3. For each case ID: admin **soft-delete** via `POST /api/v1/org/cases/{case_id}/delete` (sets `deleted_at`; case disappears from queue/lists).
+3. For each case ID: admin **soft-delete** via `POST /api/v1/org/cases/{case_id}/delete` (sets `deleted_at`; case disappears from queue/lists; durable intake audio under `case_audio/` is unlinked).
 4. Confirm audit rows: either retain redacted “case deleted” stub for accountability **or** delete audit rows for that `case_id` if hospital requires full erasure (document which path in the ticket).
 5. Reply to hospital with case IDs actioned and timestamp (UTC / IST).
 6. If LLM provider logs exist outside MedTriage DB, note limitation in reply (see subprocessors) — hospital accepted this in DPA.
