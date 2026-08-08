@@ -62,7 +62,7 @@ export default function Account() {
     <div className="p-6 overflow-y-auto">
       <div className="max-w-2xl space-y-5">
         <div className="syncra-card p-6 space-y-5">
-          <h2 className="text-base font-medium text-syncra-ink">Identity</h2>
+          <h2 className="text-base font-medium text-syncra-ink">Your account</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="syncra-label">Full Name</label>
@@ -81,9 +81,6 @@ export default function Account() {
               <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.org_id || ''} />
             </div>
           </div>
-          <p className="text-xs text-syncra-muted">
-            Identity comes from your server session. Admins invite users — you cannot forge a clinician ID in the browser.
-          </p>
           <button
             onClick={handleLogout}
             disabled={loggingOut}

@@ -217,9 +217,6 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
 
             {sc.status === 'Pending Review' && <div className="p-6 border-t border-syncra-border bg-white space-y-3 shrink-0">
               {error && <p className="text-xs text-syncra-down font-medium">{error}</p>}
-              <p className="text-[11px] text-syncra-muted">
-                Confirm or Override to complete. Case stays locked after review.
-              </p>
               <div className="flex flex-col md:flex-row gap-2">
                 <button onClick={handleConfirm} disabled={reviewing} className="flex-1 syncra-btn-primary !py-3 cursor-pointer disabled:opacity-50">
                   <CheckCircle2 className="w-4 h-4" />

@@ -150,13 +150,6 @@ export default function Admin() {
   return (
     <div className="p-6 overflow-y-auto">
       <div className="max-w-4xl mx-auto space-y-5">
-        <div>
-          <h2 className="text-base font-medium text-syncra-ink">Organization admin</h2>
-          <p className="text-xs text-syncra-muted mt-1">
-            Site settings, seats, and clinician invites. Admin only.
-          </p>
-        </div>
-
         {error && <p className="text-xs text-syncra-down">{error}</p>}
         {msg && <p className="text-xs text-syncra-up">{msg}</p>}
 
@@ -224,9 +217,6 @@ export default function Admin() {
           <div className="pt-2 border-t border-syncra-border space-y-3">
             <div>
               <h4 className="text-xs font-medium text-syncra-ink">Urgency display names</h4>
-              <p className="text-[11px] text-syncra-muted mt-1">
-                Cosmetic labels only. Internal values stay Critical / High / Medium / Low. Not ESI-certified.
-              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {URGENCY_KEYS.map((k) => (
@@ -246,10 +236,7 @@ export default function Admin() {
 
           <div className="pt-2 border-t border-syncra-border space-y-3">
             <div>
-              <h4 className="text-xs font-medium text-syncra-ink">Hospital notice (purpose logging)</h4>
-              <p className="text-[11px] text-syncra-muted mt-1">
-                Record that this site processes intake under the hospital&apos;s triage ops notice. Not a patient consent UX.
-              </p>
+              <h4 className="text-xs font-medium text-syncra-ink">Hospital notice</h4>
             </div>
             {org?.notice_accepted_at ? (
               <p className="text-[11px] text-syncra-secondary">
@@ -285,9 +272,6 @@ export default function Admin() {
           <div className="pt-2 border-t border-syncra-border space-y-3">
             <div>
               <h4 className="text-xs font-medium text-syncra-ink">Critical escalation</h4>
-              <p className="text-[11px] text-syncra-muted mt-1">
-                When Critical stays Pending Review longer than N minutes: POST webhook and/or log email stub. Clinician must still confirm in-app.
-              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>

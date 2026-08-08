@@ -64,14 +64,7 @@ export default function Metrics() {
   return (
     <div className="p-6 overflow-y-auto">
       <div className="max-w-5xl mx-auto space-y-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-base font-medium text-syncra-ink">Pilot metrics</h2>
-            <p className="text-xs text-syncra-muted mt-1">
-              Org-scoped evidence for weekly pilot review. Admin only.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-end gap-2">
+        <div className="flex flex-wrap items-end justify-end gap-2">
             <div>
               <label className="syncra-label">From</label>
               <input
@@ -99,7 +92,6 @@ export default function Metrics() {
             <button type="button" onClick={onHandoff} className="syncra-btn-ghost cursor-pointer">
               <Download className="w-3.5 h-3.5" /> Shift handoff (8h)
             </button>
-          </div>
         </div>
 
         {error && <p className="text-xs text-syncra-down">{error}</p>}

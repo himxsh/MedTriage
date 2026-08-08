@@ -2,9 +2,43 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Hindi STT listen verdict + India cloud / legal (PHI gate)
+**Current focus:** India cloud + legal (PHI gate); Hindi STT listen verdict; Phase C outreach
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Status snapshot — 2026-08-08
+
+| Track | State |
+|-------|--------|
+| Phase A (security/tenancy) | **Eng exit met** |
+| Phase B0/B1 product eng | **Largely met** — text-first pilot ready in-repo |
+| B0.3 voice STT eng path | **Shipped** in `6d44650`; founder 20-clip listen still open |
+| B0.6 India deploy | Runbook only — cloud not provisioned |
+| B0.7/B0.8 compliance | Drafts in-repo; lawyer signatures + commercial terms open |
+| Phase C GTM | Not started (outreach list, advisor, demos) |
+| **Real PHI** | **Blocked** until India host + signed DPA |
+
+Latest plan revision: **v1.2** (honest baseline + P0/P1 status).
+
+---
+
+## Session 11 — 2026-08-08 (docs truth-up)
+
+### Goal
+
+Bring `progress.md` + `INDIA-PRODUCTION-PLAN.md` in line with shipped reality after STT commit and product overview.
+
+### Done
+
+- Plan §1 rewritten: S1–S6, P1, P2, P5 marked closed; only P3/P4 remain PHI/contract blockers.
+- Plan header status line; P0/P1 backlog annotated done/open; B0.8 commercial terms checkbox; §13 clarified (text-first ready).
+- This snapshot + Session 10 commit pointer.
+
+### Not code
+
+No product code in this session — docs only.
 
 ---
 
@@ -23,6 +57,10 @@ Close the remaining B0.3 voice gap: language-aware Whisper + Gemini multimodal f
 - Spike protocol + results table: [`hindi-stt-spike.md`](./hindi-stt-spike.md).
 - Plan §13 refreshed (Phase A/B eng no longer “start now”).
 - Check: `scripts/stt_language.check.py`.
+
+### Commit
+
+`6d44650` — *Add language-aware Whisper STT with Gemini fallback for Hindi intake.*
 
 ### Verified
 
@@ -351,4 +389,5 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | B0.7 compliance pack + security/pilot one-pagers + india-deploy runbook; case soft-delete |
 | 2026-08-06 | B1.3 ED templates; B1.5 model monitor; B1.1 shift handoff CSV |
 | 2026-08-06 | B1.4 urgency display labels; B1.6 notice purpose log; B1.2 Critical escalation stub |
-| 2026-08-08 | B0.3 STT: language hint + Gemini fallback + spike protocol; plan §13 refresh |
+| 2026-08-08 | B0.3 STT: language hint + Gemini fallback + spike protocol (`6d44650`) |
+| 2026-08-08 | Docs truth-up: plan v1.2 baseline/P0/P1; progress status snapshot |

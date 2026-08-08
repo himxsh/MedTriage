@@ -12,14 +12,6 @@ interface AppShellProps {
   onNavigate: (screen: Screen) => void;
 }
 
-const TITLE_SUBTITLES: Record<string, string> = {
-  cases: 'Full case index',
-  audit: 'Decision log',
-  metrics: 'Pilot evidence export',
-  admin: 'Org settings & seats',
-  account: 'Clinician configuration',
-};
-
 const NAV_I18N: Record<string, UiKey> = {
   queue: 'queue',
   cases: 'cases',
@@ -49,7 +41,6 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
   const pageTitle = currentNav
     ? t(NAV_I18N[currentNav.id] ?? 'queue', locale)
     : '';
-  const pageSubtitle = TITLE_SUBTITLES[currentPath];
 
   const switchLocale = (next: Locale) => {
     setLocale(next);
@@ -136,12 +127,7 @@ export default function AppShell({ children, onNavigate }: AppShellProps) {
         <header className="h-[78px] border-b border-syncra-border flex items-center px-6 bg-white shrink-0 gap-4">
           <div className="min-w-0">
             {pageTitle && (
-              <div className="flex items-baseline gap-2">
-                <h1 className="text-xl font-medium text-syncra-ink leading-none">{pageTitle}</h1>
-                {pageSubtitle && (
-                  <span className="text-xs text-syncra-muted truncate">{pageSubtitle}</span>
-                )}
-              </div>
+              <h1 className="text-xl font-medium text-syncra-ink leading-none">{pageTitle}</h1>
             )}
           </div>
           <div className="ml-auto flex items-center gap-3">

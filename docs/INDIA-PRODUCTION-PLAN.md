@@ -6,6 +6,8 @@
 **Pricing hypothesis (India list):** ₹39,999 / 2-week pilot → ₹99,000 / month / site (~₹12L ARR), raise after proof.  
 **License:** PolyForm Noncommercial on private repo; **commercial contract required** before any paid hospital use.
 
+**Status (2026-08-08):** Phase **A eng exit met**. Phase **B0/B1 product eng largely met** (auth, tenancy, metrics, queue, Hindi UI, STT path, compliance drafts). **PHI still blocked** on India-region host + signed DPA/commercial terms. Progress log: [`progress.md`](./progress.md).
+
 ---
 
 
@@ -39,31 +41,39 @@ Stop or reposition if **any** of these hold after a supervised pilot:
 
 
 
-### Implemented
+### Implemented (as of 2026-08-08)
 
 - Text + audio intake → NLP (scispaCy/UMLS) → de-ID → Gemini structured triage
-- PostgreSQL cases, Redis/WebSocket queue, clinician review + audit UI
-- Landing/docs; cosmetic Login/Register
+- PostgreSQL cases (org-scoped), Redis/WebSocket queue, clinician review + audit UI
+- **Real auth:** sessions, RBAC (`intake`/`nurse`/`physician`/`admin`), ProtectedRoute, invite-only register
+- Upload containment, rate limits, review state machine, server-side audit actor
+- Org admin console, pilot metrics + CSV, shift handoff CSV, ED intake templates
+- EN/Hindi UI locale; audio STT with language hint + Whisper→Gemini fallback (`STT_BACKEND=auto`)
+- CDS safety chrome, Critical queue polish, urgency display labels, escalation stub, model monitoring
+- INR landing pricing; compliance pack drafts; India deploy runbook
+- Product overview: [`../product.md`](../product.md)
 
 
 
-### Blocking gaps (must fix before real PHI)
+### Closed vs still blocking real PHI
 
 
-| ID  | Gap                                                 | Severity                       |
-| --- | --------------------------------------------------- | ------------------------------ |
-| S1  | No server auth; SPA ungated; Login ignores password | HIGH                           |
-| S2  | Audio upload path traversal                         | HIGH                           |
-| S3  | Client-supplied `clinician_id` forges audit         | HIGH                           |
-| S4  | Unauthenticated intake → cost/DoS/queue poison      | HIGH                           |
-| S5  | Completed cases re-reviewable                       | MEDIUM                         |
-| S6  | Arbitrary `new_level` / `action`                    | MEDIUM                         |
-| P1  | No multi-tenant `org_id` isolation                  | BLOCKER for 2+ sites           |
-| P2  | No pilot metrics export                             | BLOCKER for evidence-led sales |
-| P3  | No India-region production deploy + DPA             | BLOCKER for hospital PHI       |
-| P4  | No commercial license / SaaS terms                  | BLOCKER for paid contracts     |
-| P5  | USD pricing on landing; India buyers need INR       | GTM                            |
+| ID  | Gap                                                 | Status |
+| --- | --------------------------------------------------- | ------ |
+| S1  | No server auth; SPA ungated; Login ignores password | **Closed** (Phase A) |
+| S2  | Audio upload path traversal                         | **Closed** (Phase A) |
+| S3  | Client-supplied `clinician_id` forges audit         | **Closed** (Phase A) |
+| S4  | Unauthenticated intake → cost/DoS/queue poison      | **Closed** (Phase A) |
+| S5  | Completed cases re-reviewable                       | **Closed** (Phase A) |
+| S6  | Arbitrary `new_level` / `action`                    | **Closed** (Phase A) |
+| P1  | No multi-tenant `org_id` isolation                  | **Closed** (Phase A) |
+| P2  | No pilot metrics export                             | **Closed** (B0.2) |
+| P3  | No India-region production deploy + DPA             | **Open** — runbook ready; cloud + signed DPA pending |
+| P4  | No commercial license / SaaS terms                  | **Open** — lawyer |
+| P5  | USD pricing on landing; India buyers need INR       | **Closed** (INR on landing) |
 
+
+**Eng leftover (not PHI-blocking):** kiosk intake API key; metrics PDF (deferred); NABH date-range audit CSV polish; Alembic; Hindi STT founder listen verdict ([`hindi-stt-spike.md`](./hindi-stt-spike.md)).
 
 ---
 
@@ -72,13 +82,13 @@ Stop or reposition if **any** of these hold after a supervised pilot:
 ## 2. Phased roadmap (overview)
 
 
-| Phase | Name                                 | Timing                 | Exit criteria                                                |
-| ----- | ------------------------------------ | ---------------------- | ------------------------------------------------------------ |
-| **A** | Security & tenancy foundation        | Weeks 1–3              | Auth+RBAC live; audit fixes closed; no open PHI API          |
-| **B** | Pilot-ready product + India features | Weeks 4–8              | Deployed in India region; metrics; Hindi+EN; DPA pack        |
-| **C** | Design partner & supervised pilot    | Weeks 6–14 (overlap B) | Pilot complete with exportable metrics + LOI or paid convert |
-| **D** | Sellable polish & first revenue      | Months 4–7             | 2–3 paying sites or clear no-go                              |
-| **E** | VC-ready narrative                   | Months 6–9             | Deck + data room; raise or bootstrap decision                |
+| Phase | Name                                 | Timing                 | Exit criteria                                                | Status (2026-08-08) |
+| ----- | ------------------------------------ | ---------------------- | ------------------------------------------------------------ | ------------------- |
+| **A** | Security & tenancy foundation        | Weeks 1–3              | Auth+RBAC live; audit fixes closed; no open PHI API          | **Met** (eng) |
+| **B** | Pilot-ready product + India features | Weeks 4–8              | Deployed in India region; metrics; Hindi+EN; DPA pack        | **Partial** — product eng + drafts; India host open |
+| **C** | Design partner & supervised pilot    | Weeks 6–14 (overlap B) | Pilot complete with exportable metrics + LOI or paid convert | Not started |
+| **D** | Sellable polish & first revenue      | Months 4–7             | 2–3 paying sites or clear no-go                              | Not started |
+| **E** | VC-ready narrative                   | Months 6–9             | Deck + data room; raise or bootstrap decision                | Not started |
 
 
 Workstreams run in parallel where noted (sales outreach starts while Phase B ships).
@@ -211,7 +221,7 @@ Per org, date range:
 - [x] Persistent banner: “AI decision support — clinician must confirm before action”
 - [x] Case detail: show confidence + evidence; block “complete” without Confirm/Override
 - [x] Immutable Completed state in UI + API
-- [x] Risk flags visually distinct; Critical cases pin/sort first (already intended — verify)
+- [x] Risk flags visually distinct; Critical cases pin/sort first
 
 
 
@@ -250,7 +260,7 @@ Per org, date range:
 
 #### B0.8 Commercial / GTM assets
 
-- Commercial license / Order Form + SaaS Terms (lawyer)
+- [ ] Commercial license / Order Form + SaaS Terms (lawyer)
 - [x] Landing pricing → **INR** tiers; remove or footnote USD
 - [x] Pilot success criteria one-pager (from `business.md`)
 - [x] Security one-pager for hospital IT (auth, encryption, residency, audit)
@@ -329,31 +339,31 @@ Per org, date range:
 
 ### P0 — Ship in Phase A–B (required to sell)
 
-1. Real auth + sessions + ProtectedRoute
-2. RBAC (`intake` / `nurse` / `physician` / `admin`)
-3. Multi-tenant `org_id` isolation
-4. Server-side audit actor
-5. Upload containment + rate limits + size caps
-6. Review state machine + enum validation
-7. Authenticated WS + CORS allowlist + TLS
-8. Metrics dashboard + CSV export
-9. Hindi + English intake path
-10. Safety chrome + Completed immutability
-11. India-region deploy + backups
-12. DPA + commercial terms + INR pricing page
+1. ~~Real auth + sessions + ProtectedRoute~~ **done**
+2. ~~RBAC (`intake` / `nurse` / `physician` / `admin`)~~ **done**
+3. ~~Multi-tenant `org_id` isolation~~ **done**
+4. ~~Server-side audit actor~~ **done**
+5. ~~Upload containment + rate limits + size caps~~ **done**
+6. ~~Review state machine + enum validation~~ **done**
+7. ~~Authenticated WS + CORS allowlist + TLS~~ **done** (TLS via reverse-proxy runbook)
+8. ~~Metrics dashboard + CSV export~~ **done**
+9. ~~Hindi + English intake path~~ **done** (voice listen verdict still open)
+10. ~~Safety chrome + Completed immutability~~ **done**
+11. India-region deploy + backups — **open** (runbook only)
+12. DPA + commercial terms + INR pricing page — **INR + DPA draft done; commercial terms / signatures open**
 
 
 
 ### P1 — During first pilot / immediately after
 
-1. Shift handoff report
-2. Critical escalation notify (WhatsApp/SMS)
-3. India ED intake templates
-4. Local urgency display mapping
-5. Model fallback monitoring + alerts
-6. Admin data export / delete for DPDP requests
-7. Tablet-optimized queue review flow
-8. Weekly pilot email digest (metrics)
+1. ~~Shift handoff report~~ **done** (B1.1 CSV; NABH date-range polish optional)
+2. ~~Critical escalation notify~~ **done** (webhook + email stub; WhatsApp later)
+3. ~~India ED intake templates~~ **done**
+4. ~~Local urgency display mapping~~ **done**
+5. ~~Model fallback monitoring + alerts~~ **done**
+6. ~~Admin data export / delete for DPDP requests~~ **done** (soft-delete + runbook)
+7. ~~Tablet-optimized queue review flow~~ **done**
+8. Weekly pilot email digest (metrics) — **open**
 
 
 
@@ -613,14 +623,16 @@ Everything else is roadmap.
 
 ## 13. Immediate next actions (this week)
 
+**Eng product for a text-first pilot is ready.** Remaining work is ops, legal, GTM, and a voice-quality listen.
+
 1. Provision India staging (execute [`india-deploy.md`](./india-deploy.md)) when cloud account ready — **blocks real PHI**.
-2. Run Hindi STT listen protocol on 20 clips ([`hindi-stt-spike.md`](./hindi-stt-spike.md)); lock `WHISPER_MODEL_SIZE` / `STT_BACKEND`.
+2. Run Hindi STT listen protocol on 20 clips ([`hindi-stt-spike.md`](./hindi-stt-spike.md)); lock `WHISPER_MODEL_SIZE` / `STT_BACKEND` (text-first pilot can proceed without this).
 3. Lawyer: DPA + commercial license / SaaS terms; fill IR contacts.
 4. Clinical advisor coffee + claims-language sign-off.
 5. Build the 50-hospital outreach list; start discovery calls (Phase C).
-6. Optional eng: kiosk intake API key; audit date-range CSV; Alembic once schema settles.
+6. Optional eng: kiosk intake API key; NABH audit date-range CSV; Alembic once schema settles.
 
-**Already done (do not re-open):** Phase A auth/tenancy; B0 admin/metrics/queue/safety; B1 templates/escalation/labels/monitoring; INR landing; compliance pack drafts.
+**Already done (do not re-open):** Phase A auth/tenancy; B0 admin/metrics/queue/safety/locale; B0.3 STT eng path (`6d44650`); B1 templates/escalation/labels/monitoring; INR landing; compliance pack drafts; product overview.
 
 ---
 
@@ -633,6 +645,7 @@ Everything else is roadmap.
 | ------- | ---------- | ------------------------------------------------------------------------ |
 | 1.0     | 2026-08-06 | Initial detailed plan from business.md + audit run-3 + India/VC strategy |
 | 1.1     | 2026-08-08 | Phase A–B1 mostly done; B0.3 STT path + spike protocol; §13 refreshed    |
+| 1.2     | 2026-08-08 | §1 baseline rewritten (S1–S6/P1/P2/P5 closed); P0/P1 status; B0.8 checkbox |
 
 
 Update this doc after the first pilot with actual metrics and a revised P1 backlog.

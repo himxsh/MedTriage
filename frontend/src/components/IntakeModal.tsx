@@ -104,10 +104,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
         className="relative w-full max-w-3xl bg-white border border-syncra-border rounded-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden"
       >
         <header className="p-6 border-b border-syncra-border flex justify-between items-center sticky top-0 z-10 bg-white">
-          <div>
-            <h1 className="text-xl font-medium text-syncra-ink">{t('intakeTitle', locale)}</h1>
-            <p className="text-xs text-syncra-muted mt-1">{t('hinglishHint', locale)}</p>
-          </div>
+          <h1 className="text-xl font-medium text-syncra-ink">{t('intakeTitle', locale)}</h1>
           <button
             onClick={onClose}
             disabled={isProcessing || isSuccess}
@@ -179,9 +176,6 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
                         </button>
                       ))}
                     </div>
-                    <p className="text-[10px] text-syncra-muted mt-1.5">
-                      Chips prefill a structured hint — edit freely before submit.
-                    </p>
                   </div>
                   <div>
                     <label className="syncra-label">{t('clinicalNotes', locale)}</label>
@@ -268,11 +262,6 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
             </form>
           </div>
         </div>
-
-        <footer className="bg-syncra-card-stroke text-[10px] text-syncra-muted px-6 py-3 flex justify-between border-t border-syncra-border">
-          <span>Secure Intake Layer: active</span>
-          <span className="max-w-[60%] text-right truncate">{t('hinglishHint', locale)}</span>
-        </footer>
       </motion.div>
     </div>
   );
