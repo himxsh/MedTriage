@@ -66,7 +66,12 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
           return;
         }
         setProcessStep('Uploading...');
-        await intakeAudio(audioFile, patientName || undefined, mrn || undefined);
+        await intakeAudio(
+          audioFile,
+          patientName || undefined,
+          mrn || undefined,
+          locale === 'hi' ? 'hi' : 'en'
+        );
       }
       setProcessStep('Processing...');
       setIsProcessing(false);

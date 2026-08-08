@@ -2,9 +2,38 @@
 
 **Plan:** [`INDIA-PRODUCTION-PLAN.md`](./INDIA-PRODUCTION-PLAN.md)  
 **Started:** 2026-08-06  
-**Current focus:** Phase B1 almost closed; Hindi STT spike + India cloud deferred
+**Current focus:** Hindi STT listen verdict + India cloud / legal (PHI gate)
 
 This file records what shipped while executing the India production plan. Update it at the end of each working session.
+
+---
+
+## Session 10 — 2026-08-08 (B0.3 Hindi STT path)
+
+### Goal
+
+Close the remaining B0.3 voice gap: language-aware Whisper + Gemini multimodal fallback, with a measurable spike protocol (not yet founder-scored).
+
+### Done
+
+- `app/services/stt.py` — language resolve, MIME sniff, backend plan, empty-transcript fallback gate.
+- `NLPService.transcribe_audio(path, language, mime_type)` — Whisper with `hi`/`en` hint; `STT_BACKEND=auto|whisper|gemini`; Gemini multimodal STT.
+- Intake form field `language`; UI sends `hi` when locale is हिं.
+- Config/env: `STT_BACKEND`, `WHISPER_LANGUAGE`, `WHISPER_MODEL_SIZE`.
+- Spike protocol + results table: [`hindi-stt-spike.md`](./hindi-stt-spike.md).
+- Plan §13 refreshed (Phase A/B eng no longer “start now”).
+- Check: `scripts/stt_language.check.py`.
+
+### Verified
+
+```bash
+python scripts/stt_language.check.py
+```
+
+### Still open (founder / ops)
+
+- Listen to 20 clips and lock prod STT knobs (see spike doc).
+- India cloud provision; lawyer DPA + commercial terms.
 
 ---
 
@@ -294,18 +323,16 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 
 ## Remaining (next sessions)
 
-### Phase B0 / B1 leftovers
+### PHI / GTM blockers (founder)
 
-1. Provision India-region staging/prod (execute `docs/india-deploy.md`) — deferred by founder.
-2. Lawyer review of DPA + commercial license / SaaS terms — deferred.
-3. Hindi voice STT quality spike (Whisper vs Gemini) — remaining B0.3.
-4. Optional: kiosk intake API key; server-side audit date-range CSV; Alembic; training mode.
+1. Provision India-region staging/prod (execute `docs/india-deploy.md`).
+2. Lawyer review of DPA + commercial license / SaaS terms; IR contacts.
+3. Hindi STT listen protocol — fill results in `docs/hindi-stt-spike.md` (eng path shipped).
+4. Clinical advisor claims-language sign-off; 50-hospital outreach.
 
-### Non-eng (parallel, founder)
+### Optional eng (not PHI-blocking)
 
-- 50-hospital outreach list  
-- Clinical advisor + lawyer kickoff  
-- Incorporate / IP vehicle  
+- Kiosk intake API key; server-side audit date-range CSV; Alembic; training mode.
 
 ---
 
@@ -324,3 +351,4 @@ Change via `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` before first seed, or invi
 | 2026-08-06 | B0.7 compliance pack + security/pilot one-pagers + india-deploy runbook; case soft-delete |
 | 2026-08-06 | B1.3 ED templates; B1.5 model monitor; B1.1 shift handoff CSV |
 | 2026-08-06 | B1.4 urgency display labels; B1.6 notice purpose log; B1.2 Critical escalation stub |
+| 2026-08-08 | B0.3 STT: language hint + Gemini fallback + spike protocol; plan §13 refresh |

@@ -5,8 +5,17 @@ import os
 import spacy
 import scispacy
 from scispacy.linking import EntityLinker
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from google import genai
+from google.genai import types
 from app.core.config import settings
+from app.services.stt import (
+    gemini_stt_prompt,
+    pick_stt_plan,
+    resolve_whisper_language,
+    should_fallback_to_gemini,
+    sniff_audio_mime,
+)
 
 class NLPService:
     def __init__(self):
@@ -21,8 +30,11 @@ class NLPService:
     def _load_whisper(self):
         """Lazy load Whisper model only for audio processing."""
         if not self.whisper_model:
-            print(f"Loading Whisper model from {self.whisper_path}...")
-            self.whisper_model = whisper.load_model("small", download_root=os.path.dirname(self.whisper_path))
+            size = (settings.WHISPER_MODEL_SIZE or "small").strip() or "small"
+            print(f"Loading Whisper '{size}' from {self.whisper_path}...")
+            self.whisper_model = whisper.load_model(
+                size, download_root=os.path.dirname(self.whisper_path)
+            )
 
     def _load_ner(self):
         """Lazy load scispaCy for Clinical NER."""
@@ -48,10 +60,71 @@ class NLPService:
             self.tokenizer = AutoTokenizer.from_pretrained(self.bert_path)
             self.bert_model = AutoModel.from_pretrained(self.bert_path)
 
-    def transcribe_audio(self, audio_path: str) -> str:
+    def _transcribe_whisper(self, audio_path: str, language_hint: Optional[str]) -> str:
         self._load_whisper()
-        result = self.whisper_model.transcribe(audio_path)
-        return result["text"]
+        lang = resolve_whisper_language(language_hint)
+        if lang is None and settings.WHISPER_LANGUAGE:
+            lang = resolve_whisper_language(settings.WHISPER_LANGUAGE)
+        kwargs: Dict[str, Any] = {}
+        if lang:
+            kwargs["language"] = lang
+        result = self.whisper_model.transcribe(audio_path, **kwargs)
+        return (result.get("text") or "").strip()
+
+    def _transcribe_gemini(
+        self, audio_path: str, language_hint: Optional[str], mime_type: Optional[str]
+    ) -> str:
+        if not settings.GOOGLE_API_KEY:
+            raise RuntimeError("GOOGLE_API_KEY required for Gemini STT")
+
+        with open(audio_path, "rb") as f:
+            data = f.read()
+        mime = sniff_audio_mime(audio_path, mime_type)
+        client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+        # Same flash family as triage; multimodal STT is good enough for pilot spike
+        model_id = "gemini-3.1-flash-lite-preview"
+        response = client.models.generate_content(
+            model=model_id,
+            contents=[
+                types.Part.from_bytes(data=data, mime_type=mime),
+                gemini_stt_prompt(language_hint),
+            ],
+        )
+        text = (getattr(response, "text", None) or "").strip()
+        if not text:
+            raise RuntimeError("Gemini STT returned empty transcript")
+        return text
+
+    def transcribe_audio(
+        self,
+        audio_path: str,
+        language: Optional[str] = None,
+        mime_type: Optional[str] = None,
+    ) -> str:
+        """Transcribe intake audio. language: hi|en|auto from UI; mime for Gemini."""
+        plan = pick_stt_plan(
+            settings.STT_BACKEND,
+            whisper_ok=True,
+            gemini_ok=bool(settings.GOOGLE_API_KEY),
+        )
+        last_err: Optional[Exception] = None
+        for backend in plan:
+            try:
+                if backend == "whisper":
+                    text = self._transcribe_whisper(audio_path, language)
+                    if "gemini" in plan and should_fallback_to_gemini(text):
+                        print("Whisper transcript empty/short — trying Gemini STT")
+                        continue
+                    return text
+                if backend == "gemini":
+                    return self._transcribe_gemini(audio_path, language, mime_type)
+            except Exception as e:
+                last_err = e
+                print(f"STT backend {backend} failed: {e}")
+                continue
+        if last_err:
+            raise last_err
+        raise RuntimeError("STT produced no transcript")
 
     def extract_clinical_data(self, text: str) -> Dict[str, Any]:
         self._load_ner()

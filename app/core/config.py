@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     SCISPACY_MODEL_PATH: str = "models/scispacy/en_ner_bc5cdr_md-0.5.4"
     CLINICAL_BERT_PATH: str = "models/relations"
     DEBUG: bool = False
+    # STT: whisper | gemini | auto (Whisper then Gemini if empty/short)
+    STT_BACKEND: str = "auto"
+    # Default Whisper language when intake omits language= (empty = auto-detect)
+    WHISPER_LANGUAGE: str = ""
+    WHISPER_MODEL_SIZE: str = "small"  # spike: try medium if Hindi WER high
 
     # --- Auth / tenancy ---
     COOKIE_SECURE: bool = False  # True behind HTTPS in production

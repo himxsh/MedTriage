@@ -200,7 +200,7 @@ Per org, date range:
 #### B0.3 Hindi + English intake
 
 - [x] UI locale toggle (EN / हिं)
-- [ ] Voice: Whisper path with Hindi-capable model or Gemini multimodal STT if Whisper Hindi quality insufficient — **measure in Week 4 spike**
+- [x] Voice: Whisper with `language` hint + `STT_BACKEND=auto` Gemini multimodal fallback; spike protocol in [`hindi-stt-spike.md`](./hindi-stt-spike.md) — **founder listen / WER verdict still open**
 - [x] Text intake accepts Hinglish; prompt Gemini that output urgency labels stay English enum for UI consistency; chief complaint may be bilingual
 - [x] Disclaimer strings localized
 
@@ -613,13 +613,14 @@ Everything else is roadmap.
 
 ## 13. Immediate next actions (this week)
 
-1. Incorporate or confirm IP ownership vehicle for commercial contracts.
-2. Start Phase A1–A2 (auth + RBAC + strip client clinician_id).
-3. Book clinical advisor coffee + lawyer for DPA/SaaS skeleton.
-4. Build the 50-hospital outreach list.
-5. Spike Hindi STT quality on 20 real sample notes (synthetic if needed).
-6. Replace landing pricing with INR hypothesis.
-7. Re-open security audit checklist as an eng ticket board (S1–S6).
+1. Provision India staging (execute [`india-deploy.md`](./india-deploy.md)) when cloud account ready — **blocks real PHI**.
+2. Run Hindi STT listen protocol on 20 clips ([`hindi-stt-spike.md`](./hindi-stt-spike.md)); lock `WHISPER_MODEL_SIZE` / `STT_BACKEND`.
+3. Lawyer: DPA + commercial license / SaaS terms; fill IR contacts.
+4. Clinical advisor coffee + claims-language sign-off.
+5. Build the 50-hospital outreach list; start discovery calls (Phase C).
+6. Optional eng: kiosk intake API key; audit date-range CSV; Alembic once schema settles.
+
+**Already done (do not re-open):** Phase A auth/tenancy; B0 admin/metrics/queue/safety; B1 templates/escalation/labels/monitoring; INR landing; compliance pack drafts.
 
 ---
 
@@ -631,6 +632,7 @@ Everything else is roadmap.
 | Version | Date       | Notes                                                                    |
 | ------- | ---------- | ------------------------------------------------------------------------ |
 | 1.0     | 2026-08-06 | Initial detailed plan from business.md + audit run-3 + India/VC strategy |
+| 1.1     | 2026-08-08 | Phase A–B1 mostly done; B0.3 STT path + spike protocol; §13 refreshed    |
 
 
 Update this doc after the first pilot with actual metrics and a revised P1 backlog.

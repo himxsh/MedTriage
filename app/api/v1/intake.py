@@ -157,6 +157,7 @@ async def create_intake(
     input_type: str = Form(...),
     text_content: Optional[str] = Form(None),
     audio_file: Optional[UploadFile] = File(None),
+    language: Optional[str] = Form(None),  # hi|en|auto from UI locale
 ):
     user.require_role(INTAKE_ROLES)
     ip = request.client.host if request.client else "unknown"
@@ -172,6 +173,7 @@ async def create_intake(
             raise HTTPException(status_code=400, detail="Audio file required")
 
         file_path = _safe_upload_path(case_id)
+        mime_type = (audio_file.content_type or "").split(";")[0].strip() or None
         size = 0
         with open(file_path, "wb") as buffer:
             while True:
@@ -187,10 +189,13 @@ async def create_intake(
                 buffer.write(chunk)
 
         org_id = user.org_id
+        lang_hint = (language or "").strip() or None
 
         async def process_audio_background():
             try:
-                trans_text = await asyncio.to_thread(nlp_service.transcribe_audio, file_path)
+                trans_text = await asyncio.to_thread(
+                    nlp_service.transcribe_audio, file_path, lang_hint, mime_type
+                )
                 await run_ai_pipeline(
                     case_id, trans_text, trans_text, patient_name, mrn, input_type, org_id, accepted_at
                 )

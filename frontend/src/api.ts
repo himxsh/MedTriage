@@ -124,13 +124,19 @@ export async function intakeText(text: string, patientName?: string, mrn?: strin
   return res.json() as Promise<{ id: string; status: string; message: string }>;
 }
 
-export async function intakeAudio(file: File, patientName?: string, mrn?: string) {
+export async function intakeAudio(
+  file: File,
+  patientName?: string,
+  mrn?: string,
+  language?: string
+) {
   if (useDemo) throw new Error('Demo mode — start MedTriage API to submit intake');
   const fd = new FormData();
   fd.append('input_type', 'audio');
   fd.append('audio_file', file);
   if (patientName) fd.append('patient_name', patientName);
   if (mrn) fd.append('mrn', mrn);
+  if (language) fd.append('language', language);
   const res = await apiFetch('/api/v1/intake', { method: 'POST', body: fd });
   if (!res.ok) throw new Error(`intake ${res.status}`);
   return res.json() as Promise<{ id: string; status: string; message: string }>;
