@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
 import { fetchMetrics, downloadMetricsCsv, downloadHandoffCsv } from '../api';
 import type { PilotMetrics } from '../types';
+import LoadingState from './beautiful-ui/LoadingState';
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
@@ -94,8 +95,12 @@ export default function Metrics() {
             </button>
         </div>
 
-        {error && <p className="text-xs text-syncra-down">{error}</p>}
-        {loading && <p className="text-xs text-syncra-muted">Loading…</p>}
+        {error && <p className="text-xs text-red">{error}</p>}
+        {loading && (
+          <div className="flex justify-center py-10">
+            <LoadingState label="Loading metrics" />
+          </div>
+        )}
 
         {data && !loading && (
           <>
@@ -110,7 +115,7 @@ export default function Metrics() {
                 ['Latency p50', sec(data.latency_median_sec)],
                 ['Latency p95', sec(data.latency_p95_sec)],
               ].map(([label, value]) => (
-                <div key={label} className="syncra-card p-4">
+                <div key={label} className="rounded-card bg-surface p-4 shadow-card">
                   <div className="text-[11px] text-syncra-muted uppercase tracking-wide">{label}</div>
                   <div className="text-xl font-medium text-syncra-ink mt-1">{value}</div>
                 </div>
@@ -118,7 +123,7 @@ export default function Metrics() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="syncra-card p-5 space-y-3">
+              <div className="rounded-card bg-surface p-5 space-y-3 shadow-card">
                 <h3 className="text-sm font-medium text-syncra-ink">Urgency distribution</h3>
                 <ul className="space-y-2 text-xs text-syncra-secondary">
                   {Object.entries(data.urgency_distribution).map(([k, v]) => (
@@ -129,7 +134,7 @@ export default function Metrics() {
                   ))}
                 </ul>
               </div>
-              <div className="syncra-card p-5 space-y-3">
+              <div className="rounded-card bg-surface p-5 space-y-3 shadow-card">
                 <h3 className="text-sm font-medium text-syncra-ink">Review quality</h3>
                 <ul className="space-y-2 text-xs text-syncra-secondary">
                   <li className="flex justify-between border-b border-syncra-border pb-1">
@@ -162,8 +167,8 @@ export default function Metrics() {
 
             {data.model && (
               <div
-                className={`syncra-card p-5 space-y-3 ${
-                  data.model.fallback_alert ? 'border border-syncra-down/40' : ''
+                className={`rounded-card bg-surface p-5 space-y-3 shadow-card ${
+                  data.model.fallback_alert ? 'border border-red/40' : ''
                 }`}
               >
                 <div className="flex flex-wrap justify-between gap-2 items-center">

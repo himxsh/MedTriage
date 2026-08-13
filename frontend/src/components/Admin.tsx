@@ -12,6 +12,7 @@ import {
   fetchMe,
 } from '../api';
 import type { OrgInfo, OrgUser, UrgencyLevel } from '../types';
+import LoadingState from './beautiful-ui/LoadingState';
 
 const ROLES = ['intake', 'nurse', 'physician', 'admin'] as const;
 const TZ_PRESETS = ['Asia/Kolkata', 'Asia/Dubai', 'UTC'];
@@ -144,7 +145,11 @@ export default function Admin() {
   };
 
   if (loading) {
-    return <div className="p-6 text-xs text-syncra-muted">Loading admin…</div>;
+    return (
+      <div className="flex justify-center p-16">
+        <LoadingState label="Loading admin" />
+      </div>
+    );
   }
 
   return (
@@ -153,7 +158,7 @@ export default function Admin() {
         {error && <p className="text-xs text-syncra-down">{error}</p>}
         {msg && <p className="text-xs text-syncra-up">{msg}</p>}
 
-        <div className="syncra-card p-5 space-y-4">
+        <div className="rounded-card bg-surface shadow-card p-5 space-y-4">
           <div className="flex flex-wrap justify-between gap-2 items-center">
             <h3 className="text-sm font-medium text-syncra-ink">Seats</h3>
             {org && (
@@ -163,7 +168,7 @@ export default function Admin() {
               </span>
             )}
           </div>
-          <div className="h-2 rounded-full bg-syncra-card-stroke overflow-hidden">
+          <div className="h-2 rounded-full bg-field overflow-hidden">
             <div
               className="h-full bg-syncra-ink/70"
               style={{
@@ -175,7 +180,7 @@ export default function Admin() {
           </div>
         </div>
 
-        <form onSubmit={saveOrg} className="syncra-card p-5 space-y-4">
+        <form onSubmit={saveOrg} className="rounded-card bg-surface shadow-card p-5 space-y-4">
           <h3 className="text-sm font-medium text-syncra-ink">Site</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -312,7 +317,7 @@ export default function Admin() {
           </button>
         </form>
 
-        <form onSubmit={onInvite} className="syncra-card p-5 space-y-4">
+        <form onSubmit={onInvite} className="rounded-card bg-surface shadow-card p-5 space-y-4">
           <h3 className="text-sm font-medium text-syncra-ink">Invite clinician</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -350,12 +355,12 @@ export default function Admin() {
           </button>
         </form>
 
-        <div className="syncra-card syncra-table-wrap overflow-hidden">
+        <div className="rounded-card bg-surface shadow-card syncra-table-wrap overflow-hidden">
           <div className="px-5 py-3 border-b border-syncra-border">
             <h3 className="text-sm font-medium text-syncra-ink">Clinicians</h3>
           </div>
           <table className="syncra-table text-left text-xs">
-            <thead className="bg-syncra-card-stroke border-b border-syncra-border text-syncra-secondary">
+            <thead className="bg-field border-b border-syncra-border text-syncra-secondary">
               <tr>
                 <th>Name</th>
                 <th>Email</th>
@@ -386,7 +391,7 @@ export default function Admin() {
           </table>
         </div>
 
-        <div className="syncra-card p-5 space-y-4">
+        <div className="rounded-card bg-surface shadow-card p-5 space-y-4">
           <h3 className="text-sm font-medium text-syncra-ink">Erase case (DPDP request)</h3>
           <p className="text-[11px] text-syncra-muted">
             Soft-deletes a case in this org after a hospital erasure ticket. See docs/compliance/deletion-runbook.md.
@@ -424,16 +429,16 @@ export default function Admin() {
           </form>
         </div>
 
-        <div className="syncra-card p-5 space-y-3">
+        <div className="rounded-card bg-surface shadow-card p-5 space-y-3">
           <h3 className="text-sm font-medium text-syncra-ink">IT connection</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="syncra-label">API base</label>
-              <input readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={getApiBase()} />
+              <input readOnly className="syncra-input bg-field opacity-80" value={getApiBase()} />
             </div>
             <div>
               <label className="syncra-label">WebSocket</label>
-              <input readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={getWsUrl()} />
+              <input readOnly className="syncra-input bg-field opacity-80" value={getWsUrl()} />
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs">
