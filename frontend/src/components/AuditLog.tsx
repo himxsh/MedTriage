@@ -1,34 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Download } from 'lucide-react';
 import { listAudit, getCase } from '../api';
 import type { AuditEntry, PatientCase } from '../types';
 import CaseDetailDrawer from './CaseDetailDrawer';
-import UrgencyBadge from './UrgencyBadge';
+import FilterTable from './beautiful-ui/FilterTable';
+import LoadingState from './beautiful-ui/LoadingState';
 import { toUrgencyLevel } from '../urgencyStyles';
+import { urgencyLabel } from '../orgLabels';
+
+const ACTION_DOT: Record<string, string> = {
+  Confirm: '#25a878',
+  Override: '#e3474c',
+};
 
 export default function AuditLog() {
   const [logs, setLogs] = useState<AuditEntry[]>([]);
   const [filter, setFilter] = useState('');
+  const [actionFilter, setActionFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState<PatientCase | null>(null);
 
   useEffect(() => {
-    listAudit().then(setLogs).catch(() => {}).finally(() => setLoading(false));
+    listAudit()
+      .then(setLogs)
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const filteredLogs = logs.filter(l =>
-    l.case_id.toLowerCase().includes(filter.toLowerCase()) ||
-    l.clinician_id.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredLogs = logs.filter((l) => {
+    if (actionFilter !== 'all' && l.action !== actionFilter) return false;
+    const q = filter.toLowerCase();
+    if (!q) return true;
+    return l.case_id.toLowerCase().includes(q) || l.clinician_id.toLowerCase().includes(q);
+  });
 
-  const formatTs = (ts: string) => new Date(ts).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formatTs = (ts: string) =>
+    new Date(ts).toLocaleString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-  // ponytail: simple CSV from loaded rows, no server-side export
   const esc = (s: string) => s.replace(/"/g, '""');
   const exportCSV = () => {
     const headers = ['Timestamp,Clinician ID,Case Reference,Action,Previous Level,New Level,Reason'];
-    const rows = filteredLogs.map(l =>
-      `"${esc(formatTs(l.timestamp))}","${esc(l.clinician_id)}","${esc(l.case_id)}","${esc(l.action)}","${esc(l.previous_level || '')}","${esc(l.new_level)}","${esc(l.reason || '')}"`
+    const rows = filteredLogs.map(
+      (l) =>
+        `"${esc(formatTs(l.timestamp))}","${esc(l.clinician_id)}","${esc(l.case_id)}","${esc(l.action)}","${esc(l.previous_level || '')}","${esc(l.new_level)}","${esc(l.reason || '')}"`,
     );
     const blob = new Blob([[...headers, ...rows].join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -39,80 +57,85 @@ export default function AuditLog() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const confirms = logs.filter((l) => l.action === 'Confirm').length;
+  const overrides = logs.filter((l) => l.action === 'Override').length;
+
   return (
     <>
-    <div className="p-6 overflow-y-auto">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-5 flex flex-wrap justify-between items-center gap-3">
-          <div className="flex items-center gap-2 rounded-lg border border-syncra-border bg-white px-3 py-2">
-            <Search className="w-3.5 h-3.5 text-syncra-muted" />
-            <input
-              type="text"
-              placeholder="Search by case ID or clinician..."
-              className="bg-transparent border-none outline-none text-xs w-64 text-syncra-ink placeholder:text-syncra-muted"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            />
+      <div className="overflow-y-auto p-5">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <label className="flex h-9 items-center gap-2 rounded-card bg-surface px-3 shadow-hairline">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="2">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
+              <input
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Search by case ID or clinician…"
+                className="w-64 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-3"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={exportCSV}
+              className="h-8 rounded-control bg-surface px-3 text-[12.5px] font-medium text-ink shadow-btn hover:bg-hover"
+            >
+              Export CSV
+            </button>
           </div>
-          <button onClick={exportCSV} className="syncra-btn-ghost cursor-pointer active:scale-[0.98]">
-            <Download className="w-3.5 h-3.5" /> Export CSV
-          </button>
-        </div>
 
-        <div className="syncra-card syncra-table-wrap overflow-hidden">
-          <table className="syncra-table text-left text-xs">
-            <thead className="bg-syncra-card-stroke border-b border-syncra-border text-syncra-secondary">
-              <tr>
-                <th className="w-[16%]">Timestamp</th>
-                <th className="w-[14%]">Clinician ID</th>
-                <th className="w-[12%]">Case Reference</th>
-                <th className="w-[12%]">Action</th>
-                <th className="w-[22%]">Level Change</th>
-                <th className="w-[24%]">Reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr className="!h-auto"><td colSpan={6} className="!h-auto !max-h-none p-16 text-center text-syncra-muted">Loading...</td></tr>
-              ) : filteredLogs.length === 0 ? (
-                <tr className="!h-auto"><td colSpan={6} className="!h-auto !max-h-none p-16 text-center text-syncra-muted text-sm">No audit records</td></tr>
-              ) : filteredLogs.map((log, i) => (
-                <tr key={log.id || i} className="border-t border-syncra-border hover:bg-syncra-card-stroke/60 transition-colors">
-                  <td className="text-syncra-secondary whitespace-nowrap">{formatTs(log.timestamp)}</td>
-                  <td className="font-medium text-syncra-ink truncate">{log.clinician_id}</td>
-                  <td className="font-medium text-syncra-ink">
-                    <button
-                      type="button"
-                      onClick={() => getCase(log.case_id).then(setSelectedCase)}
-                      className="underline decoration-syncra-nested hover:decoration-syncra-ink cursor-pointer"
-                    >
-                      {log.case_id.substring(0, 8)}
-                    </button>
-                  </td>
-                  <td>
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
-                      log.action === 'Override' ? 'bg-syncra-down-soft text-syncra-down' :
-                      log.action === 'Confirm' ? 'bg-syncra-up-soft text-syncra-up' :
-                      'bg-syncra-card-stroke text-syncra-tertiary'
-                    }`}>{log.action}</span>
-                  </td>
-                  <td>
-                    <span className="flex items-center gap-2">
-                      {log.previous_level ? <UrgencyBadge urgency={toUrgencyLevel(log.previous_level)} /> : <span className="text-syncra-muted">—</span>}
-                      <span className="text-syncra-muted">→</span>
-                      <UrgencyBadge urgency={toUrgencyLevel(log.new_level)} />
-                    </span>
-                  </td>
-                  <td className="text-syncra-secondary truncate">{log.reason || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <LoadingState label="Loading audit" />
+            </div>
+          ) : (
+            <FilterTable
+              filters={[
+                { key: 'all', label: 'All', count: logs.length },
+                { key: 'Confirm', label: 'Confirm', dot: ACTION_DOT.Confirm, count: confirms },
+                { key: 'Override', label: 'Override', dot: ACTION_DOT.Override, count: overrides },
+              ]}
+              value={actionFilter}
+              onChange={setActionFilter}
+              columns={['When', 'Clinician', 'Case', 'Change', 'Reason']}
+              gridCols="0.9fr 1fr 0.7fr 1.2fr 1.2fr"
+              empty="No audit records"
+              rows={filteredLogs.map((log) => ({
+                id: String(log.id),
+                cells: [
+                  <span key="t" className="text-ink-2 tabular-nums">{formatTs(log.timestamp)}</span>,
+                  <span key="c" className="font-medium text-ink">{log.clinician_id}</span>,
+                  <button
+                    key="id"
+                    type="button"
+                    className="font-medium text-accent-ink underline"
+                    onClick={() => getCase(log.case_id).then(setSelectedCase)}
+                  >
+                    {log.case_id.substring(0, 8)}
+                  </button>,
+                  <span key="lv" className="text-ink-2">
+                    {log.previous_level ? urgencyLabel(toUrgencyLevel(log.previous_level)) : '—'}
+                    {' → '}
+                    {urgencyLabel(toUrgencyLevel(log.new_level))}
+                    <span className="ml-1 text-[11px] text-ink-3">{log.action}</span>
+                  </span>,
+                  <span key="r" className="text-ink-2">{log.reason || '—'}</span>,
+                ],
+              }))}
+            />
+          )}
         </div>
       </div>
-    </div>
-
-    <CaseDetailDrawer isOpen={selectedCase !== null} onClose={() => setSelectedCase(null)} selectedCase={selectedCase} onReviewed={() => { listAudit().then(setLogs).catch(() => {}); }} />
+      <CaseDetailDrawer
+        isOpen={selectedCase !== null}
+        onClose={() => setSelectedCase(null)}
+        selectedCase={selectedCase}
+        onReviewed={() => {
+          listAudit().then(setLogs).catch(() => {});
+        }}
+      />
     </>
   );
 }

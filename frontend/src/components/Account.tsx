@@ -61,24 +61,24 @@ export default function Account() {
   return (
     <div className="p-6 overflow-y-auto">
       <div className="max-w-2xl space-y-5">
-        <div className="syncra-card p-6 space-y-5">
+        <div className="rounded-card bg-surface shadow-card p-6 space-y-5">
           <h2 className="text-base font-medium text-syncra-ink">Your account</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="syncra-label">Full Name</label>
-              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.name || ''} />
+              <input type="text" readOnly className="syncra-input bg-field opacity-80" value={user?.name || ''} />
             </div>
             <div>
               <label className="syncra-label">Email</label>
-              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.email || ''} />
+              <input type="text" readOnly className="syncra-input bg-field opacity-80" value={user?.email || ''} />
             </div>
             <div>
               <label className="syncra-label">Role</label>
-              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.role || ''} />
+              <input type="text" readOnly className="syncra-input bg-field opacity-80" value={user?.role || ''} />
             </div>
             <div>
               <label className="syncra-label">Org ID</label>
-              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={user?.org_id || ''} />
+              <input type="text" readOnly className="syncra-input bg-field opacity-80" value={user?.org_id || ''} />
             </div>
           </div>
           <button
@@ -90,7 +90,7 @@ export default function Account() {
           </button>
         </div>
 
-        <div className="syncra-card p-6 space-y-5">
+        <div className="rounded-card bg-surface shadow-card p-6 space-y-5">
           <h2 className="text-base font-medium text-syncra-ink">Change password</h2>
           <form onSubmit={handlePassword} className="space-y-4 max-w-md">
             <div>
@@ -147,16 +147,16 @@ export default function Account() {
           </form>
         </div>
 
-        <div className="syncra-card p-6 space-y-5">
+        <div className="rounded-card bg-surface shadow-card p-6 space-y-5">
           <h2 className="text-base font-medium text-syncra-ink">Connections</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="syncra-label">API Base URL</label>
-              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={getApiBase()} />
+              <input type="text" readOnly className="syncra-input bg-field opacity-80" value={getApiBase()} />
             </div>
             <div>
               <label className="syncra-label">WebSocket URL</label>
-              <input type="text" readOnly className="syncra-input bg-syncra-card-stroke opacity-80" value={getWsUrl()} />
+              <input type="text" readOnly className="syncra-input bg-field opacity-80" value={getWsUrl()} />
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs">

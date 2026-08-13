@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import { reviewCase, pct } from '../api';
 import type { PatientCase, UrgencyLevel } from '../types';
 import UrgencyBadge from './UrgencyBadge';
 import { getUrgencyButtonClasses, isDownTriage } from '../urgencyStyles';
 import { urgencyLabel } from '../orgLabels';
+import RecommendationCard from './beautiful-ui/RecommendationCard';
+import ContextCards, { type ContextChunk } from './beautiful-ui/ContextCards';
 
 interface CaseDetailDrawerProps {
   isOpen: boolean;
@@ -60,6 +62,49 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
   const flags = sc?.risk_flags || [];
   const rels = sc?.relationships || [];
 
+  const confidenceSignal = sc
+    ? sc.confidence_score >= 0.8
+      ? 3
+      : sc.confidence_score >= 0.5
+        ? 2
+        : 1
+    : 0;
+  const confidenceTone =
+    sc?.urgency_level === 'Critical' || sc?.urgency_level === 'High' ? 'var(--red)' : 'var(--green)';
+
+  const chunks: ContextChunk[] = sc
+    ? [
+        ...(sc.evidence
+          ? [
+              {
+                title: 'Evidence',
+                chars: `${sc.evidence.length} characters`,
+                body: sc.evidence,
+                source: 'Triage model',
+                badge: 'AI',
+                tone: 'bg-accent',
+              },
+            ]
+          : []),
+        ...entities.slice(0, 6).map((e) => ({
+          title: e.text,
+          chars: e.label,
+          body: e.mappings?.[0]?.name || e.label,
+          source: e.mappings?.[0]?.cui || 'UMLS',
+          badge: e.label.slice(0, 3).toUpperCase(),
+          tone: 'bg-green',
+        })),
+        ...rels.slice(0, 4).map((r) => ({
+          title: `${r.source} → ${r.type}`,
+          chars: 'relation',
+          body: r.evidence || r.indicators.join(', ') || r.type,
+          source: 'Relationship extract',
+          badge: 'REL',
+          tone: 'bg-orange',
+        })),
+      ]
+    : [];
+
   const handleConfirm = async () => {
     const s = sc!;
     if (s.urgency_level === 'Critical') {
@@ -94,14 +139,14 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
   return (
     <AnimatePresence>
       {isOpen && sc && (
-        <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="app-ui fixed inset-0 z-[110]">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-syncra-ink/25" />
+        <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="bui-root app-ui fixed inset-0 z-[110]">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink/25" />
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute right-0 top-0 h-full w-full max-w-[560px] bg-white border-l border-syncra-border shadow-xl flex flex-col overflow-hidden rounded-l-2xl"
+            className="absolute right-0 top-0 h-full w-full max-w-[560px] bg-surface border-l border-line shadow-overlay flex flex-col overflow-hidden rounded-l-2xl"
           >
             <div className="p-6 border-b border-syncra-border flex justify-between items-start bg-syncra-surface sticky top-0 z-10">
               <div>
@@ -128,27 +173,56 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
 
               <section>
                 <h4 className="syncra-section-title">AI Intelligence</h4>
-                <div className="flex items-stretch gap-3 mb-2">
-                  <div className="flex-1 rounded-xl border border-syncra-border p-4">
-                    <p className="text-[11px] font-medium text-syncra-muted mb-1">Confidence</p>
-                    <span className="text-2xl font-medium text-syncra-ink">{pct(sc.confidence_score)}</span>
-                    <span className="text-syncra-muted ml-0.5">%</span>
+                {sc.status === 'Pending Review' ? (
+                  <RecommendationCard
+                    title={`Confirm ${urgencyLabel(sc.urgency_level)} triage?`}
+                    body={
+                      <>
+                        {sc.chief_complaint || 'No chief complaint'}
+                        {' · '}
+                        <span className="font-medium text-ink">{pct(sc.confidence_score)}% confidence</span>
+                        {flags.length > 0 && (
+                          <>
+                            {' · '}
+                            <span className="text-red">{flags.length} risk flag{flags.length > 1 ? 's' : ''}</span>
+                          </>
+                        )}
+                      </>
+                    }
+                    signal={confidenceSignal}
+                    tone={confidenceTone}
+                    label={`${pct(sc.confidence_score)}% · ${urgencyLabel(sc.urgency_level)}`}
+                    cta="Confirm"
+                    busy={reviewing}
+                    alternatives={URGENCY_LEVELS.filter((l) => l !== sc.urgency_level).map((l) => ({
+                      key: l,
+                      short: `Override to ${urgencyLabel(l)}`,
+                      label: urgencyLabel(l),
+                      signal: l === 'Critical' ? 3 : l === 'High' ? 2 : 1,
+                      tone: l === 'Low' ? 'var(--green)' : 'var(--orange)',
+                    }))}
+                    onAccept={handleConfirm}
+                    onAlternative={(key) => {
+                      setOverrideLevel(key as UrgencyLevel);
+                      setShowOverride(true);
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-stretch gap-3 mb-2">
+                    <div className="flex-1 rounded-card border border-line p-4">
+                      <p className="text-[11px] font-medium text-ink-3 mb-1">Confidence</p>
+                      <span className="text-2xl font-medium text-ink">{pct(sc.confidence_score)}</span>
+                      <span className="text-ink-3 ml-0.5">%</span>
+                    </div>
+                    <div className="flex-1 rounded-card border border-line p-4 text-center">
+                      <p className="text-[11px] font-medium text-ink-3 mb-1">UMLS Mapped</p>
+                      <p className="text-2xl font-medium text-ink">{entities.length}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 rounded-xl border border-syncra-border p-4 text-center">
-                    <p className="text-[11px] font-medium text-syncra-muted mb-1">UMLS Mapped</p>
-                    <p className="text-2xl font-medium text-syncra-ink">{entities.length}</p>
-                  </div>
-                </div>
+                )}
               </section>
 
-              {sc.evidence && (
-                <section>
-                  <h4 className="syncra-section-title">Evidence</h4>
-                  <div className="rounded-xl bg-syncra-surface p-4 border border-syncra-border text-sm text-syncra-secondary leading-relaxed">
-                    {sc.evidence}
-                  </div>
-                </section>
-              )}
+              <ContextCards heading="Retrieved context" chunks={chunks} />
 
               {symptoms.length > 0 && (
                 <section>
@@ -175,34 +249,6 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                         </span>
                       ))}
                     </div>
-                  </div>
-                </section>
-              )}
-
-              {entities.length > 0 && (
-                <section>
-                  <h4 className="text-xs font-medium text-syncra-secondary mb-2">Extracted Entities ({entities.length})</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {entities.map((e, i) => (
-                      <span key={i} className="rounded-lg border border-syncra-border px-2.5 py-1 text-[11px] font-medium text-syncra-ink hover:bg-syncra-card-stroke transition-colors">
-                        {e.text}
-                        <span className="ml-1 text-syncra-muted text-[10px]">{e.label}</span>
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {rels.length > 0 && (
-                <section>
-                  <h4 className="text-xs font-medium text-syncra-secondary mb-2">Relationships ({rels.length})</h4>
-                  <div className="space-y-2">
-                    {rels.map((r, i) => (
-                      <div key={i} className="rounded-xl bg-syncra-surface p-3 border border-syncra-border text-xs text-syncra-secondary">
-                        <strong className="text-syncra-ink">{r.source}</strong> → <span className="text-syncra-tertiary uppercase">{r.type}</span>
-                        {r.evidence && <p className="text-xs text-syncra-muted mt-1">{r.evidence.substring(0, 120)}</p>}
-                      </div>
-                    ))}
                   </div>
                 </section>
               )}
@@ -245,18 +291,9 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
               </section>
             </div>
 
-            {sc.status === 'Pending Review' && <div className="p-6 border-t border-syncra-border bg-white space-y-3 shrink-0">
-              {error && <p className="text-xs text-syncra-down font-medium">{error}</p>}
-              <div className="flex flex-col md:flex-row gap-2">
-                <button onClick={handleConfirm} disabled={reviewing} className="flex-1 syncra-btn-primary !py-3 cursor-pointer disabled:opacity-50">
-                  <CheckCircle2 className="w-4 h-4" />
-                  {reviewing ? 'Processing...' : 'Confirm Triage'}
-                </button>
-                <button onClick={() => setShowOverride(!showOverride)} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-syncra-down/30 bg-syncra-down-soft text-syncra-down py-3 text-xs font-medium hover:bg-syncra-down hover:text-white transition-colors cursor-pointer">
-                  <AlertTriangle className="w-4 h-4" />
-                  Override Urgency
-                </button>
-              </div>
+            {sc.status === 'Pending Review' && (error || showOverride) && (
+              <div className="p-6 border-t border-line bg-surface space-y-3 shrink-0">
+              {error && <p className="text-xs text-red font-medium">{error}</p>}
               <AnimatePresence>
                 {showOverride && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-3 overflow-hidden">
@@ -271,15 +308,16 @@ export default function CaseDetailDrawer({ isOpen, onClose, selectedCase, onRevi
                     <div>
                       <label className="syncra-label">Reason {downTriage ? '(Required)' : '(Optional)'}</label>
                       <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} className="syncra-input resize-none" rows={2} placeholder="Reason for override..." />
-                      {reasonError && <p className="text-xs text-syncra-down font-medium mt-1">{reasonError}</p>}
+                      {reasonError && <p className="text-xs text-red font-medium mt-1">{reasonError}</p>}
                     </div>
-                    <button onClick={handleOverride} disabled={reviewing || (downTriage && (!overrideReason.trim() || overrideReason.trim().length < 10))} className="w-full rounded-lg bg-syncra-down text-white py-3 text-xs font-medium hover:bg-[#9a3234] transition-colors disabled:opacity-50 cursor-pointer">
+                    <button onClick={handleOverride} disabled={reviewing || (downTriage && (!overrideReason.trim() || overrideReason.trim().length < 10))} className="w-full rounded-control bg-red text-white py-3 text-xs font-medium disabled:opacity-50 cursor-pointer">
                       Apply Override
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>}
+            </div>
+            )}
 
             {sc.status === 'Completed' && (
               <div className="p-6 border-t border-syncra-border bg-syncra-surface shrink-0">

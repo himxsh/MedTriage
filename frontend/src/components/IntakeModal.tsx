@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Type, Mic, Upload, ArrowRight, Loader2, CheckCircle2, X } from 'lucide-react';
+import { Type, Mic, Upload, ArrowRight, CheckCircle2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { intakeText, intakeAudio } from '../api';
 import type { Screen } from '../types';
 import { getLocale, t, type Locale } from '../i18n';
 import { INDIA_ED_TEMPLATES } from '../intakeTemplates';
+import LoadingState from './beautiful-ui/LoadingState';
 
 interface IntakeModalProps {
   isOpen: boolean;
@@ -240,10 +241,7 @@ export default function IntakeModal({ isOpen, onClose, onNavigate }: IntakeModal
                       className="flex items-center gap-2 text-xs font-medium"
                     >
                       {isProcessing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin text-syncra-tertiary" />
-                          <span className="text-syncra-tertiary">{processStep}</span>
-                        </>
+                        <LoadingState label={processStep || 'Processing'} />
                       ) : isSuccess ? (
                         <>
                           <CheckCircle2 className="w-4 h-4 text-syncra-up" />
