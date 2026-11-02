@@ -9,7 +9,7 @@ interface LandingPageProps {
 }
 
 const MAC_GAP = 16; // px below email field (before content nudge)
-const CONTENT_NUDGE = 5; // Coming Soon → waitlist shifted up; keep MacBook fixed
+const CONTENT_NUDGE = 5; // hero copy shifted up; keep MacBook fixed
 
 const FEATURES = [
   {
@@ -239,17 +239,6 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
           <br />
           <br />
           <div style={{ transform: `translateY(-${CONTENT_NUDGE}px)` }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div
-              style={{
-                ...pillShell,
-                display: 'inline-block',
-              }}
-            >
-              <div style={{ padding: 10 }}>Coming Soon</div>
-            </div>
-          </div>
-          <br />
           <div style={{ textAlign: 'center', fontSize: 110 }}>TRIAGE. FASTER.</div>
           <br />
           <div style={{ textAlign: 'center' }}>
@@ -326,12 +315,9 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             height={400}
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
-          <video
-            src="/medtriage-ad.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
+          <img
+            src="/brag.gif"
+            alt="MedTriage product video"
             style={{
               position: 'absolute',
               // screen slot inside MacbookPro SVG (viewBox 650×400)

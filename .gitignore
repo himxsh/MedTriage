@@ -27,6 +27,9 @@ frontend/dist/
 # --- Remotion ---
 remotion-ad/out/
 
+# --- Brag video outputs ---
+/brag-output/
+
 # --- OS Specific ---
 .DS_Store
 Thumbs.db
